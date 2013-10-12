@@ -7,10 +7,11 @@ categories: [ruby, flatiron school, local variables, blocks]
 ---
 So here's a question - how would you define the thing between the "pipes" (these guys ```||``` ) in the following code examples:	
 
-{% codeblock [lang:ruby] [simple blocks in ruby] %}
+```ruby
 wrecking_ball = Song.new
 wrecking_ball.tap { |song| song.name = "Wrecking Ball" }
-{% endcodeblock %}
+```
+
 
 In other words, what's the ```|song|```? No, seriously - what is it?! Multiple choice:
 <ul>
@@ -24,3 +25,9 @@ If you guessed C then you were correct. But that's kind of weird… typically we
  ```string = "Hi! I'm a string. What a cool class…"```
 
 To be more specific, that thing between the pipes that we see in every single block (for the most part) is actually a <em>local</em> variable. For the next step, let's see exactly why they come in handy.
+
+```ruby
+some_numbers = [5,6,7,8]
+some_numbers.collect do
+end
+```
