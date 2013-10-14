@@ -128,4 +128,4 @@ Lines 5 and 13, there's our old pal ```yield```. How cool it is to finally see t
 
 In my next post, I want to talk about Ruby's bindings - a poorly understood (and rarely needed) aspect of Ruby that I hope to shed some light on. 
 
-Until then, work hard/be nice! 
+Until then: #workhard, #benice! 
