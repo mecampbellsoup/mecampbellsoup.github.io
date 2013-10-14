@@ -124,7 +124,7 @@ At index 2 the value is 7
 At index 3 the value is 8
 => [5, 6, 7, 8]
 ```
-Lines 5 and 13, there's our old pal ```yield```. How cool it is to finally see the distinction between ```.each``` and ```.each_with_index``` - it's merely the # of local variables from ```self``` (the object, in our case the ```Array [5,6,7,8]``` receiving the method call) that we "yield" or pass along to the block! So now we having a working definition of 'what's betweeen the pipes': they are simply <em><strong>local variables which represent each element of ```self``` that get passed to the block each time our method call ```yield```s to the blockf</strong></em>! It's a bit of a mouthful, but now that we understand it makese sense to us. 
+Lines 5 and 13, there's our old pal ```yield```. How cool it is to finally see the distinction between ```.each``` and ```.each_with_index``` - it's merely the # of local variables from ```self``` (the object, in our case the ```Array [5,6,7,8]``` receiving the method call) that we "yield" or pass along to the block! Now, finally, we having a working definition of what's betweeen the pipes: they demarcate <strong>local variables which represent each element of ```self``` that get passed to the block each time our method call ```yield```s to the block</strong>!
 
 In my next post, I want to talk about Ruby's bindings - a poorly understood (and rarely needed) aspect of Ruby that I hope to shed some light on. 
 
