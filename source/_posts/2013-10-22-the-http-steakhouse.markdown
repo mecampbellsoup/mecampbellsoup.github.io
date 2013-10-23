@@ -5,7 +5,7 @@ date: 2013-10-22 23:34
 comments: true
 categories: ["ruby", "http", "web requests", "mvc", "web app"]
 ---
-###why must an http request be so confusing?!
+##why must an http request be so confusing?!
 
 Look, we've all been there. When first setting out to learn about the Great Internets, one of the first themes you'll come across is that of the HTTP request. You'll quickly learn that HTTP stands for "Hypertext Transfer Protocol". And after mulling that over a bit, your next thought might be: "Cool, that wasn't so hard!" But soon, someone starts throwing new ideas and concepts your way - using words like "server", "web application", "controllers", "get" and "post". And before you know it, you're swimming in a sea of disconnected semantic meaning. Bummer.
 
@@ -19,7 +19,7 @@ But I'm not going to subject you to that, dear reader. Today, during an imprompt
 
 Note: I'll be taking a tad of creative license in the coming paragraphs; turn back now if this frightens you or if you can't bear the idea of a steakhouse experience being in any way misrepresented.
 
-###HTTPrime Steakhouse
+##HTTPrime Steakhouse
 
 ####customers are like *clients*, and the maître d' is like a *server*
 
@@ -36,7 +36,7 @@ It turns out, this is very similar to the role a web server plays - the server s
 
 A GET request is akin to walking up to the maître d' and telling him you would like a filet mignon. A POST request is akin to walk up to the maître d' and telling him you have an amazing recipe for filet mignon, and you'd like to give it to the restaurant. The maître d' then simply responds to your request by telling you whether the restaurant is prepared to handle your request. 
 
-###mvc... wtf?
+##mvc... wtf?
 
 ![Alt text](http://www.digital-web.com/extras/restful_css/mvc-by-a-web-app-designer.png)
 
@@ -68,7 +68,7 @@ Turns out, a web app's views are also responsible for "dressing up" the content 
 
 Actually, this component flows naturally based on what we've just understood about the MVC workflow. When the waiter (our application's controller) finally delivers the garnished, beautified filet mignon to your table, your initial HTTP request has been fully handled and the application is issuing its response! As soon as the waiter removes his hand from the plated filet mignon and sets it before you, the request-response cycle has been completed. 
 
-###wrapping it up
+##wrapping it up
 
 Well, that concludes this seemingly endless cycle of metaphors in metaphors inside of other metaphors. I hope this semi-realistic real-world analogy has been helpful in understanding the basic flow pattern of an HTTP request-response cycle. 
 
