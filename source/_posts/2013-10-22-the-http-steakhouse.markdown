@@ -13,6 +13,8 @@ As it turns out, the Internet is a giant, teeming and conscious (no?) mass of co
 
 ![Alt text](http://www.jeevanchaaya.com/techvibe/wp-content/uploads/2008/10/http-request-response-model.png)
 
+####bring on the metaphors!
+
 But I'm not going to subject you to that, dear reader. Today, during an impromptu mid-day comedic improvisation seminar at school (yes, Flatiron School is awesome, we know), we heard about the importance of explaining big, complicated ideas by making comparisons to things that are already understood. (That is to say, we should use more metaphors and analogies.) So instead of telling you everything there is to know about an HTTP request/response cycle, I'm going to offer an intentionally over-simplified story for you wrapped in a familiar metaphorical context: that of a dining experience at a steakhouse. 
 
 Note: I'll be taking a tad of creative license in the coming paragraphs; turn back now if this frightens you or if you can't bear the idea of a steakhouse experience being in any way misrepresented.
