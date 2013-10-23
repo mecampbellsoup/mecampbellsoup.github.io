@@ -1,11 +1,11 @@
 ---
 layout: post
-title: "HTTPrime: what can we learn about http request-response from a steakhouse?"
+title: "HTTPrime: what can we learn about http Request-Response from a steakhouse?"
 date: 2013-10-22 23:34
 comments: true
 categories: ["ruby", "http", "web requests", "mvc", "web app"]
 ---
-###why must an http request be so confusing?
+###why must an http request be so confusing?!
 
 Look, we've all been there. When first setting out to learn about the Great Internets, one of the first themes you'll come across is that of the HTTP request. You'll quickly learn that HTTP stands for "Hypertext Transfer Protocol". And after mulling that over a bit, your next thought might be: "Cool, that wasn't so hard!" But soon, someone starts throwing new ideas and concepts your way - using words like "server", "web application", "controllers", "get" and "post". And before you know it, you're swimming in a sea of disconnected semantic meaning. Bummer.
 
@@ -21,7 +21,7 @@ Note: I'll be taking a tad of creative license in the coming paragraphs; turn ba
 
 ###HTTPrime Steakhouse
 
-####customers are *clients*, and the maître d' is the *server*
+####customers are like *clients*, and the maître d' is like a *server*
 
 First, let's set the stage. At our restaurant - the HTTPrime Steakhouse - each hopeful customer represents what's called a *client*. The client carries with it a very valuable thing: knowledge of what it wants! Much in the way that you enter a restaurant with knowledge of what you expect to order, an HTTP client brings that same information to a web application's server. In the HTTP world, all clients' requests arrive at something called a *server*, which is akin to the gatekeeping maître d' at our steakhouse. Our maître d' is responsible for intercepting potential diners, having a quick, formal chat with them to understand what they desire, and handing their request off in the appropriate manner (typically to the restaurant itself at that point, the part where customers sit and dine). I say "formal" chat because, in fact, the server is only able to respond with a particular type of response - integer values communicating whether the client's request was valid, erroneous, or misguided. Think of how a real-life maître d' feels a bit stiff when you're talking with him...
 
