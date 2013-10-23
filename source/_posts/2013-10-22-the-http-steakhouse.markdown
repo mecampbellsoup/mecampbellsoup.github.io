@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "the HTTPrime steakhouse: breaking down the request-response cycle using lots of metaphors"
+title: "HTTPrime: what can we learn about http request-response from a steakhouse?"
 date: 2013-10-22 23:34
 comments: true
 categories: ["ruby", "http", "web requests", "mvc", "web app"]
@@ -58,19 +58,18 @@ There's another way to get foodstuffs into our restaurant. If our steak database
 
 ####...and the filet's presentation (you know, garnish and stuff) is like the application's views
 
-Faithful Rodrigo has just received your freshly prepared filet from HTTPrime's kitchen, and he's heading back to where you're seated in the restaurant. But there's one problem: you, the client, are _extraordinarily_ picky. In fact, you won't even look at a filet mignon that you've ordered unless it's plated, garnished, and has a cherry on top. So what's Rodrigo to do? Well, he makes a quick pitstop at one of those watier stations they have at fancy restaurants like HTTPrime and dresses up your filet. Literally. He puts the food-equivalent of fancy clothing on your cow. And this is essentially the exact same function carried out by the views in our web application. Their job is to receive, via our controllers, an object (the important stuff) created by our models and make it extremely presentable. Because, after all, presentation is key - here's proof:
+Faithful Rodrigo has just received your freshly prepared filet from HTTPrime's kitchen, and he's heading back to where you're seated in the restaurant. But there's one problem: you, the client, are _extraordinarily_ picky. In fact, you won't even look at a filet mignon that you've ordered unless it's plated, garnished, and has a cherry on top. So what's Rodrigo to do? Well, he makes a quick pit stop at one of those waiter stations they have at fancy restaurants like HTTPrime and dresses up your filet. Literally. He puts the food-equivalent of fancy clothing on your hunk of cow.
+
+Turns out, a web app's views are also responsible for "dressing up" the content that's delivered back to the client. Their job is to receive, via our controllers, an object (the important stuff) created by our models and make it extremely presentable. Because, after all, presentation is key - here's proof:
 
 ![Alt text](http://4.bp.blogspot.com/-JVqw7uNjBIA/UT8iKeNvjQI/AAAAAAAAAGw/XLEljNq22Xo/s1600/best-food-presentation8.jpg)
 
+####what about the HTTP response, the back half of the request-response cycle?
+
+Actually, this component flows naturally based on what we've just understood about the MVC workflow. When the waiter (our application's controller) finally delivers the garnished, beautified filet mignon to your table, your initial HTTP request has been fully handled and the application is issuing its response! As soon as the waiter removes his hand from the plated filet mignon and sets it before you, the request-response cycle has been completed. 
+
 ###wrapping it up
 
+Well, that concludes this seemingly endless cycle of metaphors in metaphors inside of other metaphors. I hope this semi-realistic real-world analogy has been helpful in understanding the basic flow pattern of an HTTP request-response cycle. 
 
-
-
-
-
-
-
-
-
-
+Bon HTTP-pétit!
