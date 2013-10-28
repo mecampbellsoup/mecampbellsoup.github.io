@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: aron wall | code talking to humans talking to code.]]></title>
+  <link href="http://mecampbellsoup.github.io/blog/categories/aron-wall/atom.xml" rel="self"/>
+  <link href="http://mecampbellsoup.github.io/"/>
+  <updated>2013-10-23T13:54:58-04:00</updated>
+  <id>http://mecampbellsoup.github.io/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[2 reasons why larry wall is the man]]></title>
+    <link href="http://mecampbellsoup.github.io/blog/2013/10/02/2-reasons-why-larry-wall-is-the-man/"/>
+    <updated>2013-10-02T21:07:00-04:00</updated>
+    <id>http://mecampbellsoup.github.io/blog/2013/10/02/2-reasons-why-larry-wall-is-the-man</id>
+    <content type="html"><![CDATA[<p><ol>
+<li> He says things like this in <a href="http://www.wall.org/~larry/pm.html"/>speeches</a> that are ostensibly about Perl but really are about postmodernist culture and life:
+<blockquote>
+True greatness is measured by how much freedom you give to others, not by how much you can coerce others to do what you want.
+</blockquote>
+</li></p>
+
+<p><li> He has 4 extremely intelligent children, one of whom is a postdoctorate student in physics studying BLACK HOLES.</li></p>
+
+<p>And on that second point: his son&rsquo;s name is Aron Wall, and he wrote <a href="http://www.wall.org/~aron/horizon.htm"/>this highly readable primer</a> on black holes &ndash; what they really are, why light can&rsquo;t escape (hint: it&rsquo;s because once you/anything crosses the event horizon, the black hole moves AWAY FROM YOU/ANYTHING AT THE SPEED OF LIGHT OMFGGGGG!!!), and why they portend the next massive revolution of thought in theoretical physics as we know it.</p>
+
+<p>Whew.</p>
+
+<p>Thanks Larry Wall. You&rsquo;re a real mensch.</p>
+]]></content>
+  </entry>
+  
+</feed>

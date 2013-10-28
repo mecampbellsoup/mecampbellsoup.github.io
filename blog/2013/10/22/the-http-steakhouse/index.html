@@ -1,0 +1,264 @@
+
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>HTTPrime: what can we learn about http Request-Response from a steakhouse? - code talking to humans talking to code.</title>
+	<meta name="author" content="Matt Campbell">
+
+	
+	<meta name="description" content="HTTPrime: What Can We Learn About Http Request-Response From a Steakhouse? why must an http request be so confusing?! Look, we&rsquo;ve all been &hellip;">
+	
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="code talking to humans talking to code." type="application/atom+xml">
+	
+	<link rel="canonical" href="http://mecampbellsoup.github.io/blog/2013/10/22/the-http-steakhouse/">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700' rel='stylesheet' type='text/css'>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+
+<body>
+	<div class="container">
+		<div class="left-col">
+			<div class="intrude-less">
+			<header id="header" class="inner"><div class="profilepic">
+	
+	<script src="/javascripts/md5.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			$('.profilepic').append("<img src='http://www.gravatar.com/avatar/" + MD5("mecampbell25@gmail.com") + "?s=160' alt='Profile Picture' style='width: 160px;' />");
+		});
+	</script>
+	
+</div>
+<hgroup>
+  <h1><a href="/">code talking to humans talking to code.</a></h1>
+  
+    <h2>life + ruby 003 padawan @flatironschool</h2>
+  
+</hgroup>
+
+<nav id="main-nav"><ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+<nav id="sub-nav">
+	<div class="social">
+		
+		<a class="facebook" href="http://www.facebook.com/mecampbell25" title="Facebook">Facebook</a>
+		
+		
+		<a class="google" href="https://plus.google.com/101058099009530081039" rel="author" title="Google+">Google+</a>
+		
+		
+		<a class="twitter" href="http://twitter.com/mecampbellsoup" title="Twitter">Twitter</a>
+		
+		
+		<a class="github" href="https://github.com/mecampbellsoup" title="GitHub">GitHub</a>
+		
+		
+		
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+</nav>
+</header>				
+			</div>
+		</div>	
+		<div class="mid-col">
+			
+				
+			
+			<div class="mid-col-container">
+				<div id="content" class="inner"><article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+	<h1 class="title" itemprop="name">HTTPrime: What Can We Learn About Http Request-Response From a Steakhouse?</h1>
+	<div class="entry-content" itemprop="articleBody"><h2>why must an http request be so confusing?!</h2>
+
+<p>Look, we&rsquo;ve all been there. When first setting out to learn about the Great Internets, one of the first themes you&rsquo;ll come across is that of the HTTP request. You&rsquo;ll quickly learn that HTTP stands for &ldquo;Hypertext Transfer Protocol&rdquo;. And after mulling that over a bit, your next thought might be: &ldquo;Cool, that wasn&rsquo;t so hard!&rdquo; But soon, someone starts throwing new ideas and concepts your way &ndash; using words like &ldquo;server&rdquo;, &ldquo;web application&rdquo;, &ldquo;controllers&rdquo;, &ldquo;get&rdquo; and &ldquo;post&rdquo;. And before you know it, you&rsquo;re swimming in a sea of disconnected semantic meaning. Bummer.</p>
+
+<p>As it turns out, the Internet is a giant, teeming and conscious (no?) mass of computers which pass long strings of text back and forth, all the time. Now, for the next part of this blog post, I could show you a picture like the following and begin to dissect it, piece by piece:</p>
+
+<p><img src="http://www.jeevanchaaya.com/techvibe/wp-content/uploads/2008/10/http-request-response-model.png" alt="Alt text" /></p>
+
+<h4>bring on the metaphors!</h4>
+
+<p>But I&rsquo;m not going to subject you to that, dear reader. Today, during an impromptu mid-day comedic improvisation seminar at school (yes, Flatiron School is awesome, we know), we heard about the importance of explaining big, complicated ideas by making comparisons to things that are already understood. (That is to say, we should use more metaphors and analogies.) So instead of telling you everything there is to know about an HTTP request/response cycle, I&rsquo;m going to offer an intentionally over-simplified story for you wrapped in a familiar metaphorical context: that of a dining experience at a steakhouse.</p>
+
+<p>Note: I&rsquo;ll be taking a tad of creative license in the coming paragraphs; turn back now if this frightens you or if you can&rsquo;t bear the idea of a steakhouse experience being in any way misrepresented.</p>
+
+<h2>HTTPrime Steakhouse</h2>
+
+<h4>customers are like <em>clients</em>, and the maître d&#8217; is like a <em>server</em></h4>
+
+<p>First, let&rsquo;s set the stage. At our restaurant &ndash; the HTTPrime Steakhouse &ndash; each hopeful customer represents what&rsquo;s called a <em>client</em>. The client carries with it a very valuable thing: knowledge of what it wants! Much in the way that you enter a restaurant with knowledge of what you expect to order, an HTTP client brings that same information to a web application&rsquo;s server. In the HTTP world, all clients&#8217; requests arrive at something called a <em>server</em>, which is akin to the gatekeeping maître d&#8217; at our steakhouse. Our maître d&#8217; is responsible for intercepting potential diners, having a quick, formal chat with them to understand what they desire, and handing their request off in the appropriate manner (typically to the restaurant itself at that point, the part where customers sit and dine). I say &ldquo;formal&rdquo; chat because, in fact, the server is only able to respond with a particular type of response &ndash; integer values communicating whether the client&rsquo;s request was valid, erroneous, or misguided. Think of how a real-life maître d&#8217; feels a bit stiff when you&rsquo;re talking with him&hellip;</p>
+
+<p>It turns out, this is very similar to the role a web server plays &ndash; the server stands at the entrance to the web application (that is, the restaurant itself), has a quick chat with incoming customers (that is, incoming HTTP requests made by clients), and passes the customers with their requests along to the waitstaff and the restaurant itself (that is, sends the HTTP request and its information along to the web application itself).</p>
+
+<h4>GET vs. POST</h4>
+
+<p>&ldquo;But what&rsquo;s all this jazz I keep hearing about GET and POST requests, huh?&rdquo; Great, great question. You, the client (or customer at HTTPrime, for our purposes) can actually have two types of conversations with our maître d&#8217;:</p>
+
+<ol>
+<li>Client: &ldquo;Hello sir! Could we please be seated, take a look at the menu, and <strong>GET</strong> some of your delicious filet mignon?&rdquo;</li>
+<li>Client: &ldquo;Hello sir! I have a delicious filet mignon recipe to give to HTTPrime. Here you go. Maybe you could <strong>POST</strong> it up in your kitchen somewhere… that way your restaurant will have it available for all future customers.&rdquo;</li>
+</ol>
+
+
+<p>A GET request is akin to walking up to the maître d&#8217; and telling him you would like a filet mignon. A POST request is akin to walk up to the maître d&#8217; and telling him you have an amazing recipe for filet mignon, and you&rsquo;d like to give it to the restaurant. The maître d&#8217; then simply responds to your request by telling you whether the restaurant is prepared to handle your request.</p>
+
+<h2>mvc&hellip; wtf?</h2>
+
+<p><img src="http://www.digital-web.com/extras/restful_css/mvc-by-a-web-app-designer.png" alt="Alt text" /></p>
+
+<h4>waiters are your application&rsquo;s controllers&hellip;</h4>
+
+<p>You just wrapped up your chat with our faithful maître d&#8217;. You&rsquo;ve explained you are here to GET (should I stop capitalizing, have I driven that point home yet?) one of HTTPrime&rsquo;s famous filet mignons. What happens next: magically, out of nowhere seemingly, he summons HTTPrime&rsquo;s filet-mignon-dedicated who ushers you to your table. Let&rsquo;s call this waiter boy Rodrigo, because I think that&rsquo;s a cool name. In web applications, controllers take on the function of a restaurant&rsquo;s wait staff: they don&rsquo;t do any of the cooking, nor the cleaning up. All they do is take orders from customers, relay those orders to the kitchen (where the real magic happens), and return to the customer&rsquo;s side to fulfill their original request. I don&rsquo;t mean to trivialize the role of a good waiter &ndash; after all, bad service is almost as bad as Armageddon itself &ndash; so you can see why lightning fast, responsive controllers are a must.</p>
+
+<h4>and the kitchen represents your application&rsquo;s models</h4>
+
+<p>Loyal, kind, loving Rodrigo &ndash; what a big heart he has &ndash; has just confirmed your order to GET (wink, wink) a 3-pound, &ldquo;rare plus&rdquo; filet mignon. Where&rsquo;s he off to next? He&rsquo;s going to <em>control</em> that order straight over to the kitchen, of course! And as alluded to, this is where the real magic happens. In the kitchen, raw ingredients, spices, and some black magic come together to create HTTPrime&rsquo;s signature dishes &ndash; the ones that people keep comin&#8217; back for. In a web application, the models gather raw data from the database (or other data repository), sprinkle in their own sugar/spice/black magic combination (we call this &ldquo;logic&rdquo;, generally speaking), and &ndash; voilà! &ndash; pass off a perfectly cooked, delicious filet mignon for Rodrigo to satisfy you, the client&rsquo;s, picky demands.</p>
+
+<h4>but wait, it goes deeper &ndash; down to the database</h4>
+
+<p>But where do these raw materials come from, exactly? Well, in HTTPrime, the raw ingredients used by the kitchen would need to come from at least a couple places. (Good <a href="news:">news:</a> more metaphors coming!)</p>
+
+<p>Every time the chef walks down to the basement where all those massive refrigerators chock full of dead animal are kept, he&rsquo;s essentially accessing our web application&rsquo;s database. Now, some fancy stuff happens in the database. And frankly, our kitchen chefs don&rsquo;t understand a lick about butchering cows, packaging the meats, and selling the raw steaks to artery-clogging steakhouse chains like ours (i.e. they don&rsquo;t speak SQL). But that&rsquo;s okay, because that isn&rsquo;t their job.</p>
+
+<p>There&rsquo;s another way to get foodstuffs into our restaurant. If our steak database is missing some important ingredient &ndash; say, cream for the creamed spinach (my mouth is watering) &ndash; our team of chefs can go out into the world and grab the missing item from, well, anywhere. We call this &ldquo;scraping&rdquo;, and it&rsquo;s an incredibly handy tool that web developers use for getting data wherever it may be presented on the Internets. For our purposes, just keep in mind that scraping is just another way to get raw ingredients and cooking supplies into our kitchen.</p>
+
+<h4>&hellip;and the filet&rsquo;s presentation (you know, garnish and stuff) is like the application&rsquo;s views</h4>
+
+<p>Faithful Rodrigo has just received your freshly prepared filet from HTTPrime&rsquo;s kitchen, and he&rsquo;s heading back to where you&rsquo;re seated in the restaurant. But there&rsquo;s one problem: you, the client, are <em>extraordinarily</em> picky. In fact, you won&rsquo;t even look at a filet mignon that you&rsquo;ve ordered unless it&rsquo;s plated, garnished, and has a cherry on top. So what&rsquo;s Rodrigo to do? Well, he makes a quick pit stop at one of those waiter stations they have at fancy restaurants like HTTPrime and dresses up your filet. Literally. He puts the food-equivalent of fancy clothing on your hunk of cow.</p>
+
+<p>Turns out, a web app&rsquo;s views are also responsible for &ldquo;dressing up&rdquo; the content that&rsquo;s delivered back to the client. Their job is to receive, via our controllers, an object (the important stuff) created by our models and make it extremely presentable. Because, after all, presentation is key &ndash; here&rsquo;s proof:</p>
+
+<p><img src="http://4.bp.blogspot.com/-JVqw7uNjBIA/UT8iKeNvjQI/AAAAAAAAAGw/XLEljNq22Xo/s1600/best-food-presentation8.jpg" alt="Alt text" /></p>
+
+<h4>what about the HTTP response, the back half of the request-response cycle?</h4>
+
+<p>Actually, this component flows naturally based on what we&rsquo;ve just understood about the MVC workflow. When the waiter (our application&rsquo;s controller) finally delivers the garnished, beautified filet mignon to your table, your initial HTTP request has been fully handled and the application is issuing its response! As soon as the waiter removes his hand from the plated filet mignon and sets it before you, the request-response cycle has been completed.</p>
+
+<h2>wrapping it up</h2>
+
+<p>Well, that concludes this seemingly endless cycle of metaphors in metaphors inside of other metaphors. I hope this semi-realistic real-world analogy has been helpful in understanding the basic flow pattern of an HTTP request-response cycle.</p>
+
+<p>Bon HTTP-pétit!</p>
+</div>
+
+</article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	<a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+
+<section id="comment">
+    <h1 class="title">Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+</section>
+</div>
+			</div>
+			<footer id="footer" class="inner"><p>
+  Copyright &copy; 2013 - Matt Campbell -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+Design credit: <a href="http://shashankmehta.in/archive/2012/greyshade.html">Shashank Mehta</a></footer>
+			
+
+<script type="text/javascript">
+      var disqus_shortname = 'mecampbellsoup';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://mecampbellsoup.github.io/blog/2013/10/22/the-http-steakhouse/';
+        var disqus_url = 'http://mecampbellsoup.github.io/blog/2013/10/22/the-http-steakhouse/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+		</div>
+	</div>
+</body>
+</html>

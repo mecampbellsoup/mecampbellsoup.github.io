@@ -3,8 +3,8 @@
 # ----------------------- #
 
 url: http://mecampbellsoup.github.io
-title: code talking to humans talking to code.
-subtitle: musings of a brotastic brogrammer @flatironschool
+title: Matt Campbell's brogramming blog
+subtitle: life + ruby 003 padawan @flatironschool
 author: Matt Campbell
 simple_search: http://google.com/search
 description:
@@ -59,6 +59,16 @@ default_asides: [asides/recent_posts.html, asides/github.html, asides/delicious.
 # page_asides:
 
 # ----------------------- #
+#        Navigation       #
+# ----------------------- #
+
+navigation:
+- text: Home
+  url: /index.html
+- text: Archives
+  url: /blog/archives/index.html
+
+# ----------------------- #
 #   3rd Party Settings    #
 # ----------------------- #
 
@@ -72,6 +82,9 @@ github_skip_forks: true
 twitter_user: mecampbellsoup
 twitter_tweet_button: true
 twitter_follow_button: true
+
+# Linkedin
+linkedin_user: mecampbellsoup
 
 # Google +1
 google_plus_one: true

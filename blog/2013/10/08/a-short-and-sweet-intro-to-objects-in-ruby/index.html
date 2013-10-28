@@ -1,0 +1,229 @@
+
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>a short &amp; sweet intro to objects in ruby - code talking to humans talking to code.</title>
+	<meta name="author" content="Matt Campbell">
+
+	
+	<meta name="description" content="A Short &amp; Sweet Intro to Objects in Ruby Recently here at Flatiron we&rsquo;ve begun to write our code with a focus on object orientation. To a &hellip;">
+	
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="code talking to humans talking to code." type="application/atom+xml">
+	
+	<link rel="canonical" href="http://mecampbellsoup.github.io/blog/2013/10/08/a-short-and-sweet-intro-to-objects-in-ruby/">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700' rel='stylesheet' type='text/css'>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+
+<body>
+	<div class="container">
+		<div class="left-col">
+			<div class="intrude-less">
+			<header id="header" class="inner"><div class="profilepic">
+	
+	<script src="/javascripts/md5.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			$('.profilepic').append("<img src='http://www.gravatar.com/avatar/" + MD5("mecampbell25@gmail.com") + "?s=160' alt='Profile Picture' style='width: 160px;' />");
+		});
+	</script>
+	
+</div>
+<hgroup>
+  <h1><a href="/">code talking to humans talking to code.</a></h1>
+  
+    <h2>life + ruby 003 padawan @flatironschool</h2>
+  
+</hgroup>
+
+<nav id="main-nav"><ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+<nav id="sub-nav">
+	<div class="social">
+		
+		<a class="facebook" href="http://www.facebook.com/mecampbell25" title="Facebook">Facebook</a>
+		
+		
+		<a class="google" href="https://plus.google.com/101058099009530081039" rel="author" title="Google+">Google+</a>
+		
+		
+		<a class="twitter" href="http://twitter.com/mecampbellsoup" title="Twitter">Twitter</a>
+		
+		
+		<a class="github" href="https://github.com/mecampbellsoup" title="GitHub">GitHub</a>
+		
+		
+		
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+</nav>
+</header>				
+			</div>
+		</div>	
+		<div class="mid-col">
+			
+				
+			
+			<div class="mid-col-container">
+				<div id="content" class="inner"><article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+	<h1 class="title" itemprop="name">A Short &amp; Sweet Intro to Objects in Ruby</h1>
+	<div class="entry-content" itemprop="articleBody"><p>Recently here at Flatiron we&rsquo;ve begun to write our code with a focus on object orientation. To a beginner, this sentence has absolutely zero meaning whatsoever &ndash; so let&rsquo;s take a step back and define some terms.</p>
+
+<p>First of all, there are a couple truisms to keep in mind when it comes to code:</p>
+
+<ul>
+<li>First, in case you haven&#8217;t heard yet, things are going to change. Your application will grow in users; new technologies will emerge; your investors will want you to add new features (talk about a first world problem!). Your code base needs to be flexible when it comes to making changes for any of these reasons - flexible like a reed in the wind, as opposed to brittle like, say, graphite. As Sandi Metz puts it: 
+<blockquote><em>
+Changing requirements are the programming equivalent of friction and gravity.
+</em></blockquote>
+</li></ul>
+
+
+<br>
+
+
+<p>Ok, great! So we know change is a-comin&#8217;. How do we structure our code to be prepared like the Boy Scouts?</p>
+
+<ul>
+<li>The less the different segments of your code base know about one another, the better! Admittedly, this one is a bit counterintuitive. In life, we&#8217;re typically used to setting all of our ducks in a row before taking any major steps or jumping off any cliffs (figuratively speaking, for the most part). We&#8217;re naturally pretty risk averse, and we routinely succumb to the delusion that we can mitigate risk and uncertainty a bit by lining up said ducks. It&#8217;s as if we&#8217;re trying to tear the mask of the unknown off so that we can make decisions today with perfect information. Programmers have adopted a different approach: instead of trying to know and discount the future, they simply design programs that will adapt easily, fullstop. Note I&#8217;ve made no assumption about what changes will emerge to throw our programs for a loop; the emphasis is on a coding paradigm in which your different segments can easily change how they communicate with one another. This is what people mean when they talk about the principle of object-oriented design. Once again, let&#8217;s get Sandi&#8217;s take:
+<blockquote><em>
+In the absence of design, unmanaged dependencies wreak havoc because objects know too muchabout one another. Changing one object forces change upon its collaborators, whichin turn, forces change upon its collaborators, ad infinitum.
+</em></blockquote>
+</li></ul>
+
+
+<p>Now let&rsquo;s take a look at some code. Let&rsquo;s try to build a bicycle in Ruby &ndash; first we&rsquo;ll eschew the object-oriented princples just discussed, and then we&rsquo;ll embrace them. Hopefully the proof is in the pudding!</p>
+
+<p>First, the painful, hard-to-read &amp; -follow version…</p>
+
+<script src="https://gist.github.com/mecampbellsoup/6900628.js"></script>
+
+
+<p>Whew, that was pretty exhausting and hard to follow. Let&rsquo;s see what happens if we segregate along natural, real-world dividing lines…</p>
+
+<script src="https://gist.github.com/mecampbellsoup/6900643.js"></script>
+
+</div>
+
+</article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	<a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+
+
+<section id="comment">
+    <h1 class="title">Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+</section>
+</div>
+			</div>
+			<footer id="footer" class="inner"><p>
+  Copyright &copy; 2013 - Matt Campbell -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+Design credit: <a href="http://shashankmehta.in/archive/2012/greyshade.html">Shashank Mehta</a></footer>
+			
+
+<script type="text/javascript">
+      var disqus_shortname = 'mecampbellsoup';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://mecampbellsoup.github.io/blog/2013/10/08/a-short-and-sweet-intro-to-objects-in-ruby/';
+        var disqus_url = 'http://mecampbellsoup.github.io/blog/2013/10/08/a-short-and-sweet-intro-to-objects-in-ruby/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+		</div>
+	</div>
+</body>
+</html>

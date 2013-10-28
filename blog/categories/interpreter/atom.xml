@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: interpreter | code talking to humans talking to code.]]></title>
+  <link href="http://mecampbellsoup.github.io/blog/categories/interpreter/atom.xml" rel="self"/>
+  <link href="http://mecampbellsoup.github.io/"/>
+  <updated>2013-10-23T13:54:58-04:00</updated>
+  <id>http://mecampbellsoup.github.io/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[under the hood of ruby's interpreter: a straightforward example]]></title>
+    <link href="http://mecampbellsoup.github.io/blog/2013/09/29/under-the-hood-of-rubys-interpreter-a-straightforward-example/"/>
+    <updated>2013-09-29T16:49:00-04:00</updated>
+    <id>http://mecampbellsoup.github.io/blog/2013/09/29/under-the-hood-of-rubys-interpreter-a-straightforward-example</id>
+    <content type="html"><![CDATA[<p>Flatiron, Day 4:</p>
+
+<p>First, some things Avi said today:</p>
+
+<blockquote>
+
+Iteration is about going over a collection of objects. Enumeration is the same thing but you’re given the objects.<br/>
+
+object.method… the dot is called dot notation. It’s how we send messages to objects.<br/>
+
+.. (read: ‘dot dot’) is a literal constructor for Range.<br/>
+
+You need to keep “rf -rf /” handy. You know, in case of those Terminator situations.<br/>
+
+Comptuer languages fall into 2 categories: those designed for human problems, and those designed for computer problems. JavaScript was designed to be read quickly by web browsers (i.e. a computer problem).<br/>
+
+Computers will get faster, but people won’t get any smarter.
+</blockquote>
+
+
+<p>Now, on to the post subject&hellip; let&rsquo;s walk stepwise through a (very) simple program in Ruby:</p>
+
+<p>Step 0:</p>
+
+<pre><code>x = 1
+if x == 1
+    puts "x is equal to 1!"
+end
+</code></pre>
+
+<p>Step 1:</p>
+
+<pre><code>if 1 == 1
+    puts "x is equal to 1!"
+end
+</code></pre>
+
+<p>Step 2:</p>
+
+<pre><code>if true
+    puts "x is equal to 1!"
+end
+</code></pre>
+
+<p>Step 3:</p>
+
+<pre><code>puts "x is equal to 1!"  #=&gt; "x is equal to 1!"
+</code></pre>
+
+<p>FizzBuzz ultimate solution:</p>
+
+<pre><code>def fizzbuzz (i)
+    [("fizz" if i % 3 == 0), ("buzz" if i % 5 == 0)].join
+end
+</code></pre>
+
+<p>case vs. if</p>
+
+<pre><code>if x == 1
+    puts "x wins"
+elsif o == 1
+    puts "o wins"
+end
+</code></pre>
+
+<p>case object  # only can check if condition applies to one object</p>
+
+<p>when condition # condition cannot be a logical operand; must use if/end if you want a unique logic applied for each &ldquo;case&rdquo;</p>
+]]></content>
+  </entry>
+  
+</feed>

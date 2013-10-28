@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: programming | code talking to humans talking to code.]]></title>
+  <link href="http://mecampbellsoup.github.io/blog/categories/programming/atom.xml" rel="self"/>
+  <link href="http://mecampbellsoup.github.io/"/>
+  <updated>2013-10-23T13:54:58-04:00</updated>
+  <id>http://mecampbellsoup.github.io/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[an argument (diatribe?) for embracing discomfort]]></title>
+    <link href="http://mecampbellsoup.github.io/blog/2013/09/29/an-argument-diatribe-for-embracing-discomfort/"/>
+    <updated>2013-09-29T16:49:00-04:00</updated>
+    <id>http://mecampbellsoup.github.io/blog/2013/09/29/an-argument-diatribe-for-embracing-discomfort</id>
+    <content type="html"><![CDATA[<p>Simply put, the last 48 hours have been a whirlwind. On Monday, the 4th semeseter of Flatiron School kicked off with me riding shotgun. Today I turned my computer into a fully-customized, command-line-driven learning (and coding) machine over the course of about 12 hours. We’ve basically become proficient in using Git/GitHub as well – no small feat for those who recall trying to quickly climb the surprisingly steep Git learning curve. I want to focus this blog on the amazing things I’ll be learning, for example some of the incredible BASH functionality I’ve picked up recently.</p>
+
+<p>But before doing that, I want to share a story. The story is about a man who decided to spend 9 days in the wilderness with a small group of people, each person carrying only a pocket knife, clothing and some sleeping gear. To set the stage a bit, envision this: you’re dropped in the New Mexican mesas with no food for 7 days, no tents, and you must learn how to start fires by rubbing two sticks together (which takes a day and a half on your first try). Yea, no joke. The insane man’s inspiration for going on this trip?</p>
+
+<p><img src="http://www.zawaj.com/wp-content/uploads/2010/03/scenic-sunrays-on-forest-stream.jpg"></p>
+
+<ol>
+<li>
+<strong>Perspective.</strong> He’d never spent time outside of civilization. I believe the man had a longing to know how our ancestors used to live not even ~300 years ago.
+</li>
+<li>
+<strong>Back to Basics.</strong> Modern life has abstracted away so much of the inner machinations of… well, everything. This is true to such an extent that most people no longer have any idea how our most important tools work - think combustion engines, computers, and the Internet, just to name a few. What about a friggin’ microwave, or CERN, or the Hubble Telescope?!
+</li>
+<li>
+<strong>Embracing Discomfort as a Means for Learning.</strong> As a result of #2, relative to pre-modern man the flow of our lives has flipped completely on its head: we now enjoy long periods of relative tranquility (i.e. we aren’t freezing, starving, or in imminent danger) only very briefly interrupted with moments of discomfort (e.g. our waiter wasn’t exceptionally polite & servile).
+You may be wondering: So what? What’s the issue with leading a life characterized by an uninterrupted flow of pleasure and leisure? Isn’t that the goal of a well-functioning, capitalistic society?
+</li>
+</ol>
+
+
+<p>The problem is that when all of our problems are solved for us and the solutions are abstracted away, <em>we forget how to solve our own problems.</em> Along the way, we never learn how to consistently approach problems with an open &amp; creative mindset. Hell, we even forget how to recognize a problem in the first place! (Example: many Americans stil do not have access to the Internet. Oh, add healthcare to that list of basic things everyone should have access to today.)</p>
+
+<p>Think of every banker in New York City. Their problems consist of getting their children into the 92nd Street Y preschool; securing a bigger bonus than that other VP they work with; or choosing between the BMW X5 and the Volvo equivalent (since, ya’ know, it’s super safe and all). I don’t mean to triviliaze these people’s existence – I worked in finance for 3 years myself, whatever it’s worth. Rather, I want to point out something that I’ve been gnawing on for a long time: I think that our striving for wealth &amp; comfort (not the subsistence type, but rather the type that screams “… but I have more things than anyone else in this village!”) is utterly misplaced, and has eradicated a good chunk of our collective genius.</p>
+
+<p>Our human legacy can take whatever form we as a species strive for it to take. Like the man who nearly starved over 9 days hiking in the wilderness, let’s try to preserve &amp; even expand our perspective regarding our place on earth. Let’s interrupt the ultimately meaningless and vapid pursuit of über-comfort that constantly distracts us from connecting with one another at a deep, real level. It’s up to each one of us to ensure the human legacy – our sacred imprimitur on the universe – is a worthy one.</p>
+]]></content>
+  </entry>
+  
+</feed>

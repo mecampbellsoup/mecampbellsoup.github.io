@@ -1,0 +1,963 @@
+
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>code talking to humans talking to code.</title>
+	<meta name="author" content="Matt Campbell">
+
+	
+	<meta name="description" content="Oct 22nd, 2013 http, mvc, ruby, web app, web requests Comments HTTPrime: What Can We Learn About Http Request-Response From a Steakhouse? why must &hellip;">
+	
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="code talking to humans talking to code." type="application/atom+xml">
+	
+	<link rel="canonical" href="http://mecampbellsoup.github.io/">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700' rel='stylesheet' type='text/css'>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+
+<body>
+	<div class="container">
+		<div class="left-col">
+			<div class="intrude-less">
+			<header id="header" class="inner"><div class="profilepic">
+	
+	<script src="/javascripts/md5.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			$('.profilepic').append("<img src='http://www.gravatar.com/avatar/" + MD5("mecampbell25@gmail.com") + "?s=160' alt='Profile Picture' style='width: 160px;' />");
+		});
+	</script>
+	
+</div>
+<hgroup>
+  <h1><a href="/">code talking to humans talking to code.</a></h1>
+  
+    <h2>life + ruby 003 padawan @flatironschool</h2>
+  
+</hgroup>
+
+<nav id="main-nav"><ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+<nav id="sub-nav">
+	<div class="social">
+		
+		<a class="facebook" href="http://www.facebook.com/mecampbell25" title="Facebook">Facebook</a>
+		
+		
+		<a class="google" href="https://plus.google.com/101058099009530081039" rel="author" title="Google+">Google+</a>
+		
+		
+		<a class="twitter" href="http://twitter.com/mecampbellsoup" title="Twitter">Twitter</a>
+		
+		
+		<a class="github" href="https://github.com/mecampbellsoup" title="GitHub">GitHub</a>
+		
+		
+		
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+</nav>
+</header>				
+			</div>
+		</div>	
+		<div class="mid-col">
+			
+				
+			
+			<div class="mid-col-container">
+				<div id="content" class="inner">
+<div itemscope itemtype="http://schema.org/Blog">
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-22T23:34:00-04:00" data-updated="true" itemprop="datePublished">Oct 22<span>nd</span>, 2013</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/http/'>http</a>, <a class='category' href='/blog/categories/mvc/'>mvc</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>, <a class='category' href='/blog/categories/web-app/'>web app</a>, <a class='category' href='/blog/categories/web-requests/'>web requests</a>
+
+
+</div>
+		
+			<span class="comments"><a href="/blog/2013/10/22/the-http-steakhouse/#disqus_thread">Comments</a></span>
+		
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2013/10/22/the-http-steakhouse/" itemprop="url">HTTPrime: What Can We Learn About Http Request-Response From a Steakhouse?</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<h2>why must an http request be so confusing?!</h2>
+
+<p>Look, we&rsquo;ve all been there. When first setting out to learn about the Great Internets, one of the first themes you&rsquo;ll come across is that of the HTTP request. You&rsquo;ll quickly learn that HTTP stands for &ldquo;Hypertext Transfer Protocol&rdquo;. And after mulling that over a bit, your next thought might be: &ldquo;Cool, that wasn&rsquo;t so hard!&rdquo; But soon, someone starts throwing new ideas and concepts your way &ndash; using words like &ldquo;server&rdquo;, &ldquo;web application&rdquo;, &ldquo;controllers&rdquo;, &ldquo;get&rdquo; and &ldquo;post&rdquo;. And before you know it, you&rsquo;re swimming in a sea of disconnected semantic meaning. Bummer.</p>
+
+<p>As it turns out, the Internet is a giant, teeming and conscious (no?) mass of computers which pass long strings of text back and forth, all the time. Now, for the next part of this blog post, I could show you a picture like the following and begin to dissect it, piece by piece:</p>
+
+<p><img src="http://www.jeevanchaaya.com/techvibe/wp-content/uploads/2008/10/http-request-response-model.png" alt="Alt text" /></p>
+
+<h4>bring on the metaphors!</h4>
+
+<p>But I&rsquo;m not going to subject you to that, dear reader. Today, during an impromptu mid-day comedic improvisation seminar at school (yes, Flatiron School is awesome, we know), we heard about the importance of explaining big, complicated ideas by making comparisons to things that are already understood. (That is to say, we should use more metaphors and analogies.) So instead of telling you everything there is to know about an HTTP request/response cycle, I&rsquo;m going to offer an intentionally over-simplified story for you wrapped in a familiar metaphorical context: that of a dining experience at a steakhouse.</p>
+
+<p>Note: I&rsquo;ll be taking a tad of creative license in the coming paragraphs; turn back now if this frightens you or if you can&rsquo;t bear the idea of a steakhouse experience being in any way misrepresented.</p>
+
+<h2>HTTPrime Steakhouse</h2>
+
+<h4>customers are like <em>clients</em>, and the maître d&#8217; is like a <em>server</em></h4>
+
+<p>First, let&rsquo;s set the stage. At our restaurant &ndash; the HTTPrime Steakhouse &ndash; each hopeful customer represents what&rsquo;s called a <em>client</em>. The client carries with it a very valuable thing: knowledge of what it wants! Much in the way that you enter a restaurant with knowledge of what you expect to order, an HTTP client brings that same information to a web application&rsquo;s server. In the HTTP world, all clients&#8217; requests arrive at something called a <em>server</em>, which is akin to the gatekeeping maître d&#8217; at our steakhouse. Our maître d&#8217; is responsible for intercepting potential diners, having a quick, formal chat with them to understand what they desire, and handing their request off in the appropriate manner (typically to the restaurant itself at that point, the part where customers sit and dine). I say &ldquo;formal&rdquo; chat because, in fact, the server is only able to respond with a particular type of response &ndash; integer values communicating whether the client&rsquo;s request was valid, erroneous, or misguided. Think of how a real-life maître d&#8217; feels a bit stiff when you&rsquo;re talking with him&hellip;</p>
+
+<p>It turns out, this is very similar to the role a web server plays &ndash; the server stands at the entrance to the web application (that is, the restaurant itself), has a quick chat with incoming customers (that is, incoming HTTP requests made by clients), and passes the customers with their requests along to the waitstaff and the restaurant itself (that is, sends the HTTP request and its information along to the web application itself).</p>
+
+<h4>GET vs. POST</h4>
+
+<p>&ldquo;But what&rsquo;s all this jazz I keep hearing about GET and POST requests, huh?&rdquo; Great, great question. You, the client (or customer at HTTPrime, for our purposes) can actually have two types of conversations with our maître d&#8217;:</p>
+
+<ol>
+<li>Client: &ldquo;Hello sir! Could we please be seated, take a look at the menu, and <strong>GET</strong> some of your delicious filet mignon?&rdquo;</li>
+<li>Client: &ldquo;Hello sir! I have a delicious filet mignon recipe to give to HTTPrime. Here you go. Maybe you could <strong>POST</strong> it up in your kitchen somewhere… that way your restaurant will have it available for all future customers.&rdquo;</li>
+</ol>
+
+
+<p>A GET request is akin to walking up to the maître d&#8217; and telling him you would like a filet mignon. A POST request is akin to walk up to the maître d&#8217; and telling him you have an amazing recipe for filet mignon, and you&rsquo;d like to give it to the restaurant. The maître d&#8217; then simply responds to your request by telling you whether the restaurant is prepared to handle your request.</p>
+
+<h2>mvc&hellip; wtf?</h2>
+
+<p><img src="http://www.digital-web.com/extras/restful_css/mvc-by-a-web-app-designer.png" alt="Alt text" /></p>
+
+<h4>waiters are your application&rsquo;s controllers&hellip;</h4>
+
+<p>You just wrapped up your chat with our faithful maître d&#8217;. You&rsquo;ve explained you are here to GET (should I stop capitalizing, have I driven that point home yet?) one of HTTPrime&rsquo;s famous filet mignons. What happens next: magically, out of nowhere seemingly, he summons HTTPrime&rsquo;s filet-mignon-dedicated who ushers you to your table. Let&rsquo;s call this waiter boy Rodrigo, because I think that&rsquo;s a cool name. In web applications, controllers take on the function of a restaurant&rsquo;s wait staff: they don&rsquo;t do any of the cooking, nor the cleaning up. All they do is take orders from customers, relay those orders to the kitchen (where the real magic happens), and return to the customer&rsquo;s side to fulfill their original request. I don&rsquo;t mean to trivialize the role of a good waiter &ndash; after all, bad service is almost as bad as Armageddon itself &ndash; so you can see why lightning fast, responsive controllers are a must.</p>
+
+<h4>and the kitchen represents your application&rsquo;s models</h4>
+
+<p>Loyal, kind, loving Rodrigo &ndash; what a big heart he has &ndash; has just confirmed your order to GET (wink, wink) a 3-pound, &ldquo;rare plus&rdquo; filet mignon. Where&rsquo;s he off to next? He&rsquo;s going to <em>control</em> that order straight over to the kitchen, of course! And as alluded to, this is where the real magic happens. In the kitchen, raw ingredients, spices, and some black magic come together to create HTTPrime&rsquo;s signature dishes &ndash; the ones that people keep comin&#8217; back for. In a web application, the models gather raw data from the database (or other data repository), sprinkle in their own sugar/spice/black magic combination (we call this &ldquo;logic&rdquo;, generally speaking), and &ndash; voilà! &ndash; pass off a perfectly cooked, delicious filet mignon for Rodrigo to satisfy you, the client&rsquo;s, picky demands.</p>
+
+<h4>but wait, it goes deeper &ndash; down to the database</h4>
+
+<p>But where do these raw materials come from, exactly? Well, in HTTPrime, the raw ingredients used by the kitchen would need to come from at least a couple places. (Good <a href="news:">news:</a> more metaphors coming!)</p>
+
+<p>Every time the chef walks down to the basement where all those massive refrigerators chock full of dead animal are kept, he&rsquo;s essentially accessing our web application&rsquo;s database. Now, some fancy stuff happens in the database. And frankly, our kitchen chefs don&rsquo;t understand a lick about butchering cows, packaging the meats, and selling the raw steaks to artery-clogging steakhouse chains like ours (i.e. they don&rsquo;t speak SQL). But that&rsquo;s okay, because that isn&rsquo;t their job.</p>
+
+<p>There&rsquo;s another way to get foodstuffs into our restaurant. If our steak database is missing some important ingredient &ndash; say, cream for the creamed spinach (my mouth is watering) &ndash; our team of chefs can go out into the world and grab the missing item from, well, anywhere. We call this &ldquo;scraping&rdquo;, and it&rsquo;s an incredibly handy tool that web developers use for getting data wherever it may be presented on the Internets. For our purposes, just keep in mind that scraping is just another way to get raw ingredients and cooking supplies into our kitchen.</p>
+
+<h4>&hellip;and the filet&rsquo;s presentation (you know, garnish and stuff) is like the application&rsquo;s views</h4>
+
+<p>Faithful Rodrigo has just received your freshly prepared filet from HTTPrime&rsquo;s kitchen, and he&rsquo;s heading back to where you&rsquo;re seated in the restaurant. But there&rsquo;s one problem: you, the client, are <em>extraordinarily</em> picky. In fact, you won&rsquo;t even look at a filet mignon that you&rsquo;ve ordered unless it&rsquo;s plated, garnished, and has a cherry on top. So what&rsquo;s Rodrigo to do? Well, he makes a quick pit stop at one of those waiter stations they have at fancy restaurants like HTTPrime and dresses up your filet. Literally. He puts the food-equivalent of fancy clothing on your hunk of cow.</p>
+
+<p>Turns out, a web app&rsquo;s views are also responsible for &ldquo;dressing up&rdquo; the content that&rsquo;s delivered back to the client. Their job is to receive, via our controllers, an object (the important stuff) created by our models and make it extremely presentable. Because, after all, presentation is key &ndash; here&rsquo;s proof:</p>
+
+<p><img src="http://4.bp.blogspot.com/-JVqw7uNjBIA/UT8iKeNvjQI/AAAAAAAAAGw/XLEljNq22Xo/s1600/best-food-presentation8.jpg" alt="Alt text" /></p>
+
+<h4>what about the HTTP response, the back half of the request-response cycle?</h4>
+
+<p>Actually, this component flows naturally based on what we&rsquo;ve just understood about the MVC workflow. When the waiter (our application&rsquo;s controller) finally delivers the garnished, beautified filet mignon to your table, your initial HTTP request has been fully handled and the application is issuing its response! As soon as the waiter removes his hand from the plated filet mignon and sets it before you, the request-response cycle has been completed.</p>
+
+<h2>wrapping it up</h2>
+
+<p>Well, that concludes this seemingly endless cycle of metaphors in metaphors inside of other metaphors. I hope this semi-realistic real-world analogy has been helpful in understanding the basic flow pattern of an HTTP request-response cycle.</p>
+
+<p>Bon HTTP-pétit!</p>
+
+		
+		
+	</div>
+
+</article>
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-15T22:58:00-04:00" data-updated="true" itemprop="datePublished">Oct 15<span>th</span>, 2013</time></div>
+		<div class="tags">
+
+</div>
+		
+			<span class="comments"><a href="/blog/2013/10/15/a-post-about-yield-that-is-also-about-blocks-dot-dot-dot/#disqus_thread">Comments</a></span>
+		
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2013/10/15/a-post-about-yield-that-is-also-about-blocks-dot-dot-dot/" itemprop="url">A Post About Yield That Is Also About Blocks&#8230;</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		
+
+		
+		
+	</div>
+
+</article>
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-11T22:43:00-04:00" data-updated="true" itemprop="datePublished">Oct 11<span>th</span>, 2013</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/blocks/'>blocks</a>, <a class='category' href='/blog/categories/flatiron-school/'>flatiron school</a>, <a class='category' href='/blog/categories/local-variables/'>local variables</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>
+
+
+</div>
+		
+			<span class="comments"><a href="/blog/2013/10/11/what-exactly-is-between-those-pipes/#disqus_thread">Comments</a></span>
+		
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2013/10/11/what-exactly-is-between-those-pipes/" itemprop="url">What Exactly Is Between Those Pipes?</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<h3><strong>&ldquo;I&rsquo;ve seen these pipe things before… a bunch of times.&rdquo; (The thought you just had.)</strong></h3>
+
+<p>They look super familiar. Why does Ruby make use of them? What&rsquo;s inside the pipes?!</p>
+
+<p>Well in short, Ruby reads the thing between the pipes as a local variable to be used in the subsequent block. Let&rsquo;s look at an example of an iterator (followed by a block) from the Ruby docs.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="vi">@names</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="o">|</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="s2">&quot;Hello </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">!&quot;</span> 
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To paraphrase the docs: <code>each</code> is a method that accepts a block of code then runs that block of code for every element in a list, and the bit between <code>do</code> and <code>end</code> is just such a block. <em>The thing between pipe characters is the parameter for this block.</em></p>
+
+<p>What happens here is that for every entry in a list (i.e. <code>@names</code> in this example), <code>name</code> is bound to that list element, and then the expression <code>puts "Hello #{name}!"</code> is run with that <code>name</code>.</p>
+
+<p>(Thought tangent: So this example actually points to another cool feature of Ruby &ndash; &ldquo;duck typing&rdquo;. When we see <code>@names.each</code>, we naturally expect <code>@names</code> to be an Array (or Hash) and we&rsquo;ll be iterating over each element. But not so fast! What happens if <code>@names</code> is actually something totally different &ndash; like, say, an object from a custom-built class called Names? Warning: this is a highly contrived exmaple…)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Name</span>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:string</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@string</span> <span class="o">=</span> <span class="n">string</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">each</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">string</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="vi">@names</span> <span class="o">=</span> <span class="no">Name</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;woe, this is weird - I&#39;m a psuedo string attr within a Name object which responds to #each?!&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="vi">@names</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="o">|</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="s2">&quot;Hello </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;woe, this is weird - I&#39;m a psuedo string within a Name object that responds to #each?!&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(Um, pretty awesome, right? Ruby doesn&rsquo;t care about what you expect it to do; it only cares it the object at hand responds to the method being called. Talk about an egalitarian language!)</p>
+
+<p>Now that we&rsquo;ve had an intro-<em>duck</em>-tion to blocks and pipes, here&rsquo;s a question &ndash; how would you <em>define</em> the thing between the &ldquo;pipes&rdquo; (these guys: <code>||</code> ) in the following code example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">wrecking_ball</span> <span class="o">=</span> <span class="no">Song</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'><span class="n">wrecking_ball</span><span class="o">.</span><span class="n">tap</span> <span class="p">{</span> <span class="o">|</span><span class="n">song</span><span class="o">|</span> <span class="n">song</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Wrecking Ball&quot;</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(Another mental tangent: I think pretty much every object responds to <code>#tap</code> &ndash; that will have to be for another blog post though.)</p>
+
+<p>To put the question differently, what&rsquo;s the <code>|song|</code>? No, seriously &ndash; what is it?! Multiple choice:</p>
+
+<ul>
+<li> (a) method</li>
+<li> (b) keyword</li>
+<li> (c) variable</li> 
+</ul>
+
+
+<p>If you guessed C then you were spot on &ndash; pat yourself on the back! To be more specific, that thing between the pipes that we see in almost every block is actually a <em>local</em> variable. This is Ruby&rsquo;s approach to getting the object receiving the method call (e.g. the <code>wrecking_ball</code> Song object receiving the <code>tap</code> method) inside the method as an argument. The convo with Ruby (since we all have dialogues with our computers in the language of Ruby these days) goes down something like this:</p>
+
+<blockquote>
+&#8220;Ok lord programmer, I realize you&#8217;re calling a method on this object - and you&#8217;re hoping to &#8220;`yield&#8220;` the object receiving the method call to the method&#8217;s block (the code following the &#8220;`.each do &#8220;` bit). Tell ya&#8217; what: in order to make sure said object gets from the left side of this expression into the yielded block, I&#8217;m going to temporarily make a local variable - you can even name it WHATEVER YOU WANT - so that you have full access to the object within the block. Sound good? You bet your ass it does. I&#8217;m Ruby, we&#8217;re gonna&#8217; get along famously.&#8221;
+</blockquote>
+
+
+<h3>Putting down the pipe (only temorarily, calm down)</h3>
+
+<p>Awesome. Now we know exactly what&rsquo;s going on between those pipes. Ruby is creating a local variable that points to the object receiving the method call, all so that we can fully access our object inside the method&rsquo;s block. Thanks Ruby.</p>
+
+<p>To drive this point home, let&rsquo;s remove these pipe thingies and see if we can still code like we normally do.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">some_numbers</span> <span class="o">=</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="o">]</span>
+</span><span class='line'><span class="n">some_numbers</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="s2">&quot;This is our block!&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">&quot;This is our block!&quot;</span>
+</span><span class='line'><span class="s2">&quot;This is our block!&quot;</span>
+</span><span class='line'><span class="s2">&quot;This is our block!&quot;</span>
+</span><span class='line'><span class="s2">&quot;This is our block!&quot;</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="o">[</span><span class="kp">nil</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="kp">nil</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>OK, so that&rsquo;s pretty interesting. It looks like our block is definitely being evaluated, and our collect iterator is yielding to that block precisely <code>self.size</code> times (or 4 in this case). Since we have a <code>puts</code> method, whose return value is always <code>nil</code>, we end up with the returned array of <code>nil</code>&rsquo;s above. But I want access to the <code>[5,6,7,8]</code> on which we&rsquo;re calling <code>.collect</code>! Let&rsquo;s try another strategy:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">some_numbers</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span>
+</span><span class='line'>  <span class="nb">p</span> <span class="n">some_numbers</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span>
+</span><span class='line'> <span class="o">=&gt;</span> <span class="o">[[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Alright, getting closer. Looks like we still have access to the entire object receiving the <code>.collect</code> method call. How can we get to one element of <code>some_numbers</code> at a time though? In other words, how can we get specific, granular access to each component of the object at hand, the one receiving the method call? How can we have our block be evaluated on each element of <code>some_numbers</code>, but only one element at a time? The answer lies in Ruby&rsquo;s implementation of Array#each (and really all the iterators) &ndash; here are implementations we&rsquo;ve written <a href="https://twitter.com/FlatironSchool"/>@flatironschool</a>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Array</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">each</span>
+</span><span class='line'>    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">self</span><span class="o">.</span><span class="n">length</span>
+</span><span class='line'>      <span class="k">yield</span><span class="p">(</span><span class="nb">self</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="nb">self</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">my_each_with_index</span>
+</span><span class='line'>    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">self</span><span class="o">.</span><span class="n">length</span>
+</span><span class='line'>      <span class="k">yield</span><span class="p">(</span><span class="nb">self</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="nb">self</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="n">some_numbers</span> <span class="o">=</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="o">]</span>
+</span><span class='line'><span class="n">some_numbers</span><span class="o">.</span><span class="n">my_each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="o">|</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="s2">&quot;At index </span><span class="si">#{</span><span class="n">i</span><span class="si">}</span><span class="s2"> the value is </span><span class="si">#{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="no">At</span> <span class="n">index</span> <span class="mi">0</span> <span class="n">the</span> <span class="n">value</span> <span class="n">is</span> <span class="mi">5</span>
+</span><span class='line'><span class="no">At</span> <span class="n">index</span> <span class="mi">1</span> <span class="n">the</span> <span class="n">value</span> <span class="n">is</span> <span class="mi">6</span>
+</span><span class='line'><span class="no">At</span> <span class="n">index</span> <span class="mi">2</span> <span class="n">the</span> <span class="n">value</span> <span class="n">is</span> <span class="mi">7</span>
+</span><span class='line'><span class="no">At</span> <span class="n">index</span> <span class="mi">3</span> <span class="n">the</span> <span class="n">value</span> <span class="n">is</span> <span class="mi">8</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Lines 5 and 13, there&rsquo;s our old pal <code>yield</code>. How cool it is to finally see the distinction between <code>.each</code> and <code>.each_with_index</code> &ndash; it&rsquo;s merely the # of local variables from <code>self</code> (the object, in our case the <code>Array [5,6,7,8]</code> receiving the method call) that we &ldquo;yield&rdquo; or pass along to the block! Now, finally, we having a working definition of what&rsquo;s betweeen the pipes: they demarcate <strong>local variables which represent each element of <code>self</code> that get passed to the block each time our method call <code>yield</code>s to the block</strong>!</p>
+
+<p>In my next post, I want to talk about Ruby&rsquo;s bindings &ndash; a poorly understood (and rarely needed) aspect of Ruby that I hope to shed some light on.</p>
+
+<p>Until then: #workhard, #benice!</p>
+
+		
+		
+	</div>
+
+</article>
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-08T08:25:00-04:00" data-updated="true" itemprop="datePublished">Oct 8<span>th</span>, 2013</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/pood/'>POOD</a>, <a class='category' href='/blog/categories/flatiron-school/'>flatiron school</a>, <a class='category' href='/blog/categories/nyc/'>nyc</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>, <a class='category' href='/blog/categories/sandi-metz/'>sandi metz</a>
+
+
+</div>
+		
+			<span class="comments"><a href="/blog/2013/10/08/a-short-and-sweet-intro-to-objects-in-ruby/#disqus_thread">Comments</a></span>
+		
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2013/10/08/a-short-and-sweet-intro-to-objects-in-ruby/" itemprop="url">A Short &amp; Sweet Intro to Objects in Ruby</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<p>Recently here at Flatiron we&rsquo;ve begun to write our code with a focus on object orientation. To a beginner, this sentence has absolutely zero meaning whatsoever &ndash; so let&rsquo;s take a step back and define some terms.</p>
+
+<p>First of all, there are a couple truisms to keep in mind when it comes to code:</p>
+
+<ul>
+<li>First, in case you haven&#8217;t heard yet, things are going to change. Your application will grow in users; new technologies will emerge; your investors will want you to add new features (talk about a first world problem!). Your code base needs to be flexible when it comes to making changes for any of these reasons - flexible like a reed in the wind, as opposed to brittle like, say, graphite. As Sandi Metz puts it: 
+<blockquote><em>
+Changing requirements are the programming equivalent of friction and gravity.
+</em></blockquote>
+</li></ul>
+
+
+<br>
+
+
+<p>Ok, great! So we know change is a-comin&#8217;. How do we structure our code to be prepared like the Boy Scouts?</p>
+
+<ul>
+<li>The less the different segments of your code base know about one another, the better! Admittedly, this one is a bit counterintuitive. In life, we&#8217;re typically used to setting all of our ducks in a row before taking any major steps or jumping off any cliffs (figuratively speaking, for the most part). We&#8217;re naturally pretty risk averse, and we routinely succumb to the delusion that we can mitigate risk and uncertainty a bit by lining up said ducks. It&#8217;s as if we&#8217;re trying to tear the mask of the unknown off so that we can make decisions today with perfect information. Programmers have adopted a different approach: instead of trying to know and discount the future, they simply design programs that will adapt easily, fullstop. Note I&#8217;ve made no assumption about what changes will emerge to throw our programs for a loop; the emphasis is on a coding paradigm in which your different segments can easily change how they communicate with one another. This is what people mean when they talk about the principle of object-oriented design. Once again, let&#8217;s get Sandi&#8217;s take:
+<blockquote><em>
+In the absence of design, unmanaged dependencies wreak havoc because objects know too muchabout one another. Changing one object forces change upon its collaborators, whichin turn, forces change upon its collaborators, ad infinitum.
+</em></blockquote>
+</li></ul>
+
+
+<p>Now let&rsquo;s take a look at some code. Let&rsquo;s try to build a bicycle in Ruby &ndash; first we&rsquo;ll eschew the object-oriented princples just discussed, and then we&rsquo;ll embrace them. Hopefully the proof is in the pudding!</p>
+
+<p>First, the painful, hard-to-read &amp; -follow version…</p>
+
+<script src="https://gist.github.com/mecampbellsoup/6900628.js"></script>
+
+
+<p>Whew, that was pretty exhausting and hard to follow. Let&rsquo;s see what happens if we segregate along natural, real-world dividing lines…</p>
+
+<script src="https://gist.github.com/mecampbellsoup/6900643.js"></script>
+
+
+		
+		
+	</div>
+
+</article>
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-02T21:07:00-04:00" data-updated="true" itemprop="datePublished">Oct 2<span>nd</span>, 2013</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/perl/'>Perl</a>, <a class='category' href='/blog/categories/aron-wall/'>aron wall</a>, <a class='category' href='/blog/categories/black-holes/'>black holes</a>, <a class='category' href='/blog/categories/larry-wall/'>larry wall</a>, <a class='category' href='/blog/categories/postmodernism/'>postmodernism</a>
+
+
+</div>
+		
+			<span class="comments"><a href="/blog/2013/10/02/2-reasons-why-larry-wall-is-the-man/#disqus_thread">Comments</a></span>
+		
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2013/10/02/2-reasons-why-larry-wall-is-the-man/" itemprop="url">2 Reasons Why Larry Wall Is the Man</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<p><ol>
+<li> He says things like this in <a href="http://www.wall.org/~larry/pm.html"/>speeches</a> that are ostensibly about Perl but really are about postmodernist culture and life:
+<blockquote>
+True greatness is measured by how much freedom you give to others, not by how much you can coerce others to do what you want.
+</blockquote>
+</li></p>
+
+<p><li> He has 4 extremely intelligent children, one of whom is a postdoctorate student in physics studying BLACK HOLES.</li></p>
+
+<p>And on that second point: his son&rsquo;s name is Aron Wall, and he wrote <a href="http://www.wall.org/~aron/horizon.htm"/>this highly readable primer</a> on black holes &ndash; what they really are, why light can&rsquo;t escape (hint: it&rsquo;s because once you/anything crosses the event horizon, the black hole moves AWAY FROM YOU/ANYTHING AT THE SPEED OF LIGHT OMFGGGGG!!!), and why they portend the next massive revolution of thought in theoretical physics as we know it.</p>
+
+<p>Whew.</p>
+
+<p>Thanks Larry Wall. You&rsquo;re a real mensch.</p>
+
+		
+		
+	</div>
+
+</article>
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-01T00:03:00-04:00" data-updated="true" itemprop="datePublished">Oct 1<span>st</span>, 2013</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/flatiron-school/'>flatiron school</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>, <a class='category' href='/blog/categories/scope/'>scope</a>
+
+
+</div>
+		
+			<span class="comments"><a href="/blog/2013/10/01/scope-in-ruby-is-like-a-cell-membrane/#disqus_thread">Comments</a></span>
+		
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2013/10/01/scope-in-ruby-is-like-a-cell-membrane/" itemprop="url">Scope in Ruby Is Like a Cell Membrane</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<h3>How is program scope like a cell membrane?</h3>
+
+<p>Scope is the context within which something is defined. Let&rsquo;s focus on methods, for starters. If you write a page of code with a method in it, alongside a bunch of other stuff (variable declarations, enumerators/iterators not contained in that method, etc.), don&rsquo;t expect your method to have any clue what&rsquo;s going on above or below it in that page. Sorry, that explanation sucked &ndash; let me show an example:</p>
+
+<pre><code>some_numbers = [1,2,3,4,5]
+another_variable = {:cell_membrane =&gt; "cytosol", :receptor =&gt; "ligand"}
+more_variables = some_numbers.collect do |num|
+    num * 2
+end
+
+def method_in_same_code_file(args)
+    more_variables + some_numbers ##=&gt; This method doesn't know what these are!! 
+end
+</code></pre>
+
+<p>The way that we get around this issue of restrictive method scope in Ruby&rsquo;s design is actually something we all are quite familiar with: <em>passing arguments to our methods.</em> Perhaps you can imagine now the similarity to a cell membrane &ndash; take a look at the image below. I would sa the receptor-ligand binding is a lot like doing something like this:</p>
+
+<pre><code>&lt;page of code omitted… let's just call the method&gt;
+method_in_same_code_file(some_numbers, more_variables)
+</code></pre>
+
+<p>In this method call, our arguments works just like our receptor-ligand binding! Put differently: the arguments function as the cell membrane&rsquo;s receptors, in that only by going through them can stuff on the outside be itelligible/readable to the method&rsquo;s insides.</p>
+
+<p>Method scope visualization!</p>
+
+<p><img src="http://fwcdscience.wikispaces.com/file/view/transduction.gif/43381569/transduction.gif"></p>
+
+<h3>cool things <a href="http://en.wikipedia.org/wiki/Kent_Beck">Kent Beck</a> has said (about programming):</h3>
+
+<p>One line methods are there to communicate.</p>
+
+<p>You don&rsquo;t spend three or four lines expressing iteration, you spend one word.</p>
+
+<p>YAGNI: You aren&rsquo;t going to need it.</p>
+
+<p>Optimism is an occupational hazard of programming; feedback is the treatment.</p>
+
+<p>(Speaking about his Chrysler experience…) By far the dominant reason for not releasing sooner was a reluctance to trade the dream of success for the reality of feedback.</p>
+
+<p><strong>Make it work, make it right, make it fast.</strong></p>
+
+<h3>how to write a basic test/spec:</h3>
+
+<pre><code>def assert_equal(actual, expected)
+    unless actual == expected
+        puts "fail: expected #{expected} but got #{actual}"
+    end
+end
+</code></pre>
+
+<p>Not so bad, right?</p>
+
+		
+		
+	</div>
+
+</article>
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-29T16:49:00-04:00" data-updated="true" itemprop="datePublished">Sep 29<span>th</span>, 2013</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/flatiron-school/'>flatiron school</a>, <a class='category' href='/blog/categories/interpreter/'>interpreter</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>
+
+
+</div>
+		
+			<span class="comments"><a href="/blog/2013/09/29/under-the-hood-of-rubys-interpreter-a-straightforward-example/#disqus_thread">Comments</a></span>
+		
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2013/09/29/under-the-hood-of-rubys-interpreter-a-straightforward-example/" itemprop="url">Under the Hood of Ruby&#8217;s Interpreter: A Straightforward Example</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<p>Flatiron, Day 4:</p>
+
+<p>First, some things Avi said today:</p>
+
+<blockquote>
+
+Iteration is about going over a collection of objects. Enumeration is the same thing but you’re given the objects.<br/>
+
+object.method… the dot is called dot notation. It’s how we send messages to objects.<br/>
+
+.. (read: ‘dot dot’) is a literal constructor for Range.<br/>
+
+You need to keep “rf -rf /” handy. You know, in case of those Terminator situations.<br/>
+
+Comptuer languages fall into 2 categories: those designed for human problems, and those designed for computer problems. JavaScript was designed to be read quickly by web browsers (i.e. a computer problem).<br/>
+
+Computers will get faster, but people won’t get any smarter.
+</blockquote>
+
+
+<p>Now, on to the post subject&hellip; let&rsquo;s walk stepwise through a (very) simple program in Ruby:</p>
+
+<p>Step 0:</p>
+
+<pre><code>x = 1
+if x == 1
+    puts "x is equal to 1!"
+end
+</code></pre>
+
+<p>Step 1:</p>
+
+<pre><code>if 1 == 1
+    puts "x is equal to 1!"
+end
+</code></pre>
+
+<p>Step 2:</p>
+
+<pre><code>if true
+    puts "x is equal to 1!"
+end
+</code></pre>
+
+<p>Step 3:</p>
+
+<pre><code>puts "x is equal to 1!"  #=&gt; "x is equal to 1!"
+</code></pre>
+
+<p>FizzBuzz ultimate solution:</p>
+
+<pre><code>def fizzbuzz (i)
+    [("fizz" if i % 3 == 0), ("buzz" if i % 5 == 0)].join
+end
+</code></pre>
+
+<p>case vs. if</p>
+
+<pre><code>if x == 1
+    puts "x wins"
+elsif o == 1
+    puts "o wins"
+end
+</code></pre>
+
+<p>case object  # only can check if condition applies to one object</p>
+
+<p>when condition # condition cannot be a logical operand; must use if/end if you want a unique logic applied for each &ldquo;case&rdquo;</p>
+
+		
+		
+	</div>
+
+</article>
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-29T16:49:00-04:00" data-updated="true" itemprop="datePublished">Sep 29<span>th</span>, 2013</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/flatiron-school/'>flatiron school</a>, <a class='category' href='/blog/categories/life/'>life</a>, <a class='category' href='/blog/categories/programming/'>programming</a>, <a class='category' href='/blog/categories/zen/'>zen</a>
+
+
+</div>
+		
+			<span class="comments"><a href="/blog/2013/09/29/an-argument-diatribe-for-embracing-discomfort/#disqus_thread">Comments</a></span>
+		
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2013/09/29/an-argument-diatribe-for-embracing-discomfort/" itemprop="url">An Argument (Diatribe?) for Embracing Discomfort</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<p>Simply put, the last 48 hours have been a whirlwind. On Monday, the 4th semeseter of Flatiron School kicked off with me riding shotgun. Today I turned my computer into a fully-customized, command-line-driven learning (and coding) machine over the course of about 12 hours. We’ve basically become proficient in using Git/GitHub as well – no small feat for those who recall trying to quickly climb the surprisingly steep Git learning curve. I want to focus this blog on the amazing things I’ll be learning, for example some of the incredible BASH functionality I’ve picked up recently.</p>
+
+<p>But before doing that, I want to share a story. The story is about a man who decided to spend 9 days in the wilderness with a small group of people, each person carrying only a pocket knife, clothing and some sleeping gear. To set the stage a bit, envision this: you’re dropped in the New Mexican mesas with no food for 7 days, no tents, and you must learn how to start fires by rubbing two sticks together (which takes a day and a half on your first try). Yea, no joke. The insane man’s inspiration for going on this trip?</p>
+
+<p><img src="http://www.zawaj.com/wp-content/uploads/2010/03/scenic-sunrays-on-forest-stream.jpg"></p>
+
+<ol>
+<li>
+<strong>Perspective.</strong> He’d never spent time outside of civilization. I believe the man had a longing to know how our ancestors used to live not even ~300 years ago.
+</li>
+<li>
+<strong>Back to Basics.</strong> Modern life has abstracted away so much of the inner machinations of… well, everything. This is true to such an extent that most people no longer have any idea how our most important tools work - think combustion engines, computers, and the Internet, just to name a few. What about a friggin’ microwave, or CERN, or the Hubble Telescope?!
+</li>
+<li>
+<strong>Embracing Discomfort as a Means for Learning.</strong> As a result of #2, relative to pre-modern man the flow of our lives has flipped completely on its head: we now enjoy long periods of relative tranquility (i.e. we aren’t freezing, starving, or in imminent danger) only very briefly interrupted with moments of discomfort (e.g. our waiter wasn’t exceptionally polite & servile).
+You may be wondering: So what? What’s the issue with leading a life characterized by an uninterrupted flow of pleasure and leisure? Isn’t that the goal of a well-functioning, capitalistic society?
+</li>
+</ol>
+
+
+<p>The problem is that when all of our problems are solved for us and the solutions are abstracted away, <em>we forget how to solve our own problems.</em> Along the way, we never learn how to consistently approach problems with an open &amp; creative mindset. Hell, we even forget how to recognize a problem in the first place! (Example: many Americans stil do not have access to the Internet. Oh, add healthcare to that list of basic things everyone should have access to today.)</p>
+
+<p>Think of every banker in New York City. Their problems consist of getting their children into the 92nd Street Y preschool; securing a bigger bonus than that other VP they work with; or choosing between the BMW X5 and the Volvo equivalent (since, ya’ know, it’s super safe and all). I don’t mean to triviliaze these people’s existence – I worked in finance for 3 years myself, whatever it’s worth. Rather, I want to point out something that I’ve been gnawing on for a long time: I think that our striving for wealth &amp; comfort (not the subsistence type, but rather the type that screams “… but I have more things than anyone else in this village!”) is utterly misplaced, and has eradicated a good chunk of our collective genius.</p>
+
+<p>Our human legacy can take whatever form we as a species strive for it to take. Like the man who nearly starved over 9 days hiking in the wilderness, let’s try to preserve &amp; even expand our perspective regarding our place on earth. Let’s interrupt the ultimately meaningless and vapid pursuit of über-comfort that constantly distracts us from connecting with one another at a deep, real level. It’s up to each one of us to ensure the human legacy – our sacred imprimitur on the universe – is a worthy one.</p>
+
+		
+		
+	</div>
+
+</article>
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-29T16:48:00-04:00" data-updated="true" itemprop="datePublished">Sep 29<span>th</span>, 2013</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/errors/'>errors</a>, <a class='category' href='/blog/categories/flatiron-school/'>flatiron school</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>
+
+
+</div>
+		
+			<span class="comments"><a href="/blog/2013/09/29/things-avi-said-today/#disqus_thread">Comments</a></span>
+		
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2013/09/29/things-avi-said-today/" itemprop="url">Things Avi Said Today</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<p>I love errors. I can’t wait to get past one and say, “Great, I wonder what my next error is?!”</p>
+
+<p>The answer is in the error itself. Read the entire thing, even the parts that make no sense.</p>
+
+<p>Read error messages backwards. (You shut off your brain’s interpretation &amp; are forced to read each word individually.)</p>
+
+<p>Abstraction in Ruby is the act of hiding away details.</p>
+
+<p>Beautiful code looks beautiful. Fast code is not beautiful code.</p>
+
+<p>Single Responsibility Principle (SRP). One part of a program is responsible for one thing &amp; one thing only.</p>
+
+		
+		
+	</div>
+
+</article>
+
+</div>
+<nav id="pagenavi">
+    
+    
+    <div class="center"><a href="/blog/archives">Blog Archives</a></div>
+</nav></div>
+			</div>
+			<footer id="footer" class="inner"><p>
+  Copyright &copy; 2013 - Matt Campbell -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+Design credit: <a href="http://shashankmehta.in/archive/2012/greyshade.html">Shashank Mehta</a></footer>
+			
+
+<script type="text/javascript">
+      var disqus_shortname = 'mecampbellsoup';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+		</div>
+	</div>
+</body>
+</html>
