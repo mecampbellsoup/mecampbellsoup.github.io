@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "ruby's string interpolation: syntactic sugar to the max"
-date: 2013-10-30 22:58
+date: 2013-10-29 22:58
 comments: true
 categories: [ruby, syntactic sugar, string interpolation] 
 ---
