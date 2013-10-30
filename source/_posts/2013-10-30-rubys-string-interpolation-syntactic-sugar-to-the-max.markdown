@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "ruby's string interpolation: syntactic sugar to the max"
-date: 2013-10-30 22:58
+title: "ruby's string interpolation: syntactic sugar to the max""
+date: 2013-10-30 13:58
 comments: true
-categories: [ruby, syntactic sugar, string interpolation] 
+categories: [ruby, syntactic sugar, string interpolation]
 ---
 ##there ain't no such thing as magic
 
