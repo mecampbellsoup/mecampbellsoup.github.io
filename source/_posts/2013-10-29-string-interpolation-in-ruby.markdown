@@ -9,7 +9,7 @@ categories: [ruby, syntactic sugar, string interpolation]
 
 One thing I've come to realize about programming - despite almost every gut reaction to the contrary - is that there is no magic. None. Period. Fullstop. As Avi would remind us, Ruby (ignoring that whole C thing) can be distilled into three things: objects, methods, and keywords. So when you see some magic, investigate further, keeping in mind those 3 fundamental components of the Ruby language. 
 
-<img src='http://s3.amazonaws.com/rapgenius/filepicker%2FeEF6S8NTRLu4B2LbvkwO_magic_.jpg'>
+<img src='http://s3.amazonaws.com/rapgenius/filepicker%2FeEF6S8NTRLu4B2LbvkwO_magic_.jpg' width=400 >
 
 But as I've gotten more and more exposure to Ruby's hidden secrets, it's become seemingly more difficult to believe there's no magic going on! This is because Ruby makes use of an idea called ["syntactic sugar"](http://rubylearning.com/satishtalim/ruby_syntactic_sugar.html). Syntactic sugar is basically a group of special programmatic syntax rules that let you write your code in a way that doesn't *appear* to jive with the normal rules of the language, but that is easier to remember how to do and looks better.
 
