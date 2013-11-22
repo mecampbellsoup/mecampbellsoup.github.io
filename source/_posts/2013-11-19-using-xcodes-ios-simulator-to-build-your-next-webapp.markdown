@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "using xcode's iOS simulator to build your next webapp"
+title: "using Xcode's iOS simulator to build your next webapp"
 date: 2013-11-19 20:19
 comments: true
-categories: [rails, xcode, ios]
+categories: [rails, xcode, iOS]
 ---
 
 #programmers need to be empathic
@@ -17,7 +17,7 @@ Are you in a public place? If so, look around. I mean it - really look around. W
 - 56% of people own a smart phone
 - **50% of mobile phone users, use mobile as their primary Internet source**
 
-At this point you may be thinking: "True. I should really make sure anything I'm building is intended for use on a smartphone." Kudos to you. And luckily, many of the most popular web development frameworks are way ahead of you and me in responding to the tectonic mobile shift.  [Twitter Bootstrap](http://getbootstrap.com/) and [Zurb Foundation](http://foundation.zurb.com/) - a pair of front-end (mainly CSS) frameworks - are represenative of this shift. Both compete for the title of "most responsive, mobile-friendly framework" and are obsessed with offering frameworks that render beautifully regardless of the size of the computer's screen. 
+At this point you may be thinking: "True. I should really make sure anything I'm building is intended for use on a smartphone." Kudos to you. And luckily, many of the most popular web development frameworks are way ahead of you and me in responding to the tectonic mobile shift.  [Twitter Bootstrap](http://getbootstrap.com/) and [Zurb Foundation](http://foundation.zurb.com/) - a pair of front-end (mainly CSS) frameworks - are representative of this shift. Both compete for the title of "most responsive, mobile-friendly framework" and are obsessed with offering frameworks that render beautifully regardless of the size of the computer's screen. 
 
 ##...but building mobile-first can be annoying.
 
