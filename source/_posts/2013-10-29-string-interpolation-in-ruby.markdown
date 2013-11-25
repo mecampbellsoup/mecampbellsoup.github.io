@@ -25,7 +25,8 @@ def interpolate_two_variables(num1, num2)
   puts num2.class
   "String interpolation allows us to magically include variables, like #{num1} and #{num2}!"
 end
-interpolate_two_variables(num1, num2)
+
+interpolate_two_variables(6, 23)
 Fixnum
 Fixnum
 => "String interpolation allows us to magically include variables, like 6 and 23!"
