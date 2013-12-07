@@ -39,7 +39,7 @@ GOOD USAGE OF PRY:
   binding.pry if i == 100 || i == 1000
 end
 ```
-By adding in this conditional Pry debugger, I'm able to ensure that - as I'm iterating through a gigantic array of a million items - I'm getting the expected ```Collatz``` class behavior along the way at or around the one-thousandth element. 
+By adding in this conditional Pry debugger, I'm able to ensure that - as I'm iterating through a gigantic array of a million items - I'm getting the expected ```Collatz``` class behavior along the way at or around the one-hundredth & one-thousandth elements, respectively.
 
 ## conclusion
 
