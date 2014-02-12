@@ -5,6 +5,7 @@ date: 2013-09-29 16:49
 comments: true
 categories: [programming, zen, life, flatiron school]
 ---
+
 Simply put, the last 48 hours have been a whirlwind. On Monday, the 4th semeseter of Flatiron School kicked off with me riding shotgun. Today I turned my computer into a fully-customized, command-line-driven learning (and coding) machine over the course of about 12 hours. We’ve basically become proficient in using Git/GitHub as well – no small feat for those who recall trying to quickly climb the surprisingly steep Git learning curve. I want to focus this blog on the amazing things I’ll be learning, for example some of the incredible BASH functionality I’ve picked up recently.
 
 But before doing that, I want to share a story. The story is about a man who decided to spend 9 days in the wilderness with a small group of people, each person carrying only a pocket knife, clothing and some sleeping gear. To set the stage a bit, envision this: you’re dropped in the New Mexican mesas with no food for 7 days, no tents, and you must learn how to start fires by rubbing two sticks together (which takes a day and a half on your first try). Yea, no joke. The insane man’s inspiration for going on this trip?
