@@ -3,6 +3,7 @@ layout: post
 title: "From Type Theory to Haskell in 10 Minutes!"
 date: 2014-03-24 14:32
 comments: true
+published: false
 categories: [type theory, lambda calculus, haskell]
 ---
 You've probably heard of "types", and maybe even "type systems" in your learning so far as a [#c0d3r](http://en.wikipedia.org/wiki/Leet). For example, you've probably heard that [Ruby is strongly typed](http://www.rubyfleebie.com/ruby-is-dynamically-and-strongly-typed/), while [C is weakly typed](http://coding.smashingmagazine.com/2013/04/18/introduction-to-programming-type-systems/). Type systems are pretty clutch - to varying degrees, they ensure the integrity and expected behavior of our programs. But more generally, types provide us a formal system for posing quesitons of logic & determining whether said question is, in fact, answerable.
