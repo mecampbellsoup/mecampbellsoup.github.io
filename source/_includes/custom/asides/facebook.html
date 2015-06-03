@@ -1,0 +1,10 @@
+{% if site.facebook_user %}
+<section class="googleplus{% if site.facebook_hidden %} googleplus-hidden{% endif %}">
+  <h1>
+    <a href="https://facebook.com/{{ site.facebook_user }}">
+      <img src="http://static.viewbook.com/images/social_icons/facebook_32.png" width="32" height="32">
+      Facebook
+    </a>
+  </h1>
+</section>
+{% endif %}
