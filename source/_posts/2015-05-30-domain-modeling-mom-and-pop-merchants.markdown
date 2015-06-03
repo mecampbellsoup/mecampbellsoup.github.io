@@ -9,7 +9,7 @@ In my primary work project currently, I'm working with a small startup to build 
 
 The reason: people in the developing world are largely unbanked. Estimates vary, but around [59% of adults in developing economies don't have an account at a financial institution.](http://siteresources.worldbank.org/EXTGLOBALFIN/Resources/8519638-1332259343991/world_bank3_Poster.pdf) That said, using modern technologies (read: *really* cheap mobile phones, Bitcoin, and the web) it should be possible to bring banking-like services to the 2.5 billion people that use cash day-to-day almost exclusively.
 
-# Where the idea of Merchants comes in to play
+## Where the idea of Merchants comes in to play
 
 In order to get our targeted users off cash, and onto a mobile finance platform, we need merchants in the developing world to be ready to accept payment via this mobile finance platform (which I'll henceforth refer to as "MobiCommerce" for short).
 
@@ -35,7 +35,7 @@ end
 
 The main attributes of interest for a particular `User` are `phone_number`, `pin`, and `balance` (at least insofar as executing a transaction on the platform is concerned).
 
-## What's different about a merchant?
+### What's different about a merchant?
 
 Originally, my answer to this question was something along the lines of: "Not that much is different. I'll basically just need to slightly different messages in the transaction process." For example, we're planning to charge a small fee to merchants in order to accept MobiCommerce as a payment option at their shops. So we'd need the system to identiy that a merchant is on the receiving end of a transfer/transaction, and alert them via SMS accordingly - including notifying the merchant of the fee that will be taken out. 
 
@@ -67,7 +67,7 @@ Now, that `SignUp` class is a great place to put things like `validates :passwor
 
 I quickly hit a point with my `Merchant` resource where I realized it had outgrown its inheritance from the `User` class. Instead of simply adding merchant-specific business logic & behaviors into this class, I found myself overwriting many of the methods inherited from `User` in order to tweak the desired behavior when a merchant was involved in a transaction.
 
-## A merchant is really just a user with an associated `Business`...
+### A merchant is really just a user with an associated `Business`...
 
 Thanks to my good friend [Chris Lee](https://twitter.com/creeefs), I arrived at a much better solution to this "where to house my `Merchant` business logic" predicament.
 
