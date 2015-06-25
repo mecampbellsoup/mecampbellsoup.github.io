@@ -41,9 +41,13 @@ Next, select "Cocoa Application" from within the list of OS X project types:
 
 ![](http://cl.ly/image/0p2B080d3g32/Image%202015-06-25%20at%2011.49.30%20AM.png)
 
-On the next page you are presented with some 
+On the next page you are presented with some configuration options. These aren't salient so I'll move on.
+
+After selecting a location on disk to store your new Xcode project, you can start writing code - we'll put everything in the `AppDelegate.h` and `AppDelegate.m` files since the codebase will be puny.
 
 ### Step 2: Initialize the `NSStatusItem`
+
+
 ### Step 3: Write a function that makes an HTTP request to fetch the BTC price
 ### Step 4: Inject the requested price data into the status bar item
 ### Step 5: Figure out how to loop steps `3` and `4` above
