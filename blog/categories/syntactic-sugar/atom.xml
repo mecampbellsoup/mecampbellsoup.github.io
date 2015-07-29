@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: syntactic sugar | Technical Writings of a Cryptocurrency Evangelist]]></title>
+  <link href="http://mattcampbell.nyc/blog/categories/syntactic-sugar/atom.xml" rel="self"/>
+  <link href="http://mattcampbell.nyc/"/>
+  <updated>2015-07-29T12:58:28-04:00</updated>
+  <id>http://mattcampbell.nyc/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[ruby's string interpolation: syntactic sugar to the max]]></title>
+    <link href="http://mattcampbell.nyc/2013/10/29/string-interpolation-in-ruby/"/>
+    <updated>2013-10-29T22:58:00-04:00</updated>
+    <id>http://mattcampbell.nyc/2013/10/29/string-interpolation-in-ruby</id>
+    <content type="html"><![CDATA[<h2>there ain&rsquo;t no such thing as magic</h2>
+
+<p>One thing I&rsquo;ve come to realize about programming - despite almost every gut reaction to the contrary - is that there is no magic. None. Period. Fullstop. As Avi would remind us, Ruby (ignoring that whole C thing) can be distilled into three things: objects, methods, and keywords. So when you see some magic, investigate further, keeping in mind those 3 fundamental components of the Ruby language.</p>
+
+<p><img src='http://s3.amazonaws.com/rapgenius/filepicker%2FeEF6S8NTRLu4B2LbvkwO_magic_.jpg' width=400 ></p>
+
+<p>But as I&rsquo;ve gotten more and more exposure to Ruby&rsquo;s hidden secrets, it&rsquo;s become seemingly more difficult to believe there&rsquo;s no magic going on! This is because Ruby makes use of an idea called <a href="http://rubylearning.com/satishtalim/ruby_syntactic_sugar.html">&ldquo;syntactic sugar&rdquo;</a>. Syntactic sugar is basically a group of special programmatic syntax rules that let you write your code in a way that doesn&rsquo;t <em>appear</em> to jive with the normal rules of the language, but that is easier to remember how to do and looks better.</p>
+
+<h2>syntactic sugar = delicious but disorienting</h2>
+
+<p>Syntactic sugar is therefore a vehicle for abstraction. Instead of adhering only to the native syntax rules of the language, Ruby has embraced natural syntactical shortcuts that appear to break the rules, but actually make your code read more legible and human-friendly.</p>
+
+<p>For the most part, syntactic sugar is a wonderful thing. (With a name like that, how could it <strong>not</strong> be a good thing?!) But it can also be a trifle dangerous without at least a cursory knowledge of what exactly the sugar is coating. Let&rsquo;s look at a specific example: string interpolation in Ruby.</p>
+
+<pre><code class="ruby">def interpolate_two_variables(num1, num2)
+  puts num1.class
+  puts num2.class
+  "String interpolation allows us to magically include variables, like #{num1} and #{num2}!"
+end
+
+interpolate_two_variables(6, 23)
+Fixnum
+Fixnum
+=&gt; "String interpolation allows us to magically include variables, like 6 and 23!"
+</code></pre>
+
+<p>Sweet, thanks Ruby! I use string interpolation just about every day coding in Ruby - it&rsquo;s an incredibly powerful and convenient way to group different objects together in the context of, say, a view page in a web app. But&hellip; what&rsquo;s really going on here? I don&rsquo;t see anything like Ruby&rsquo;s normal <code>object.method_call</code> syntax, and yet it feels like there MUST be a method call being invoked inside the double quotes. What exactly is the interpreter converting the <code>#{}</code> syntax into?</p>
+
+<h2>#{}: more than just a pretty face</h2>
+
+<p>Assuredly, there&rsquo;s nothing magical going on here. Upon being invoked, our friend <code>#{}</code> sets to work telling the Ruby interpreter to call the <code>to_s</code> method on the object inside of itself. In the above example, those objects are <code>num1</code> and <code>num2</code>. Cool!</p>
+
+<h2>customizing our syntactic sugar: DateTime&#8217;z</h2>
+
+<p>This story has only just begun, y&#8217;all. Since Ruby is so awesome, we can of course (re-)define the <code>to_s</code> method at the Class level of our choosing. Consider instances of the <code>DateTime</code> class. I would like for string interpolation of DateTime instances to show up nice and legible - you know, like the way we normally communicate dates and times.</p>
+
+<pre><code class="ruby">"#{DateTime.now}"
+=&gt; "2013-10-30T12:39:02-04:00"
+</code></pre>
+
+<p>Hmm&hellip; gross. Parsing that mentally has taken me well over the 1 microsecond that I&rsquo;ve allotted for that task. In true Ruby fashion, let&rsquo;s dive into <code>DateTime</code>&rsquo;s <code>to_s</code> method and re-write it for the task at hand:</p>
+
+<pre><code class="ruby">class DateTime
+  def to_s
+    self.strftime("The date is %m/%d/%y, and the time is %r")
+    puts "Look! \#{} is just calling DateTime#to_s, which we overwrote to make our DateTime objects easier to read!"
+  end
+end
+"#{DateTime.now}"
+# Look! #{} is just calling DateTime#to_s, which we overwrote to make our DateTime objects easier to read!
+=&gt; "The date is 10/30/13, and the time is 01:31:15 PM"
+</code></pre>
+
+<p>This example demonstrates that the <code>#{}</code> is merely syntactic sugar that calls the <code>to_s</code> method as defined in the receiving object&rsquo;s class.</p>
+
+<pre><code class="ruby">apples = 4
+puts "I have #{apples} apples"
+puts "I have %s apples" % apples
+# I have 4 apples
+=&gt; nil
+</code></pre>
+
+<h2>main takeaways</h2>
+
+<p>Going forward, I intend to dive head-first into every example of syntactic sugar that I can get my eyeballs on, because the sugar always coats a delicious candy core of Ruby awesomeness.</p>
+]]></content>
+  </entry>
+  
+</feed>

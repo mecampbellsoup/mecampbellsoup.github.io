@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: ios | Technical Writings of a Cryptocurrency Evangelist]]></title>
+  <link href="http://mattcampbell.nyc/blog/categories/ios/atom.xml" rel="self"/>
+  <link href="http://mattcampbell.nyc/"/>
+  <updated>2015-07-29T12:58:28-04:00</updated>
+  <id>http://mattcampbell.nyc/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[using Xcode's iOS simulator to build your next webapp]]></title>
+    <link href="http://mattcampbell.nyc/2013/11/19/using-xcodes-ios-simulator-to-build-your-next-webapp/"/>
+    <updated>2013-11-19T20:19:00-05:00</updated>
+    <id>http://mattcampbell.nyc/2013/11/19/using-xcodes-ios-simulator-to-build-your-next-webapp</id>
+    <content type="html"><![CDATA[<h1>programmers need to be empathic</h1>
+
+<p>When building a web application, developers need to be empathetic - that is, they need to be really good at putting themselves in their users&#8217; shoes. And these days, &ldquo;users&rdquo; aren&rsquo;t just sitting in front of a desktop anymore; instead, people take their computers everywhere with them in the form of mobile smartphones.</p>
+
+<p>Are you in a public place? If so, look around. I mean it - really look around. What do you see? Most likely you can see people with heads lowered playing with their mobile phones.</p>
+
+<h2>3 quick facts to convince you mobile is f*$%ing important</h2>
+
+<ul>
+<li>91% of all people on earth have a mobile phone</li>
+<li>56% of people own a smart phone</li>
+<li><strong>50% of mobile phone users, use mobile as their primary Internet source</strong></li>
+</ul>
+
+
+<p>At this point you may be thinking: &ldquo;True. I should really make sure anything I&rsquo;m building is intended for use on a smartphone.&rdquo; Kudos to you. And luckily, many of the most popular web development frameworks are way ahead of you and me in responding to the tectonic mobile shift.  <a href="http://getbootstrap.com/">Twitter Bootstrap</a> and <a href="http://foundation.zurb.com/">Zurb Foundation</a> - a pair of front-end (mainly CSS) frameworks - are representative of this shift. Both compete for the title of &ldquo;most responsive, mobile-friendly framework&rdquo; and are obsessed with offering frameworks that render beautifully regardless of the size of the computer&rsquo;s screen.</p>
+
+<h2>&hellip;but building mobile-first can be annoying.</h2>
+
+<p>With this in mind, in order to be an empathetic developer these days, it&rsquo;s not a bad idea to approach UI/UX with a &ldquo;mobile-first&rdquo; mentality. But &ldquo;testing&rdquo; your app in a mobile context can be pretty annoying - you need to first constantly be on your phone and using it to experiment with your app (which, if you have an iPhone like me, means goodbye battery); you are always switching back and forth between laptop and mobile device; and finally, you have to either deploy your app earlier than desired or do some extra work to set up <a href="https://github.com/progrium/localtunnel">localtunnel</a> or <a href="https://ngrok.com/">ngrok</a> in order to make your localhost server accessible to your external mobile device.</p>
+
+<h2>Enter: iOS Simulator, a part of the Xcode development kit.</h2>
+
+<p><a href="http://cl.ly/image/3r2i2d2P012f">Screenshot of how I use it.</a></p>
+
+<p>This little guy solves that laundry list of problems I mentioned earlier:</p>
+
+<ol>
+<li>You never have to use your actual iPhone (preserve that precious battery)</li>
+<li>As a result, no more switching back and forth and using your phone for stuff you&rsquo;d rather be doing in your natural coding environment</li>
+<li>No need to deploy early or set up a localtunnel just so you can access your app&rsquo;s development environment from an iPhone</li>
+</ol>
+
+
+<p>And the good news keeps coming: for those of you who use Alfred (which should be anyone who spends lots of time on their computer), there&rsquo;s a workflow to make opening the iOS Simulator extremely fluid, fast and painless:</p>
+
+<p><a href="http://cl.ly/image/0o2g0R2N201Z">Visual of using the workflow - so simple!</a></p>
+
+<p><a href="http://www.alfredforum.com/topic/2126-launch-ios-simulator/">Here&rsquo;s a link</a> to where you can find that workflow as well.</p>
+
+<h2>goodnight, and good luck</h2>
+
+<p>This strategy has saved me lots of time, headache, and - especially - iPhone battery life. But more importantly, using the iOS Simulator has resulted in a more beautiful and responsive web application this time around since I was de facto engaged in the mobile experience from Day 1. (I basically never opened localhost:3000 in my web browser.) I hope you agree:</p>
+
+<p><a href="http://bit.ly/textmelater">TextMeLater</a></p>
+]]></content>
+  </entry>
+  
+</feed>

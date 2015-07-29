@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: hash | Technical Writings of a Cryptocurrency Evangelist]]></title>
+  <link href="http://mattcampbell.nyc/blog/categories/hash/atom.xml" rel="self"/>
+  <link href="http://mattcampbell.nyc/"/>
+  <updated>2015-07-29T12:58:28-04:00</updated>
+  <id>http://mattcampbell.nyc/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Using Lambdas as Computed Hashes in Ruby]]></title>
+    <link href="http://mattcampbell.nyc/2015/06/18/using-lambdas-as-computed-hashes-in-ruby/"/>
+    <updated>2015-06-18T11:22:00-04:00</updated>
+    <id>http://mattcampbell.nyc/2015/06/18/using-lambdas-as-computed-hashes-in-ruby</id>
+    <content type="html"><![CDATA[<p>I recently read a really interesting <a href="http://blog.honeybadger.io/using-lambdas-in-ruby">blurgh post</a> about the interesting, quirky aspects of lambdas in Ruby.</p>
+
+<p>One feature that stood out to me was lambdas&#8217; ability to stand in where hashes would normally be used.</p>
+
+<p>This functionality is made possible because, in Ruby, lambdas can be called in any of the following ways:</p>
+
+<pre><code class="ruby">l = lambda { |x| puts x }
+
+l.call("Foo") =&gt; "Foo"
+l.("Foo")     =&gt; "Foo" (admittedly this syntax is bizarre to me...)
+l["Foo"]      =&gt; "Foo" (looks like hash access using the typical Hash#[] method...)
+</code></pre>
+
+<p>The third way is the bridge between lambdas and the concept of &ldquo;computed hashes&rdquo;. I searched for a definition of computed hash, but didn&rsquo;t find much consensus. The working definition for this post would be something like:</p>
+
+<blockquote><p>A hash object whose values can be initialized (read: computed) at runtime based on logic declared elsewhere in the program.</p></blockquote>
+
+<h2>Putting It Together: An Example</h2>
+
+<p>When might the use of computed hashes, i.e. lambdas, be a favorable replacement to a normal hash?</p>
+
+<p>Let&rsquo;s say you&rsquo;re writing tests for your program and you want to add a degree of <a href="https://en.wikipedia.org/wiki/Fuzz_testing">&ldquo;fuzz testing&rdquo;</a>. As an example, perhaps one of your classes is initialized with <code>first_name</code> and <code>last_name</code> attributes (note the <code>initialize</code> method expects to receive a <code>Hash</code>-like argument as input in sticking with Rails convention), and then generates a <code>slug</code> to be used for query string parameters elsewhere in your application:</p>
+
+<pre><code class="ruby">class Person
+  attr_reader :first_name, :last_name
+
+  def initialize(hash_like_object = {})
+    @first_name = hash_like_object[:first_name]
+    @last_name  = hash_like_object[:last_name]
+  end
+
+  def slug
+    @slug ||= "#{first_name.downcase[0, 3]}-#{last_name.downcase[0, 3]}"
+  end
+end
+</code></pre>
+
+<p>Now let&rsquo;s generate an instance of the <code>Person</code> class to make sure everything looks OK:</p>
+
+<pre><code class="bash">ruby-2.2.2-p95 (main):0 &gt; matt = Person.new(first_name: "Matt", last_name: "Campbell")
+#&lt;Person:0x007fca00179bd0 @first_name="Matt", @last_name="Campbell"&gt;
+ruby-2.2.2-p95 (main):0 &gt; matt.slug
+"mat-cam"
+</code></pre>
+
+<p>This checks out. Our <code>slug</code> method is pretty dumb, but let&rsquo;s say it becomes more complex: we amend <code>slug</code> to handle duplicates. As it stands, &ldquo;Arthur MacCormack&rdquo; and &ldquo;Art MacNulty&rdquo; will have the same slug and so are not uniquely identifiable by their slug.</p>
+
+<p>The point of interest here is NOT the logic you end up implementing to make <code>slug</code> more unique. What&rsquo;s of interest is how you can fuzz test whatever logic you end up implementing throughout your test suite.</p>
+
+<h3>Faker + Computed Hash = Fuzz Testing</h3>
+
+<p><a href="https://github.com/stympy/faker">Faker</a> is a great library for generating random data, which I most typically use in conjunction with <a href="https://github.com/thoughtbot/factory_girl">FactoryGirl</a> to generate instances of my models (that is, the Ruby classes that represent the domain I&rsquo;m modelling in the application).</p>
+
+<p>Let&rsquo;s see how we can utilize a computed hash to improve the degree of fuzz testing in my unit tests:</p>
+
+<pre><code class="ruby">require 'faker'
+
+# Here is the Person class definition again for reference.
+
+class Person
+  attr_reader :first_name, :last_name
+
+  def initialize(hash_like_object = {})
+    # The next two lines work because our hash-like-object, in some cases a lambda,
+    # can be called using the same [] syntax as Hash#[]
+    @first_name = hash_like_object[:first_name]
+    @last_name  = hash_like_object[:last_name]
+  end
+
+  def slug
+    @slug ||= "#{first_name.downcase[0, 3]}-#{last_name.downcase[0, 3]}"
+  end
+end
+</code></pre>
+
+<pre><code class="ruby"># Construct our computed hash lambda...
+
+randomizer = lambda { |k| Faker::Name.send(k) }
+</code></pre>
+
+<p>And, voilà, we can initialize <code>Person</code> instances using our <code>randomizer</code> (which is in fact a lambda, and not a hash):</p>
+
+<pre><code class="ruby">ruby-2.2.2-p95 (main):0 &gt; person = Person.new(randomizer)
+#&lt;Person:0x007f81f0dfc8b0 @first_name="Nedra", @last_name="Pouros"&gt;
+ruby-2.2.2-p95 (main):0 &gt; person.first_name
+"Nedra"
+ruby-2.2.2-p95 (main):0 &gt; person.last_name
+"Pouros"
+ruby-2.2.2-p95 (main):0 &gt; person.slug
+"ned-pou"
+</code></pre>
+
+<h2>tl;dr</h2>
+
+<p>Need to generate pseudo-random instances of your classes in order to utilize fuzz testing across your test suite? Try initializing your instances using a computed hash, which in Ruby can be implemented using a lambda and <code>call</code>-ing it using the hash accessor <code>Hash#[]</code> that you&rsquo;re used to seeing.</p>
+]]></content>
+  </entry>
+  
+</feed>

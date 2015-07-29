@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: errors | Technical Writings of a Cryptocurrency Evangelist]]></title>
+  <link href="http://mattcampbell.nyc/blog/categories/errors/atom.xml" rel="self"/>
+  <link href="http://mattcampbell.nyc/"/>
+  <updated>2015-07-29T12:58:28-04:00</updated>
+  <id>http://mattcampbell.nyc/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[things avi said today]]></title>
+    <link href="http://mattcampbell.nyc/2013/09/29/things-avi-said-today/"/>
+    <updated>2013-09-29T16:48:00-04:00</updated>
+    <id>http://mattcampbell.nyc/2013/09/29/things-avi-said-today</id>
+    <content type="html"><![CDATA[<p>I love errors. I can’t wait to get past one and say, “Great, I wonder what my next error is?!”</p>
+
+<p>The answer is in the error itself. Read the entire thing, even the parts that make no sense.</p>
+
+<p>Read error messages backwards. (You shut off your brain’s interpretation &amp; are forced to read each word individually.)</p>
+
+<p>Abstraction in Ruby is the act of hiding away details.</p>
+
+<p>Beautiful code looks beautiful. Fast code is not beautiful code.</p>
+
+<p>Single Responsibility Principle (SRP). One part of a program is responsible for one thing &amp; one thing only.</p>
+]]></content>
+  </entry>
+  
+</feed>

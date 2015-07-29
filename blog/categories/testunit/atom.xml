@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: testunit | Technical Writings of a Cryptocurrency Evangelist]]></title>
+  <link href="http://mattcampbell.nyc/blog/categories/testunit/atom.xml" rel="self"/>
+  <link href="http://mattcampbell.nyc/"/>
+  <updated>2015-07-29T12:58:28-04:00</updated>
+  <id>http://mattcampbell.nyc/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[running simple Test::Unit specs in sublime]]></title>
+    <link href="http://mattcampbell.nyc/2013/11/16/running-terse-test-unit-specs-in-sublime/"/>
+    <updated>2013-11-16T11:08:00-05:00</updated>
+    <id>http://mattcampbell.nyc/2013/11/16/running-terse-test-unit-specs-in-sublime</id>
+    <content type="html"><![CDATA[<h1>Setting the Stage: Codewars</h1>
+
+<p><a href="www.codewars.com/r/LqvZzw">Codewars</a> is this awesome site where you can learn Ruby or JS by training on &ldquo;katas&rdquo; and climbing the ranks of code warriors on the site. The more elegant and efficient your solution to increasingly difficult challenges, the more honor you incur.</p>
+
+<p>I&rsquo;ve been working through a few on the Ruby side of things, and interestingly enough the Codewars team has built in to the platform <a href="http://www.codewars.com/docs/kata-test-framework">their own testing DSL</a>. It&rsquo;s sort of a mut: they&rsquo;ve borrowed all the best elements of Ruby&rsquo;s most popular frameworks, including RSpec, T::U and MiniTest. The result: for every langauga kata set on Codewars, there is a Test class/prototype (I say prototype because of JavaScript&rsquo;s unique twist on object-orientation and inheritance). Users can then easily design their own tests as instances of this parent class by invoking very natural-sounding methods like &lsquo;expect&rsquo; (from RSpec), &lsquo;assert_equal&rsquo; (from T::U), and so on.</p>
+
+<h2>the path to enlightenment was winding</h2>
+
+<p>Now while that sounds straightforward enough, I must confess it took me a solid couple of hours to realize that Codewars was not using a native Ruby test framework, but rather was utilizing their own testing API (and not just using some built-in T::U syntactic sugar or something):</p>
+
+<pre><code class="ruby"># Create your own tests here. These are some of the methods available:
+#  Test.expect(boolean, [optional] message) 
+#  Test.assert_equals(actual, expected, [optional] message)
+#  Test.assert_not_equals(actual, expected, [optional] message) 
+</code></pre>
+
+<p><a href="http://www.codewars.com/docs/ruby-test-reference">Here&rsquo;s the docs for the Ruby Test methods</a> that are provided by Codewars&#8217; API. Pretty fancy, huh?</p>
+
+<h2>simpler route: use RSpec, even for miniscule test suites</h2>
+
+<p>While I appreciate the work the Codewars guys have done on this Test module, I don&rsquo;t think learning yet another testing DSL (even though it&rsquo;s only slightly different from RSpec) makes any sense. I&rsquo;m actually a little confused as to why they would implement their own test framework in lieu of one of the already-accepted and ubiquitous frameworks like RSpec.</p>
+
+<p>I prefer to do as close to 100% of my code-writing in Sublime as possible (practice makes perfect, ya&#8217; know?)</p>
+]]></content>
+  </entry>
+  
+</feed>

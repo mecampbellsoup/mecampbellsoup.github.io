@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: debugging | Technical Writings of a Cryptocurrency Evangelist]]></title>
+  <link href="http://mattcampbell.nyc/blog/categories/debugging/atom.xml" rel="self"/>
+  <link href="http://mattcampbell.nyc/"/>
+  <updated>2015-07-29T12:58:28-04:00</updated>
+  <id>http://mattcampbell.nyc/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[how to: use binding.pry more effectively within enumerables]]></title>
+    <link href="http://mattcampbell.nyc/2013/12/07/make-debugging-with-binding-dot-pry-much-more-effective/"/>
+    <updated>2013-12-07T16:02:00-05:00</updated>
+    <id>http://mattcampbell.nyc/2013/12/07/make-debugging-with-binding-dot-pry-much-more-effective</id>
+    <content type="html"><![CDATA[<h1>what is pry?</h1>
+
+<p>When I first discovered the <a href="https://github.com/pry/pry">Pry gem</a>, I felt like I&rsquo;d won the lottery. At long last I had found a gem library that enabled me to simply insert a line of code - <code>binding.pry</code> - anywhere into my codebase that would drop me into an IRB session at that exact point at runtime. It sort of feels like air dropping a team of Ruby SEALs into enemy lines in order to eliminate those dreaded bugs.</p>
+
+<h2>using pry: best practice</h2>
+
+<p>Let&rsquo;s talk about a quick example of using Pry in a Ruby file.</p>
+
+<p>Let&rsquo;s say you have an array of 10<sup>6</sup> elements, and you&rsquo;d like to iterate through each one and call a fancy method on it:</p>
+
+<p>BAD USAGE OF PRY:</p>
+
+<pre><code class="ruby">(1..10**6).each do |i|
+  collatz = Collatz.new(i)
+  collatz_length = collatz.length
+  biggest = collatz if collatz_length &gt; biggest_length
+  binding.pry
+end
+</code></pre>
+
+<p>In this case, I was trying to solve <a href="http://projecteuler.net/problem=14">Project Euler problem #14</a>, the Collatz sequence. At some point, I wanted to refactor my <code>Collatz#length</code> method since it was taking <strong>FOREVER</strong> to get through all one-million items in the array to find the largest sequence.</p>
+
+<p>Man do I love Ruby. By adding just a few words of code, my bad (read: ineffective) use of Pry becomes extremely effective:</p>
+
+<p>GOOD USAGE OF PRY:</p>
+
+<pre><code class="ruby">(1..10**6).each do |i|
+  collatz = Collatz.new(i)
+  collatz_length = collatz.length
+  biggest = collatz if collatz_length &gt; biggest_length
+  binding.pry if i == 100 || i == 1000
+end
+</code></pre>
+
+<p>By adding in this conditional Pry debugger, I&rsquo;m able to ensure that - as I&rsquo;m iterating through a gigantic array of a million items - I&rsquo;m getting the expected <code>Collatz</code> class behavior along the way at or around the one-hundredth &amp; one-thousandth elements, respectively.</p>
+
+<h2>conclusion</h2>
+
+<p>While this &ldquo;pro tip&rdquo; may have been fairly obvious to many of you Rubyists from the get-go, it didn&rsquo;t occur to me that I could treat <code>binding.pry</code> just like any other method call in Ruby&hellip; allowing me to wrap that method call into some conditional logic at runtime.</p>
+
+<p>Thanks for reading!</p>
+]]></content>
+  </entry>
+  
+</feed>

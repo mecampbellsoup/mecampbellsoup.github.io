@@ -1,0 +1,354 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Using Xcode&#8217;s iOS Simulator to Build Your Next Webapp - Technical Writings of a Cryptocurrency Evangelist</title>
+  <meta name="author" content="Matt Campbell">
+
+  
+  <meta name="description" content="programmers need to be empathic When building a web application, developers need to be empathetic - that is, they need to be really good at putting &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://mattcampbell.nyc/2013/11/19/using-xcodes-ios-simulator-to-build-your-next-webapp/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Technical Writings of a Cryptocurrency Evangelist" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><div class="jumbotron">
+  <div class="container">
+    programming polyglot for hire.
+    <h3 class="tagline">Technical Writings of a Cryptocurrency Evangelist</h3>
+  </div>
+</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="mattcampbell.nyc">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="nav">
+    
+        <li ><a href="/index.html">Home</a></li>
+    
+        <li ><a href="/blog/archives/index.html">Archives</a></li>
+    
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Using Xcode&#8217;s iOS Simulator to Build Your Next Webapp</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-11-19T20:19:00-05:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>19</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:19 pm</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://mattcampbell.nyc">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h1>programmers need to be empathic</h1>
+
+<p>When building a web application, developers need to be empathetic - that is, they need to be really good at putting themselves in their users&#8217; shoes. And these days, &ldquo;users&rdquo; aren&rsquo;t just sitting in front of a desktop anymore; instead, people take their computers everywhere with them in the form of mobile smartphones.</p>
+
+<p>Are you in a public place? If so, look around. I mean it - really look around. What do you see? Most likely you can see people with heads lowered playing with their mobile phones.</p>
+
+<h2>3 quick facts to convince you mobile is f*$%ing important</h2>
+
+<ul>
+<li>91% of all people on earth have a mobile phone</li>
+<li>56% of people own a smart phone</li>
+<li><strong>50% of mobile phone users, use mobile as their primary Internet source</strong></li>
+</ul>
+
+
+<p>At this point you may be thinking: &ldquo;True. I should really make sure anything I&rsquo;m building is intended for use on a smartphone.&rdquo; Kudos to you. And luckily, many of the most popular web development frameworks are way ahead of you and me in responding to the tectonic mobile shift.  <a href="http://getbootstrap.com/">Twitter Bootstrap</a> and <a href="http://foundation.zurb.com/">Zurb Foundation</a> - a pair of front-end (mainly CSS) frameworks - are representative of this shift. Both compete for the title of &ldquo;most responsive, mobile-friendly framework&rdquo; and are obsessed with offering frameworks that render beautifully regardless of the size of the computer&rsquo;s screen.</p>
+
+<h2>&hellip;but building mobile-first can be annoying.</h2>
+
+<p>With this in mind, in order to be an empathetic developer these days, it&rsquo;s not a bad idea to approach UI/UX with a &ldquo;mobile-first&rdquo; mentality. But &ldquo;testing&rdquo; your app in a mobile context can be pretty annoying - you need to first constantly be on your phone and using it to experiment with your app (which, if you have an iPhone like me, means goodbye battery); you are always switching back and forth between laptop and mobile device; and finally, you have to either deploy your app earlier than desired or do some extra work to set up <a href="https://github.com/progrium/localtunnel">localtunnel</a> or <a href="https://ngrok.com/">ngrok</a> in order to make your localhost server accessible to your external mobile device.</p>
+
+<h2>Enter: iOS Simulator, a part of the Xcode development kit.</h2>
+
+<p><a href="http://cl.ly/image/3r2i2d2P012f">Screenshot of how I use it.</a></p>
+
+<p>This little guy solves that laundry list of problems I mentioned earlier:</p>
+
+<ol>
+<li>You never have to use your actual iPhone (preserve that precious battery)</li>
+<li>As a result, no more switching back and forth and using your phone for stuff you&rsquo;d rather be doing in your natural coding environment</li>
+<li>No need to deploy early or set up a localtunnel just so you can access your app&rsquo;s development environment from an iPhone</li>
+</ol>
+
+
+<p>And the good news keeps coming: for those of you who use Alfred (which should be anyone who spends lots of time on their computer), there&rsquo;s a workflow to make opening the iOS Simulator extremely fluid, fast and painless:</p>
+
+<p><a href="http://cl.ly/image/0o2g0R2N201Z">Visual of using the workflow - so simple!</a></p>
+
+<p><a href="http://www.alfredforum.com/topic/2126-launch-ios-simulator/">Here&rsquo;s a link</a> to where you can find that workflow as well.</p>
+
+<h2>goodnight, and good luck</h2>
+
+<p>This strategy has saved me lots of time, headache, and - especially - iPhone battery life. But more importantly, using the iOS Simulator has resulted in a more beautiful and responsive web application this time around since I was de facto engaged in the mobile experience from Day 1. (I basically never opened localhost:3000 in my web browser.) I hope you agree:</p>
+
+<p><a href="http://bit.ly/textmelater">TextMeLater</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Matt Campbell</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-11-19T20:19:00-05:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>19</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:19 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ios/'>ios</a>, <a class='category' href='/blog/categories/rails/'>rails</a>, <a class='category' href='/blog/categories/xcode/'>xcode</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://mattcampbell.nyc/2013/11/19/using-xcodes-ios-simulator-to-build-your-next-webapp/" data-via="mecampbellsoup" data-counturl="http://mattcampbell.nyc/2013/11/19/using-xcodes-ios-simulator-to-build-your-next-webapp/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2013/11/16/custom-logic-in-your-rails-applications-navbar/" title="Previous Post: guiding your users: custom logic in your rails application's navbar">&laquo; guiding your users: custom logic in your rails application&#8217;s navbar</a>
+      
+      
+        <a class="basic-alignment right" href="/2013/12/07/make-debugging-with-binding-dot-pry-much-more-effective/" title="Next Post: how to: use binding.pry more effectively within enumerables">how to: use binding.pry more effectively within enumerables &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Like This Blog? Leave a Tip with Bitcoin!</h1>
+  <div>
+    <a id="btc-qr-code" href="bitcoin:1FsPgV2CCVNs4i515JqkPujmKdge3573eD?amount=0.05&label=Matt%20Campbell%20Dev%20Blog">
+      <img src="/images/btc-ledger-wallet-qr-code.png">
+    </a>
+    <p>1FsPgV2CCVNs4i515JqkPujmKdge3573eD</p>
+  </div>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/06/18/using-lambdas-as-computed-hashes-in-ruby/">Using Lambdas as Computed Hashes in Ruby</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/05/30/domain-modeling-mom-and-pop-merchants/">Domain Modeling Mom &#8216;N Pop Merchants in a Mobile Finance Platform</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/05/27/how-to-easy-manual-testing-a-json-http-endpoint/">How-To: Manual JSON-endpoint Testing Made Easy</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/12/07/make-debugging-with-binding-dot-pry-much-more-effective/">How to: Use binding.pry More Effectively Within Enumerables</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/11/19/using-xcodes-ios-simulator-to-build-your-next-webapp/">Using Xcode&#8217;s iOS Simulator to Build Your Next Webapp</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/mecampbellsoup">@mecampbellsoup</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'mecampbellsoup',
+            count: 4,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://facebook.com/mecampbell25">
+      <img src="http://static.viewbook.com/images/social_icons/facebook_32.png" width="32" height="32">
+      Facebook
+    </a>
+  </h1>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/101058099009530081039?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Matt Campbell -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'mecampbellsoup';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://mattcampbell.nyc/2013/11/19/using-xcodes-ios-simulator-to-build-your-next-webapp/';
+        var disqus_url = 'http://mattcampbell.nyc/2013/11/19/using-xcodes-ios-simulator-to-build-your-next-webapp/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

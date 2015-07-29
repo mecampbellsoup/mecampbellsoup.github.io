@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: rails | Technical Writings of a Cryptocurrency Evangelist]]></title>
+  <link href="http://mattcampbell.nyc/blog/categories/rails/atom.xml" rel="self"/>
+  <link href="http://mattcampbell.nyc/"/>
+  <updated>2015-07-29T12:58:28-04:00</updated>
+  <id>http://mattcampbell.nyc/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Domain Modeling Mom 'n Pop Merchants in a Mobile Finance Platform]]></title>
+    <link href="http://mattcampbell.nyc/2015/05/30/domain-modeling-mom-and-pop-merchants/"/>
+    <updated>2015-05-30T11:04:19-04:00</updated>
+    <id>http://mattcampbell.nyc/2015/05/30/domain-modeling-mom-and-pop-merchants</id>
+    <content type="html"><![CDATA[<p>In my primary work project currently, I&rsquo;m working with a small startup to build a mobile finance platform for the developing world.</p>
+
+<p>The reason: people in the developing world are largely unbanked. Estimates vary, but around <a href="http://siteresources.worldbank.org/EXTGLOBALFIN/Resources/8519638-1332259343991/world_bank3_Poster.pdf">59% of adults in developing economies don&rsquo;t have an account at a financial institution.</a> That said, using modern technologies (read: <em>really</em> cheap mobile phones, Bitcoin, and the web) it should be possible to bring banking-like services to the 2.5 billion people that use cash day-to-day almost exclusively.</p>
+
+<h2>Where the idea of Merchants comes in to play</h2>
+
+<p>In order to get our targeted users off cash, and onto a mobile finance platform, we need merchants in the developing world to be ready to accept payment via this mobile finance platform (which I&rsquo;ll henceforth refer to as &ldquo;MobiCommerce&rdquo; for short).</p>
+
+<p>In many ways, &lsquo;merchants&rsquo; in our domain will be similar to everyday &lsquo;users&rsquo;, in that they&rsquo;ll be sending and receiving funds virtually via MobiCommerce.</p>
+
+<p>Here is the <code>User</code> resource&rsquo;s schema for staters:</p>
+
+<pre><code class="ruby">create_table "users", force: :cascade do |t|
+  t.string   "phone_number",                        null: false
+  t.datetime "created_at",                          null: false
+  t.datetime "updated_at",                          null: false
+  t.integer  "status",                default: 0,   null: false
+  t.string   "name"
+  t.string   "pin"
+  t.decimal  "balance",               default: 0.0, null: false
+  t.string   "device_id"
+  t.integer  "balance_inquiry_count"
+  t.string   "locale",                              null: false
+  t.integer  "referrer_id"
+end
+</code></pre>
+
+<p>The main attributes of interest for a particular <code>User</code> are <code>phone_number</code>, <code>pin</code>, and <code>balance</code> (at least insofar as executing a transaction on the platform is concerned).</p>
+
+<h3>What&rsquo;s different about a merchant?</h3>
+
+<p>Originally, my answer to this question was something along the lines of: &ldquo;Not that much is different. I&rsquo;ll basically just need to slightly different messages in the transaction process.&rdquo; For example, we&rsquo;re planning to charge a small fee to merchants in order to accept MobiCommerce as a payment option at their shops. So we&rsquo;d need the system to identiy that a merchant is on the receiving end of a transfer/transaction, and alert them via SMS accordingly - including notifying the merchant of the fee that will be taken out.</p>
+
+<p>To domain model this, I first reached for <a href="http://makandracards.com/makandra/16077-inherit-without-single-table-inheritance-sti-in-activerecord">inheritance</a>:</p>
+
+<pre><code class="ruby"># app/models/user/merchant.rb
+class User::Merchant &lt; User
+  after_create :onboard_merchant!
+
+  private
+
+  def onboard_merchant!
+    TELEPHONY_CLIENT.send_sms(to: self.phone, message: "Reply with your business name", from: self.device_id)
+  end
+end
+</code></pre>
+
+<p>However, this just felt wrong to me. Typically, subclassing an <code>ActiveRecord</code>-backed model in Rails is best for organizing a limited &amp; specific set of domain-specific behavior. The classic example is something like:</p>
+
+<pre><code class="ruby">class SignUp &lt; User ; end
+</code></pre>
+
+<p>Now, that <code>SignUp</code> class is a great place to put things like <code>validates :password_confirmation, presence: true</code> kinda&#8217; business logic. The term for this in Ruby is <a href="http://railscasts.com/episodes/416-form-objects">&ldquo;form models&rdquo;</a>. Any domain and/or business logic that pertains uniquely to signing up a user now has a home. This class gives you a perfect place to <a href="http://samurails.com/interview/ruby-inheritance-encapsulation-polymorphism/">encapsulate</a> that behavior.</p>
+
+<h2>The Break Point</h2>
+
+<p>I quickly hit a point with my <code>Merchant</code> resource where I realized it had outgrown its inheritance from the <code>User</code> class. Instead of simply adding merchant-specific business logic &amp; behaviors into this class, I found myself overwriting many of the methods inherited from <code>User</code> in order to tweak the desired behavior when a merchant was involved in a transaction.</p>
+
+<h3>A merchant is really just a user with an associated <code>Business</code>&hellip;</h3>
+
+<p>Thanks to my good friend <a href="https://twitter.com/creeefs">Chris Lee</a>, I arrived at a much better solution to this &ldquo;where to house my <code>Merchant</code> business logic&rdquo; predicament.</p>
+
+<p>Remember, I originally inherited from <code>User</code> because I still needed all the logic that connected two people (merchants or non-merchants alike) doing a financial transaction - either a payment to a store, or a Venmo-style peer-to-peer transfer.</p>
+
+<p>Chris pointed out that I could instead organize my merchant-related logic into its own model, called <code>Business</code>. Now, a &ldquo;merchant&rdquo; in my system is simply:</p>
+
+<pre><code class="ruby">class User &lt; ActiveRecord::Base
+  # most code omitted...
+  has_one :business
+
+  def merchant?
+    business.present?
+  end
+end
+</code></pre>
+
+<p>That is, it&rsquo;s just a user instance with an associated business. Much cleaner, much more elegant, and much more expressive. Let&rsquo;s look at some examples.</p>
+
+<p>First, this is how I can assess the merchant-specific transaction fee within my <code>Transaction</code> class:</p>
+
+<pre><code class="ruby">class Transaction &lt; ActiveRecord::Base
+  # most code omitted...
+  belongs_to :sender, class_name: User
+  belongs_to :receiver, class_name: User
+
+  before_create :assess_merchant_fee!, if: :receiver_is_merchant?
+
+  private
+
+  def receiver_is_merchant?
+      receiver.merchant?
+  end
+
+  def assess_merchant_fee!
+    # deduct the fee from the amount received by the merchant and notify them...
+  end
+end
+</code></pre>
+
+<p>I was so relieved that I had a home for all of my <code>Business</code>-related logic, that I felt compelled to write this blog post. I hope you&rsquo;ve enjoyed reading it :smile:</p>
+
+<p>P.S. From what I understand, Facebook uses this same approach to managing their Business Pages.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[using Xcode's iOS simulator to build your next webapp]]></title>
+    <link href="http://mattcampbell.nyc/2013/11/19/using-xcodes-ios-simulator-to-build-your-next-webapp/"/>
+    <updated>2013-11-19T20:19:00-05:00</updated>
+    <id>http://mattcampbell.nyc/2013/11/19/using-xcodes-ios-simulator-to-build-your-next-webapp</id>
+    <content type="html"><![CDATA[<h1>programmers need to be empathic</h1>
+
+<p>When building a web application, developers need to be empathetic - that is, they need to be really good at putting themselves in their users&#8217; shoes. And these days, &ldquo;users&rdquo; aren&rsquo;t just sitting in front of a desktop anymore; instead, people take their computers everywhere with them in the form of mobile smartphones.</p>
+
+<p>Are you in a public place? If so, look around. I mean it - really look around. What do you see? Most likely you can see people with heads lowered playing with their mobile phones.</p>
+
+<h2>3 quick facts to convince you mobile is f*$%ing important</h2>
+
+<ul>
+<li>91% of all people on earth have a mobile phone</li>
+<li>56% of people own a smart phone</li>
+<li><strong>50% of mobile phone users, use mobile as their primary Internet source</strong></li>
+</ul>
+
+
+<p>At this point you may be thinking: &ldquo;True. I should really make sure anything I&rsquo;m building is intended for use on a smartphone.&rdquo; Kudos to you. And luckily, many of the most popular web development frameworks are way ahead of you and me in responding to the tectonic mobile shift.  <a href="http://getbootstrap.com/">Twitter Bootstrap</a> and <a href="http://foundation.zurb.com/">Zurb Foundation</a> - a pair of front-end (mainly CSS) frameworks - are representative of this shift. Both compete for the title of &ldquo;most responsive, mobile-friendly framework&rdquo; and are obsessed with offering frameworks that render beautifully regardless of the size of the computer&rsquo;s screen.</p>
+
+<h2>&hellip;but building mobile-first can be annoying.</h2>
+
+<p>With this in mind, in order to be an empathetic developer these days, it&rsquo;s not a bad idea to approach UI/UX with a &ldquo;mobile-first&rdquo; mentality. But &ldquo;testing&rdquo; your app in a mobile context can be pretty annoying - you need to first constantly be on your phone and using it to experiment with your app (which, if you have an iPhone like me, means goodbye battery); you are always switching back and forth between laptop and mobile device; and finally, you have to either deploy your app earlier than desired or do some extra work to set up <a href="https://github.com/progrium/localtunnel">localtunnel</a> or <a href="https://ngrok.com/">ngrok</a> in order to make your localhost server accessible to your external mobile device.</p>
+
+<h2>Enter: iOS Simulator, a part of the Xcode development kit.</h2>
+
+<p><a href="http://cl.ly/image/3r2i2d2P012f">Screenshot of how I use it.</a></p>
+
+<p>This little guy solves that laundry list of problems I mentioned earlier:</p>
+
+<ol>
+<li>You never have to use your actual iPhone (preserve that precious battery)</li>
+<li>As a result, no more switching back and forth and using your phone for stuff you&rsquo;d rather be doing in your natural coding environment</li>
+<li>No need to deploy early or set up a localtunnel just so you can access your app&rsquo;s development environment from an iPhone</li>
+</ol>
+
+
+<p>And the good news keeps coming: for those of you who use Alfred (which should be anyone who spends lots of time on their computer), there&rsquo;s a workflow to make opening the iOS Simulator extremely fluid, fast and painless:</p>
+
+<p><a href="http://cl.ly/image/0o2g0R2N201Z">Visual of using the workflow - so simple!</a></p>
+
+<p><a href="http://www.alfredforum.com/topic/2126-launch-ios-simulator/">Here&rsquo;s a link</a> to where you can find that workflow as well.</p>
+
+<h2>goodnight, and good luck</h2>
+
+<p>This strategy has saved me lots of time, headache, and - especially - iPhone battery life. But more importantly, using the iOS Simulator has resulted in a more beautiful and responsive web application this time around since I was de facto engaged in the mobile experience from Day 1. (I basically never opened localhost:3000 in my web browser.) I hope you agree:</p>
+
+<p><a href="http://bit.ly/textmelater">TextMeLater</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[guiding your users: custom logic in your rails application's navbar]]></title>
+    <link href="http://mattcampbell.nyc/2013/11/16/custom-logic-in-your-rails-applications-navbar/"/>
+    <updated>2013-11-16T18:01:00-05:00</updated>
+    <id>http://mattcampbell.nyc/2013/11/16/custom-logic-in-your-rails-applications-navbar</id>
+    <content type="html"><![CDATA[<h1>navbars are important</h1>
+
+<p>Real talk: navbars are fantastic. They&rsquo;re really good at their job, which is providing a constant set of routes to your users to find their way around. No user ever gets lost when there&rsquo;s a good navbar around to help out.</p>
+
+<p>New Rails projects ship with an application layout (that is, <code>application.html.erb</code> file) that provides an ideal home for our navbar since we want the bar to always be visible at the top of our app, and the application layour is rendered by all views by default.</p>
+
+<p>The problem with navbars is that they typically aren&rsquo;t very intelligent. For example, when you&rsquo;re currently viewing a webpage within an application, most of the time the navigation bar does not update to hide that option dynamically. Why, oh why, would you want to click the same link twice? If you feel me on this one, keep reading&hellip;</p>
+
+<h2>how to make your navigation bars dynamic</h2>
+
+<p>I set out to make my navigation bar dynamic (meaning, again, that it would update its contents/links based on which view page the user was currently looking at), and found it was actually pretty straightforward thanks to inheritance in Ruby.</p>
+
+<h3>the problem, in words</h3>
+
+<p>Abstractly, the goal is to create some object that&rsquo;s available throughout my application, in all my controllers and views, that will contain the logic and knowledge of the last URL that the user requested. This way, if a user has just clicked, say, &ldquo;About&rdquo; on your navigation bar, the next view should not continue to show that link since it&rsquo;s become redundant.</p>
+
+<h3>the solution, in words</h3>
+
+<p>I know that every request hitting my application generates a new instance of the controller behind that particular endpoint. I also know that all of my controllers inherit from a master controller of sorts, which is typically <code>ApplicationController</code> in Rails. Therefore, since my other controllers - the ones actually doing the work of passing data between my models and views - inherit directly from <code>ApplicationController</code>, I figured I could write a method there that did some introspection on the most recent <code>ActionDispatch::Request</code> object in order to keep track of the last request&rsquo;s URL. In code, this strategy looked something like this:</p>
+
+<pre><code class="ruby">class ApplicationController &lt; ActionController::Base
+  private
+
+  def set_current_url
+    @current_path = request.path
+  end
+
+  # rest of class omitted for brevity
+end
+</code></pre>
+
+<p>So easy! Through this code, I now had access to the <code>@current_path</code> variable that would be available at each point in time within my views. Here is how I made use of that object (which is available via the <code>set_current_path</code> method) in my views in my application layout file:</p>
+
+<pre><code class="ruby">&lt;nav class="navbar navbar-inverse" role="navigation"&gt;
+  &lt;!-- Brand and toggle get grouped for better mobile display --&gt;
+  &lt;div class="navbar-header"&gt;
+
+    &lt;% unless @current_path.match(players_path) %&gt;
+      &lt;button type="button" class="btn btn-default navbar-btn" data-toggle="collapse" align="center"&gt;
+         &lt;%= link_to "Ladder Rankings", players_path %&gt;
+      &lt;/button&gt;
+    &lt;% end %&gt;
+
+    &lt;% unless @current_path.match(timer_path) %&gt;
+      &lt;button type="button" class="btn btn-default navbar-btn" data-toggle="collapse" align="center"&gt;
+         &lt;%= link_to "Game Timer", timer_path %&gt;
+      &lt;/button&gt;
+    &lt;% end %&gt;
+
+    &lt;% unless @current_path == challenges_path %&gt;
+      &lt;button type="button" class="btn btn-default navbar-btn" data-toggle="collapse" align="center"&gt;
+         &lt;%= link_to "Battle History", challenges_path %&gt;
+      &lt;/button&gt;
+    &lt;% end %&gt;
+
+    &lt;% unless @current_path == new_challenge_path %&gt;
+      &lt;button type="button" class="btn btn-default navbar-btn" data-toggle="collapse" align="center"&gt;
+         &lt;%= link_to "Record an Outcome", new_challenge_path %&gt;
+      &lt;/button&gt;
+    &lt;% end %&gt;
+
+  &lt;/div&gt;
+&lt;/nav&gt;
+</code></pre>
+
+<p>Now, my navigation bar updates dynamically, presenting the user only with logical options for their next to-be-viewed page or resource in my application. Fantastic!</p>
+]]></content>
+  </entry>
+  
+</feed>

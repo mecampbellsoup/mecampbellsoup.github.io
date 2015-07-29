@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: ruby | Technical Writings of a Cryptocurrency Evangelist]]></title>
+  <link href="http://mattcampbell.nyc/blog/categories/ruby/atom.xml" rel="self"/>
+  <link href="http://mattcampbell.nyc/"/>
+  <updated>2015-07-29T12:58:28-04:00</updated>
+  <id>http://mattcampbell.nyc/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Using Lambdas as Computed Hashes in Ruby]]></title>
+    <link href="http://mattcampbell.nyc/2015/06/18/using-lambdas-as-computed-hashes-in-ruby/"/>
+    <updated>2015-06-18T11:22:00-04:00</updated>
+    <id>http://mattcampbell.nyc/2015/06/18/using-lambdas-as-computed-hashes-in-ruby</id>
+    <content type="html"><![CDATA[<p>I recently read a really interesting <a href="http://blog.honeybadger.io/using-lambdas-in-ruby">blurgh post</a> about the interesting, quirky aspects of lambdas in Ruby.</p>
+
+<p>One feature that stood out to me was lambdas&#8217; ability to stand in where hashes would normally be used.</p>
+
+<p>This functionality is made possible because, in Ruby, lambdas can be called in any of the following ways:</p>
+
+<pre><code class="ruby">l = lambda { |x| puts x }
+
+l.call("Foo") =&gt; "Foo"
+l.("Foo")     =&gt; "Foo" (admittedly this syntax is bizarre to me...)
+l["Foo"]      =&gt; "Foo" (looks like hash access using the typical Hash#[] method...)
+</code></pre>
+
+<p>The third way is the bridge between lambdas and the concept of &ldquo;computed hashes&rdquo;. I searched for a definition of computed hash, but didn&rsquo;t find much consensus. The working definition for this post would be something like:</p>
+
+<blockquote><p>A hash object whose values can be initialized (read: computed) at runtime based on logic declared elsewhere in the program.</p></blockquote>
+
+<h2>Putting It Together: An Example</h2>
+
+<p>When might the use of computed hashes, i.e. lambdas, be a favorable replacement to a normal hash?</p>
+
+<p>Let&rsquo;s say you&rsquo;re writing tests for your program and you want to add a degree of <a href="https://en.wikipedia.org/wiki/Fuzz_testing">&ldquo;fuzz testing&rdquo;</a>. As an example, perhaps one of your classes is initialized with <code>first_name</code> and <code>last_name</code> attributes (note the <code>initialize</code> method expects to receive a <code>Hash</code>-like argument as input in sticking with Rails convention), and then generates a <code>slug</code> to be used for query string parameters elsewhere in your application:</p>
+
+<pre><code class="ruby">class Person
+  attr_reader :first_name, :last_name
+
+  def initialize(hash_like_object = {})
+    @first_name = hash_like_object[:first_name]
+    @last_name  = hash_like_object[:last_name]
+  end
+
+  def slug
+    @slug ||= "#{first_name.downcase[0, 3]}-#{last_name.downcase[0, 3]}"
+  end
+end
+</code></pre>
+
+<p>Now let&rsquo;s generate an instance of the <code>Person</code> class to make sure everything looks OK:</p>
+
+<pre><code class="bash">ruby-2.2.2-p95 (main):0 &gt; matt = Person.new(first_name: "Matt", last_name: "Campbell")
+#&lt;Person:0x007fca00179bd0 @first_name="Matt", @last_name="Campbell"&gt;
+ruby-2.2.2-p95 (main):0 &gt; matt.slug
+"mat-cam"
+</code></pre>
+
+<p>This checks out. Our <code>slug</code> method is pretty dumb, but let&rsquo;s say it becomes more complex: we amend <code>slug</code> to handle duplicates. As it stands, &ldquo;Arthur MacCormack&rdquo; and &ldquo;Art MacNulty&rdquo; will have the same slug and so are not uniquely identifiable by their slug.</p>
+
+<p>The point of interest here is NOT the logic you end up implementing to make <code>slug</code> more unique. What&rsquo;s of interest is how you can fuzz test whatever logic you end up implementing throughout your test suite.</p>
+
+<h3>Faker + Computed Hash = Fuzz Testing</h3>
+
+<p><a href="https://github.com/stympy/faker">Faker</a> is a great library for generating random data, which I most typically use in conjunction with <a href="https://github.com/thoughtbot/factory_girl">FactoryGirl</a> to generate instances of my models (that is, the Ruby classes that represent the domain I&rsquo;m modelling in the application).</p>
+
+<p>Let&rsquo;s see how we can utilize a computed hash to improve the degree of fuzz testing in my unit tests:</p>
+
+<pre><code class="ruby">require 'faker'
+
+# Here is the Person class definition again for reference.
+
+class Person
+  attr_reader :first_name, :last_name
+
+  def initialize(hash_like_object = {})
+    # The next two lines work because our hash-like-object, in some cases a lambda,
+    # can be called using the same [] syntax as Hash#[]
+    @first_name = hash_like_object[:first_name]
+    @last_name  = hash_like_object[:last_name]
+  end
+
+  def slug
+    @slug ||= "#{first_name.downcase[0, 3]}-#{last_name.downcase[0, 3]}"
+  end
+end
+</code></pre>
+
+<pre><code class="ruby"># Construct our computed hash lambda...
+
+randomizer = lambda { |k| Faker::Name.send(k) }
+</code></pre>
+
+<p>And, voilà, we can initialize <code>Person</code> instances using our <code>randomizer</code> (which is in fact a lambda, and not a hash):</p>
+
+<pre><code class="ruby">ruby-2.2.2-p95 (main):0 &gt; person = Person.new(randomizer)
+#&lt;Person:0x007f81f0dfc8b0 @first_name="Nedra", @last_name="Pouros"&gt;
+ruby-2.2.2-p95 (main):0 &gt; person.first_name
+"Nedra"
+ruby-2.2.2-p95 (main):0 &gt; person.last_name
+"Pouros"
+ruby-2.2.2-p95 (main):0 &gt; person.slug
+"ned-pou"
+</code></pre>
+
+<h2>tl;dr</h2>
+
+<p>Need to generate pseudo-random instances of your classes in order to utilize fuzz testing across your test suite? Try initializing your instances using a computed hash, which in Ruby can be implemented using a lambda and <code>call</code>-ing it using the hash accessor <code>Hash#[]</code> that you&rsquo;re used to seeing.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Domain Modeling Mom 'n Pop Merchants in a Mobile Finance Platform]]></title>
+    <link href="http://mattcampbell.nyc/2015/05/30/domain-modeling-mom-and-pop-merchants/"/>
+    <updated>2015-05-30T11:04:19-04:00</updated>
+    <id>http://mattcampbell.nyc/2015/05/30/domain-modeling-mom-and-pop-merchants</id>
+    <content type="html"><![CDATA[<p>In my primary work project currently, I&rsquo;m working with a small startup to build a mobile finance platform for the developing world.</p>
+
+<p>The reason: people in the developing world are largely unbanked. Estimates vary, but around <a href="http://siteresources.worldbank.org/EXTGLOBALFIN/Resources/8519638-1332259343991/world_bank3_Poster.pdf">59% of adults in developing economies don&rsquo;t have an account at a financial institution.</a> That said, using modern technologies (read: <em>really</em> cheap mobile phones, Bitcoin, and the web) it should be possible to bring banking-like services to the 2.5 billion people that use cash day-to-day almost exclusively.</p>
+
+<h2>Where the idea of Merchants comes in to play</h2>
+
+<p>In order to get our targeted users off cash, and onto a mobile finance platform, we need merchants in the developing world to be ready to accept payment via this mobile finance platform (which I&rsquo;ll henceforth refer to as &ldquo;MobiCommerce&rdquo; for short).</p>
+
+<p>In many ways, &lsquo;merchants&rsquo; in our domain will be similar to everyday &lsquo;users&rsquo;, in that they&rsquo;ll be sending and receiving funds virtually via MobiCommerce.</p>
+
+<p>Here is the <code>User</code> resource&rsquo;s schema for staters:</p>
+
+<pre><code class="ruby">create_table "users", force: :cascade do |t|
+  t.string   "phone_number",                        null: false
+  t.datetime "created_at",                          null: false
+  t.datetime "updated_at",                          null: false
+  t.integer  "status",                default: 0,   null: false
+  t.string   "name"
+  t.string   "pin"
+  t.decimal  "balance",               default: 0.0, null: false
+  t.string   "device_id"
+  t.integer  "balance_inquiry_count"
+  t.string   "locale",                              null: false
+  t.integer  "referrer_id"
+end
+</code></pre>
+
+<p>The main attributes of interest for a particular <code>User</code> are <code>phone_number</code>, <code>pin</code>, and <code>balance</code> (at least insofar as executing a transaction on the platform is concerned).</p>
+
+<h3>What&rsquo;s different about a merchant?</h3>
+
+<p>Originally, my answer to this question was something along the lines of: &ldquo;Not that much is different. I&rsquo;ll basically just need to slightly different messages in the transaction process.&rdquo; For example, we&rsquo;re planning to charge a small fee to merchants in order to accept MobiCommerce as a payment option at their shops. So we&rsquo;d need the system to identiy that a merchant is on the receiving end of a transfer/transaction, and alert them via SMS accordingly - including notifying the merchant of the fee that will be taken out.</p>
+
+<p>To domain model this, I first reached for <a href="http://makandracards.com/makandra/16077-inherit-without-single-table-inheritance-sti-in-activerecord">inheritance</a>:</p>
+
+<pre><code class="ruby"># app/models/user/merchant.rb
+class User::Merchant &lt; User
+  after_create :onboard_merchant!
+
+  private
+
+  def onboard_merchant!
+    TELEPHONY_CLIENT.send_sms(to: self.phone, message: "Reply with your business name", from: self.device_id)
+  end
+end
+</code></pre>
+
+<p>However, this just felt wrong to me. Typically, subclassing an <code>ActiveRecord</code>-backed model in Rails is best for organizing a limited &amp; specific set of domain-specific behavior. The classic example is something like:</p>
+
+<pre><code class="ruby">class SignUp &lt; User ; end
+</code></pre>
+
+<p>Now, that <code>SignUp</code> class is a great place to put things like <code>validates :password_confirmation, presence: true</code> kinda&#8217; business logic. The term for this in Ruby is <a href="http://railscasts.com/episodes/416-form-objects">&ldquo;form models&rdquo;</a>. Any domain and/or business logic that pertains uniquely to signing up a user now has a home. This class gives you a perfect place to <a href="http://samurails.com/interview/ruby-inheritance-encapsulation-polymorphism/">encapsulate</a> that behavior.</p>
+
+<h2>The Break Point</h2>
+
+<p>I quickly hit a point with my <code>Merchant</code> resource where I realized it had outgrown its inheritance from the <code>User</code> class. Instead of simply adding merchant-specific business logic &amp; behaviors into this class, I found myself overwriting many of the methods inherited from <code>User</code> in order to tweak the desired behavior when a merchant was involved in a transaction.</p>
+
+<h3>A merchant is really just a user with an associated <code>Business</code>&hellip;</h3>
+
+<p>Thanks to my good friend <a href="https://twitter.com/creeefs">Chris Lee</a>, I arrived at a much better solution to this &ldquo;where to house my <code>Merchant</code> business logic&rdquo; predicament.</p>
+
+<p>Remember, I originally inherited from <code>User</code> because I still needed all the logic that connected two people (merchants or non-merchants alike) doing a financial transaction - either a payment to a store, or a Venmo-style peer-to-peer transfer.</p>
+
+<p>Chris pointed out that I could instead organize my merchant-related logic into its own model, called <code>Business</code>. Now, a &ldquo;merchant&rdquo; in my system is simply:</p>
+
+<pre><code class="ruby">class User &lt; ActiveRecord::Base
+  # most code omitted...
+  has_one :business
+
+  def merchant?
+    business.present?
+  end
+end
+</code></pre>
+
+<p>That is, it&rsquo;s just a user instance with an associated business. Much cleaner, much more elegant, and much more expressive. Let&rsquo;s look at some examples.</p>
+
+<p>First, this is how I can assess the merchant-specific transaction fee within my <code>Transaction</code> class:</p>
+
+<pre><code class="ruby">class Transaction &lt; ActiveRecord::Base
+  # most code omitted...
+  belongs_to :sender, class_name: User
+  belongs_to :receiver, class_name: User
+
+  before_create :assess_merchant_fee!, if: :receiver_is_merchant?
+
+  private
+
+  def receiver_is_merchant?
+      receiver.merchant?
+  end
+
+  def assess_merchant_fee!
+    # deduct the fee from the amount received by the merchant and notify them...
+  end
+end
+</code></pre>
+
+<p>I was so relieved that I had a home for all of my <code>Business</code>-related logic, that I felt compelled to write this blog post. I hope you&rsquo;ve enjoyed reading it :smile:</p>
+
+<p>P.S. From what I understand, Facebook uses this same approach to managing their Business Pages.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[how to: use binding.pry more effectively within enumerables]]></title>
+    <link href="http://mattcampbell.nyc/2013/12/07/make-debugging-with-binding-dot-pry-much-more-effective/"/>
+    <updated>2013-12-07T16:02:00-05:00</updated>
+    <id>http://mattcampbell.nyc/2013/12/07/make-debugging-with-binding-dot-pry-much-more-effective</id>
+    <content type="html"><![CDATA[<h1>what is pry?</h1>
+
+<p>When I first discovered the <a href="https://github.com/pry/pry">Pry gem</a>, I felt like I&rsquo;d won the lottery. At long last I had found a gem library that enabled me to simply insert a line of code - <code>binding.pry</code> - anywhere into my codebase that would drop me into an IRB session at that exact point at runtime. It sort of feels like air dropping a team of Ruby SEALs into enemy lines in order to eliminate those dreaded bugs.</p>
+
+<h2>using pry: best practice</h2>
+
+<p>Let&rsquo;s talk about a quick example of using Pry in a Ruby file.</p>
+
+<p>Let&rsquo;s say you have an array of 10<sup>6</sup> elements, and you&rsquo;d like to iterate through each one and call a fancy method on it:</p>
+
+<p>BAD USAGE OF PRY:</p>
+
+<pre><code class="ruby">(1..10**6).each do |i|
+  collatz = Collatz.new(i)
+  collatz_length = collatz.length
+  biggest = collatz if collatz_length &gt; biggest_length
+  binding.pry
+end
+</code></pre>
+
+<p>In this case, I was trying to solve <a href="http://projecteuler.net/problem=14">Project Euler problem #14</a>, the Collatz sequence. At some point, I wanted to refactor my <code>Collatz#length</code> method since it was taking <strong>FOREVER</strong> to get through all one-million items in the array to find the largest sequence.</p>
+
+<p>Man do I love Ruby. By adding just a few words of code, my bad (read: ineffective) use of Pry becomes extremely effective:</p>
+
+<p>GOOD USAGE OF PRY:</p>
+
+<pre><code class="ruby">(1..10**6).each do |i|
+  collatz = Collatz.new(i)
+  collatz_length = collatz.length
+  biggest = collatz if collatz_length &gt; biggest_length
+  binding.pry if i == 100 || i == 1000
+end
+</code></pre>
+
+<p>By adding in this conditional Pry debugger, I&rsquo;m able to ensure that - as I&rsquo;m iterating through a gigantic array of a million items - I&rsquo;m getting the expected <code>Collatz</code> class behavior along the way at or around the one-hundredth &amp; one-thousandth elements, respectively.</p>
+
+<h2>conclusion</h2>
+
+<p>While this &ldquo;pro tip&rdquo; may have been fairly obvious to many of you Rubyists from the get-go, it didn&rsquo;t occur to me that I could treat <code>binding.pry</code> just like any other method call in Ruby&hellip; allowing me to wrap that method call into some conditional logic at runtime.</p>
+
+<p>Thanks for reading!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[guiding your users: custom logic in your rails application's navbar]]></title>
+    <link href="http://mattcampbell.nyc/2013/11/16/custom-logic-in-your-rails-applications-navbar/"/>
+    <updated>2013-11-16T18:01:00-05:00</updated>
+    <id>http://mattcampbell.nyc/2013/11/16/custom-logic-in-your-rails-applications-navbar</id>
+    <content type="html"><![CDATA[<h1>navbars are important</h1>
+
+<p>Real talk: navbars are fantastic. They&rsquo;re really good at their job, which is providing a constant set of routes to your users to find their way around. No user ever gets lost when there&rsquo;s a good navbar around to help out.</p>
+
+<p>New Rails projects ship with an application layout (that is, <code>application.html.erb</code> file) that provides an ideal home for our navbar since we want the bar to always be visible at the top of our app, and the application layour is rendered by all views by default.</p>
+
+<p>The problem with navbars is that they typically aren&rsquo;t very intelligent. For example, when you&rsquo;re currently viewing a webpage within an application, most of the time the navigation bar does not update to hide that option dynamically. Why, oh why, would you want to click the same link twice? If you feel me on this one, keep reading&hellip;</p>
+
+<h2>how to make your navigation bars dynamic</h2>
+
+<p>I set out to make my navigation bar dynamic (meaning, again, that it would update its contents/links based on which view page the user was currently looking at), and found it was actually pretty straightforward thanks to inheritance in Ruby.</p>
+
+<h3>the problem, in words</h3>
+
+<p>Abstractly, the goal is to create some object that&rsquo;s available throughout my application, in all my controllers and views, that will contain the logic and knowledge of the last URL that the user requested. This way, if a user has just clicked, say, &ldquo;About&rdquo; on your navigation bar, the next view should not continue to show that link since it&rsquo;s become redundant.</p>
+
+<h3>the solution, in words</h3>
+
+<p>I know that every request hitting my application generates a new instance of the controller behind that particular endpoint. I also know that all of my controllers inherit from a master controller of sorts, which is typically <code>ApplicationController</code> in Rails. Therefore, since my other controllers - the ones actually doing the work of passing data between my models and views - inherit directly from <code>ApplicationController</code>, I figured I could write a method there that did some introspection on the most recent <code>ActionDispatch::Request</code> object in order to keep track of the last request&rsquo;s URL. In code, this strategy looked something like this:</p>
+
+<pre><code class="ruby">class ApplicationController &lt; ActionController::Base
+  private
+
+  def set_current_url
+    @current_path = request.path
+  end
+
+  # rest of class omitted for brevity
+end
+</code></pre>
+
+<p>So easy! Through this code, I now had access to the <code>@current_path</code> variable that would be available at each point in time within my views. Here is how I made use of that object (which is available via the <code>set_current_path</code> method) in my views in my application layout file:</p>
+
+<pre><code class="ruby">&lt;nav class="navbar navbar-inverse" role="navigation"&gt;
+  &lt;!-- Brand and toggle get grouped for better mobile display --&gt;
+  &lt;div class="navbar-header"&gt;
+
+    &lt;% unless @current_path.match(players_path) %&gt;
+      &lt;button type="button" class="btn btn-default navbar-btn" data-toggle="collapse" align="center"&gt;
+         &lt;%= link_to "Ladder Rankings", players_path %&gt;
+      &lt;/button&gt;
+    &lt;% end %&gt;
+
+    &lt;% unless @current_path.match(timer_path) %&gt;
+      &lt;button type="button" class="btn btn-default navbar-btn" data-toggle="collapse" align="center"&gt;
+         &lt;%= link_to "Game Timer", timer_path %&gt;
+      &lt;/button&gt;
+    &lt;% end %&gt;
+
+    &lt;% unless @current_path == challenges_path %&gt;
+      &lt;button type="button" class="btn btn-default navbar-btn" data-toggle="collapse" align="center"&gt;
+         &lt;%= link_to "Battle History", challenges_path %&gt;
+      &lt;/button&gt;
+    &lt;% end %&gt;
+
+    &lt;% unless @current_path == new_challenge_path %&gt;
+      &lt;button type="button" class="btn btn-default navbar-btn" data-toggle="collapse" align="center"&gt;
+         &lt;%= link_to "Record an Outcome", new_challenge_path %&gt;
+      &lt;/button&gt;
+    &lt;% end %&gt;
+
+  &lt;/div&gt;
+&lt;/nav&gt;
+</code></pre>
+
+<p>Now, my navigation bar updates dynamically, presenting the user only with logical options for their next to-be-viewed page or resource in my application. Fantastic!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[running simple Test::Unit specs in sublime]]></title>
+    <link href="http://mattcampbell.nyc/2013/11/16/running-terse-test-unit-specs-in-sublime/"/>
+    <updated>2013-11-16T11:08:00-05:00</updated>
+    <id>http://mattcampbell.nyc/2013/11/16/running-terse-test-unit-specs-in-sublime</id>
+    <content type="html"><![CDATA[<h1>Setting the Stage: Codewars</h1>
+
+<p><a href="www.codewars.com/r/LqvZzw">Codewars</a> is this awesome site where you can learn Ruby or JS by training on &ldquo;katas&rdquo; and climbing the ranks of code warriors on the site. The more elegant and efficient your solution to increasingly difficult challenges, the more honor you incur.</p>
+
+<p>I&rsquo;ve been working through a few on the Ruby side of things, and interestingly enough the Codewars team has built in to the platform <a href="http://www.codewars.com/docs/kata-test-framework">their own testing DSL</a>. It&rsquo;s sort of a mut: they&rsquo;ve borrowed all the best elements of Ruby&rsquo;s most popular frameworks, including RSpec, T::U and MiniTest. The result: for every langauga kata set on Codewars, there is a Test class/prototype (I say prototype because of JavaScript&rsquo;s unique twist on object-orientation and inheritance). Users can then easily design their own tests as instances of this parent class by invoking very natural-sounding methods like &lsquo;expect&rsquo; (from RSpec), &lsquo;assert_equal&rsquo; (from T::U), and so on.</p>
+
+<h2>the path to enlightenment was winding</h2>
+
+<p>Now while that sounds straightforward enough, I must confess it took me a solid couple of hours to realize that Codewars was not using a native Ruby test framework, but rather was utilizing their own testing API (and not just using some built-in T::U syntactic sugar or something):</p>
+
+<pre><code class="ruby"># Create your own tests here. These are some of the methods available:
+#  Test.expect(boolean, [optional] message) 
+#  Test.assert_equals(actual, expected, [optional] message)
+#  Test.assert_not_equals(actual, expected, [optional] message) 
+</code></pre>
+
+<p><a href="http://www.codewars.com/docs/ruby-test-reference">Here&rsquo;s the docs for the Ruby Test methods</a> that are provided by Codewars&#8217; API. Pretty fancy, huh?</p>
+
+<h2>simpler route: use RSpec, even for miniscule test suites</h2>
+
+<p>While I appreciate the work the Codewars guys have done on this Test module, I don&rsquo;t think learning yet another testing DSL (even though it&rsquo;s only slightly different from RSpec) makes any sense. I&rsquo;m actually a little confused as to why they would implement their own test framework in lieu of one of the already-accepted and ubiquitous frameworks like RSpec.</p>
+
+<p>I prefer to do as close to 100% of my code-writing in Sublime as possible (practice makes perfect, ya&#8217; know?)</p>
+]]></content>
+  </entry>
+  
+</feed>

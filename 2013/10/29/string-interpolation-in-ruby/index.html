@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Ruby&#8217;s String Interpolation: Syntactic Sugar to the Max - Technical Writings of a Cryptocurrency Evangelist</title>
+  <meta name="author" content="Matt Campbell">
+
+  
+  <meta name="description" content="there ain&rsquo;t no such thing as magic One thing I&rsquo;ve come to realize about programming - despite almost every gut reaction to the contrary &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://mattcampbell.nyc/2013/10/29/string-interpolation-in-ruby/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Technical Writings of a Cryptocurrency Evangelist" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><div class="jumbotron">
+  <div class="container">
+    programming polyglot for hire.
+    <h3 class="tagline">Technical Writings of a Cryptocurrency Evangelist</h3>
+  </div>
+</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="mattcampbell.nyc">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="nav">
+    
+        <li ><a href="/index.html">Home</a></li>
+    
+        <li ><a href="/blog/archives/index.html">Archives</a></li>
+    
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Ruby&#8217;s String Interpolation: Syntactic Sugar to the Max</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-10-29T22:58:00-04:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:58 pm</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://mattcampbell.nyc">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>there ain&rsquo;t no such thing as magic</h2>
+
+<p>One thing I&rsquo;ve come to realize about programming - despite almost every gut reaction to the contrary - is that there is no magic. None. Period. Fullstop. As Avi would remind us, Ruby (ignoring that whole C thing) can be distilled into three things: objects, methods, and keywords. So when you see some magic, investigate further, keeping in mind those 3 fundamental components of the Ruby language.</p>
+
+<p><img src='http://s3.amazonaws.com/rapgenius/filepicker%2FeEF6S8NTRLu4B2LbvkwO_magic_.jpg' width=400 ></p>
+
+<p>But as I&rsquo;ve gotten more and more exposure to Ruby&rsquo;s hidden secrets, it&rsquo;s become seemingly more difficult to believe there&rsquo;s no magic going on! This is because Ruby makes use of an idea called <a href="http://rubylearning.com/satishtalim/ruby_syntactic_sugar.html">&ldquo;syntactic sugar&rdquo;</a>. Syntactic sugar is basically a group of special programmatic syntax rules that let you write your code in a way that doesn&rsquo;t <em>appear</em> to jive with the normal rules of the language, but that is easier to remember how to do and looks better.</p>
+
+<h2>syntactic sugar = delicious but disorienting</h2>
+
+<p>Syntactic sugar is therefore a vehicle for abstraction. Instead of adhering only to the native syntax rules of the language, Ruby has embraced natural syntactical shortcuts that appear to break the rules, but actually make your code read more legible and human-friendly.</p>
+
+<p>For the most part, syntactic sugar is a wonderful thing. (With a name like that, how could it <strong>not</strong> be a good thing?!) But it can also be a trifle dangerous without at least a cursory knowledge of what exactly the sugar is coating. Let&rsquo;s look at a specific example: string interpolation in Ruby.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">interpolate_two_variables</span><span class="p">(</span><span class="n">num1</span><span class="p">,</span> <span class="n">num2</span><span class="p">)</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="n">num1</span><span class="o">.</span><span class="n">class</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="n">num2</span><span class="o">.</span><span class="n">class</span>
+</span><span class='line'>  <span class="s2">&quot;String interpolation allows us to magically include variables, like </span><span class="si">#{</span><span class="n">num1</span><span class="si">}</span><span class="s2"> and </span><span class="si">#{</span><span class="n">num2</span><span class="si">}</span><span class="s2">!&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">interpolate_two_variables</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">23</span><span class="p">)</span>
+</span><span class='line'><span class="no">Fixnum</span>
+</span><span class='line'><span class="no">Fixnum</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;String interpolation allows us to magically include variables, like 6 and 23!&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+Sweet, thanks Ruby! I use string interpolation just about every day coding in Ruby - it&rsquo;s an incredibly powerful and convenient way to group different objects together in the context of, say, a view page in a web app. But&hellip; what&rsquo;s really going on here? I don&rsquo;t see anything like Ruby&rsquo;s normal <code>object.method_call</code> syntax, and yet it feels like there MUST be a method call being invoked inside the double quotes. What exactly is the interpreter converting the <code>#{}</code> syntax into?</p>
+
+<h2>#{}: more than just a pretty face</h2>
+
+<p>Assuredly, there&rsquo;s nothing magical going on here. Upon being invoked, our friend <code>#{}</code> sets to work telling the Ruby interpreter to call the <code>to_s</code> method on the object inside of itself. In the above example, those objects are <code>num1</code> and <code>num2</code>. Cool!</p>
+
+<h2>customizing our syntactic sugar: DateTime&#8217;z</h2>
+
+<p>This story has only just begun, y&#8217;all. Since Ruby is so awesome, we can of course (re-)define the <code>to_s</code> method at the Class level of our choosing. Consider instances of the <code>DateTime</code> class. I would like for string interpolation of DateTime instances to show up nice and legible - you know, like the way we normally communicate dates and times.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="s2">&quot;</span><span class="si">#{</span><span class="no">DateTime</span><span class="o">.</span><span class="n">now</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;2013-10-30T12:39:02-04:00&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Hmm&hellip; gross. Parsing that mentally has taken me well over the 1 microsecond that I&rsquo;ve allotted for that task. In true Ruby fashion, let&rsquo;s dive into <code>DateTime</code>&rsquo;s <code>to_s</code> method and re-write it for the task at hand:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">DateTime</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">to_s</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;The date is %m/%d/%y, and the time is %r&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="nb">puts</span> <span class="s2">&quot;Look! </span><span class="se">\#</span><span class="s2">{} is just calling DateTime#to_s, which we overwrote to make our DateTime objects easier to read!&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="s2">&quot;</span><span class="si">#{</span><span class="no">DateTime</span><span class="o">.</span><span class="n">now</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="c1"># Look! #{} is just calling DateTime#to_s, which we overwrote to make our DateTime objects easier to read!</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;The date is 10/30/13, and the time is 01:31:15 PM&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This example demonstrates that the <code>#{}</code> is merely syntactic sugar that calls the <code>to_s</code> method as defined in the receiving object&rsquo;s class.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">apples</span> <span class="o">=</span> <span class="mi">4</span>
+</span><span class='line'><span class="nb">puts</span> <span class="s2">&quot;I have </span><span class="si">#{</span><span class="n">apples</span><span class="si">}</span><span class="s2"> apples&quot;</span>
+</span><span class='line'><span class="nb">puts</span> <span class="s2">&quot;I have %s apples&quot;</span> <span class="o">%</span> <span class="n">apples</span>
+</span><span class='line'><span class="c1"># I have 4 apples</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="kp">nil</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>main takeaways</h2>
+
+<p>Going forward, I intend to dive head-first into every example of syntactic sugar that I can get my eyeballs on, because the sugar always coats a delicious candy core of Ruby awesomeness.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Matt Campbell</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-10-29T22:58:00-04:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:58 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ruby/'>ruby</a>, <a class='category' href='/blog/categories/string-interpolation/'>string interpolation</a>, <a class='category' href='/blog/categories/syntactic-sugar/'>syntactic sugar</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://mattcampbell.nyc/2013/10/29/string-interpolation-in-ruby/" data-via="mecampbellsoup" data-counturl="http://mattcampbell.nyc/2013/10/29/string-interpolation-in-ruby/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2013/10/22/the-http-steakhouse/" title="Previous Post: HTTPrime: what can we learn about http Request-Response from a steakhouse?">&laquo; HTTPrime: what can we learn about http Request-Response from a steakhouse?</a>
+      
+      
+        <a class="basic-alignment right" href="/2013/11/16/running-terse-test-unit-specs-in-sublime/" title="Next Post: running simple Test::Unit specs in sublime">running simple Test::Unit specs in sublime &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Like This Blog? Leave a Tip with Bitcoin!</h1>
+  <div>
+    <a id="btc-qr-code" href="bitcoin:1FsPgV2CCVNs4i515JqkPujmKdge3573eD?amount=0.05&label=Matt%20Campbell%20Dev%20Blog">
+      <img src="/images/btc-ledger-wallet-qr-code.png">
+    </a>
+    <p>1FsPgV2CCVNs4i515JqkPujmKdge3573eD</p>
+  </div>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/06/18/using-lambdas-as-computed-hashes-in-ruby/">Using Lambdas as Computed Hashes in Ruby</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/05/30/domain-modeling-mom-and-pop-merchants/">Domain Modeling Mom &#8216;N Pop Merchants in a Mobile Finance Platform</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/05/27/how-to-easy-manual-testing-a-json-http-endpoint/">How-To: Manual JSON-endpoint Testing Made Easy</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/12/07/make-debugging-with-binding-dot-pry-much-more-effective/">How to: Use binding.pry More Effectively Within Enumerables</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/11/19/using-xcodes-ios-simulator-to-build-your-next-webapp/">Using Xcode&#8217;s iOS Simulator to Build Your Next Webapp</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/mecampbellsoup">@mecampbellsoup</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'mecampbellsoup',
+            count: 4,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://facebook.com/mecampbell25">
+      <img src="http://static.viewbook.com/images/social_icons/facebook_32.png" width="32" height="32">
+      Facebook
+    </a>
+  </h1>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/101058099009530081039?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Matt Campbell -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'mecampbellsoup';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://mattcampbell.nyc/2013/10/29/string-interpolation-in-ruby/';
+        var disqus_url = 'http://mattcampbell.nyc/2013/10/29/string-interpolation-in-ruby/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

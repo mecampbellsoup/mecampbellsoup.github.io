@@ -1,0 +1,343 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>A Short &amp; Sweet Intro to Objects in Ruby - Technical Writings of a Cryptocurrency Evangelist</title>
+  <meta name="author" content="Matt Campbell">
+
+  
+  <meta name="description" content="Recently here at Flatiron we&rsquo;ve begun to write our code with a focus on object orientation. To a beginner, this sentence has absolutely zero &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://mattcampbell.nyc/2013/10/08/a-short-and-sweet-intro-to-objects-in-ruby/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Technical Writings of a Cryptocurrency Evangelist" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><div class="jumbotron">
+  <div class="container">
+    programming polyglot for hire.
+    <h3 class="tagline">Technical Writings of a Cryptocurrency Evangelist</h3>
+  </div>
+</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="mattcampbell.nyc">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="nav">
+    
+        <li ><a href="/index.html">Home</a></li>
+    
+        <li ><a href="/blog/archives/index.html">Archives</a></li>
+    
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">A Short &amp; Sweet Intro to Objects in Ruby</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-10-08T08:25:00-04:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:25 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://mattcampbell.nyc">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Recently here at Flatiron we&rsquo;ve begun to write our code with a focus on object orientation. To a beginner, this sentence has absolutely zero meaning whatsoever - so let&rsquo;s take a step back and define some terms.</p>
+
+<p>First of all, there are a couple truisms to keep in mind when it comes to code:</p>
+
+<ul>
+<li>First, in case you haven&#8217;t heard yet, things are going to change. Your application will grow in users; new technologies will emerge; your investors will want you to add new features (talk about a first world problem!). Your code base needs to be flexible when it comes to making changes for any of these reasons - flexible like a reed in the wind, as opposed to brittle like, say, graphite. As Sandi Metz puts it: 
+<blockquote><em>
+Changing requirements are the programming equivalent of friction and gravity.
+</em></blockquote>
+</li></ul>
+
+
+<p><br>
+Ok, great! So we know change is a-comin&#8217;. How do we structure our code to be prepared like the Boy Scouts?</p>
+
+<ul>
+<li>The less the different segments of your code base know about one another, the better! Admittedly, this one is a bit counterintuitive. In life, we&#8217;re typically used to setting all of our ducks in a row before taking any major steps or jumping off any cliffs (figuratively speaking, for the most part). We&#8217;re naturally pretty risk averse, and we routinely succumb to the delusion that we can mitigate risk and uncertainty a bit by lining up said ducks. It&#8217;s as if we&#8217;re trying to tear the mask of the unknown off so that we can make decisions today with perfect information. Programmers have adopted a different approach: instead of trying to know and discount the future, they simply design programs that will adapt easily, fullstop. Note I&#8217;ve made no assumption about what changes will emerge to throw our programs for a loop; the emphasis is on a coding paradigm in which your different segments can easily change how they communicate with one another. This is what people mean when they talk about the principle of object-oriented design. Once again, let&#8217;s get Sandi&#8217;s take:
+<blockquote><em>
+In the absence of design, unmanaged dependencies wreak havoc because objects know too muchabout one another. Changing one object forces change upon its collaborators, whichin turn, forces change upon its collaborators, ad infinitum.
+</em></blockquote>
+</li></ul>
+
+
+<p>Now let&rsquo;s take a look at some code. Let&rsquo;s try to build a bicycle in Ruby - first we&rsquo;ll eschew the object-oriented princples just discussed, and then we&rsquo;ll embrace them. Hopefully the proof is in the pudding!</p>
+
+<p>First, the painful, hard-to-read &amp; -follow version…</p>
+
+<script src="https://gist.github.com/mecampbellsoup/6900628.js"></script>
+
+
+<p>Whew, that was pretty exhausting and hard to follow. Let&rsquo;s see what happens if we segregate along natural, real-world dividing lines…</p>
+
+<script src="https://gist.github.com/mecampbellsoup/6900643.js"></script>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Matt Campbell</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-10-08T08:25:00-04:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:25 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/flatiron-school/'>flatiron school</a>, <a class='category' href='/blog/categories/nyc/'>nyc</a>, <a class='category' href='/blog/categories/pood/'>pood</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>, <a class='category' href='/blog/categories/sandi-metz/'>sandi metz</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://mattcampbell.nyc/2013/10/08/a-short-and-sweet-intro-to-objects-in-ruby/" data-via="mecampbellsoup" data-counturl="http://mattcampbell.nyc/2013/10/08/a-short-and-sweet-intro-to-objects-in-ruby/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2013/10/02/2-reasons-why-larry-wall-is-the-man/" title="Previous Post: 2 reasons why larry wall is the man">&laquo; 2 reasons why larry wall is the man</a>
+      
+      
+        <a class="basic-alignment right" href="/2013/10/11/what-exactly-is-between-those-pipes/" title="Next Post: what exactly is between those pipes?">what exactly is between those pipes? &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Like This Blog? Leave a Tip with Bitcoin!</h1>
+  <div>
+    <a id="btc-qr-code" href="bitcoin:1FsPgV2CCVNs4i515JqkPujmKdge3573eD?amount=0.05&label=Matt%20Campbell%20Dev%20Blog">
+      <img src="/images/btc-ledger-wallet-qr-code.png">
+    </a>
+    <p>1FsPgV2CCVNs4i515JqkPujmKdge3573eD</p>
+  </div>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/06/18/using-lambdas-as-computed-hashes-in-ruby/">Using Lambdas as Computed Hashes in Ruby</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/05/30/domain-modeling-mom-and-pop-merchants/">Domain Modeling Mom &#8216;N Pop Merchants in a Mobile Finance Platform</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/05/27/how-to-easy-manual-testing-a-json-http-endpoint/">How-To: Manual JSON-endpoint Testing Made Easy</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/12/07/make-debugging-with-binding-dot-pry-much-more-effective/">How to: Use binding.pry More Effectively Within Enumerables</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/11/19/using-xcodes-ios-simulator-to-build-your-next-webapp/">Using Xcode&#8217;s iOS Simulator to Build Your Next Webapp</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/mecampbellsoup">@mecampbellsoup</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'mecampbellsoup',
+            count: 4,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://facebook.com/mecampbell25">
+      <img src="http://static.viewbook.com/images/social_icons/facebook_32.png" width="32" height="32">
+      Facebook
+    </a>
+  </h1>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/101058099009530081039?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Matt Campbell -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'mecampbellsoup';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://mattcampbell.nyc/2013/10/08/a-short-and-sweet-intro-to-objects-in-ruby/';
+        var disqus_url = 'http://mattcampbell.nyc/2013/10/08/a-short-and-sweet-intro-to-objects-in-ruby/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

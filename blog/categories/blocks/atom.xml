@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: blocks | Technical Writings of a Cryptocurrency Evangelist]]></title>
+  <link href="http://mattcampbell.nyc/blog/categories/blocks/atom.xml" rel="self"/>
+  <link href="http://mattcampbell.nyc/"/>
+  <updated>2015-07-29T12:58:28-04:00</updated>
+  <id>http://mattcampbell.nyc/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[what exactly is between those pipes?]]></title>
+    <link href="http://mattcampbell.nyc/2013/10/11/what-exactly-is-between-those-pipes/"/>
+    <updated>2013-10-11T22:43:00-04:00</updated>
+    <id>http://mattcampbell.nyc/2013/10/11/what-exactly-is-between-those-pipes</id>
+    <content type="html"><![CDATA[<h3><strong>&ldquo;I&rsquo;ve seen these pipe things before… a bunch of times.&rdquo; (The thought you just had.)</strong></h3>
+
+<p>They look super familiar. Why does Ruby make use of them? What&rsquo;s inside the pipes?!</p>
+
+<p>Well in short, Ruby reads the thing between the pipes as a local variable to be used in the subsequent block. Let&rsquo;s look at an example of an iterator (followed by a block) from the Ruby docs.</p>
+
+<pre><code class="ruby">@names.each do |name|
+  puts "Hello #{name}!" 
+end
+</code></pre>
+
+<p>To paraphrase the docs: <code>each</code> is a method that accepts a block of code then runs that block of code for every element in a list, and the bit between <code>do</code> and <code>end</code> is just such a block. <em>The thing between pipe characters is the parameter for this block.</em></p>
+
+<p>What happens here is that for every entry in a list (i.e. <code>@names</code> in this example), <code>name</code> is bound to that list element, and then the expression <code>puts "Hello #{name}!"</code> is run with that <code>name</code>.</p>
+
+<p>(Thought tangent: So this example actually points to another cool feature of Ruby - &ldquo;duck typing&rdquo;. When we see <code>@names.each</code>, we naturally expect <code>@names</code> to be an Array (or Hash) and we&rsquo;ll be iterating over each element. But not so fast! What happens if <code>@names</code> is actually something totally different - like, say, an object from a custom-built class called Names? Warning: this is a highly contrived exmaple…)</p>
+
+<pre><code class="ruby">class Name
+  attr_accessor :string
+  def initialize(string)
+    @string = string
+  end
+  def each
+    self.string
+  end
+end
+
+@names = Name.new("woe, this is weird - I'm a psuedo string attr within a Name object which responds to #each?!")
+@names.each do |name|
+  puts "Hello #{name}"
+end
+=&gt; "woe, this is weird - I'm a psuedo string within a Name object that responds to #each?!"
+</code></pre>
+
+<p>(Um, pretty awesome, right? Ruby doesn&rsquo;t care about what you expect it to do; it only cares it the object at hand responds to the method being called. Talk about an egalitarian language!)</p>
+
+<p>Now that we&rsquo;ve had an intro-<em>duck</em>-tion to blocks and pipes, here&rsquo;s a question - how would you <em>define</em> the thing between the &ldquo;pipes&rdquo; (these guys: <code>||</code> ) in the following code example:</p>
+
+<pre><code class="ruby">wrecking_ball = Song.new
+wrecking_ball.tap { |song| song.name = "Wrecking Ball" }
+</code></pre>
+
+<p>(Another mental tangent: I think pretty much every object responds to <code>#tap</code> - that will have to be for another blog post though.)</p>
+
+<p>To put the question differently, what&rsquo;s the <code>|song|</code>? No, seriously - what is it?! Multiple choice:</p>
+
+<ul>
+<li> (a) method</li>
+<li> (b) keyword</li>
+<li> (c) variable</li> 
+</ul>
+
+
+<p>If you guessed C then you were spot on - pat yourself on the back! To be more specific, that thing between the pipes that we see in almost every block is actually a <em>local</em> variable. This is Ruby&rsquo;s approach to getting the object receiving the method call (e.g. the <code>wrecking_ball</code> Song object receiving the <code>tap</code> method) inside the method as an argument. The convo with Ruby (since we all have dialogues with our computers in the language of Ruby these days) goes down something like this:</p>
+
+<blockquote>
+&#8220;Ok lord programmer, I realize you&#8217;re calling a method on this object - and you&#8217;re hoping to &#8220;`yield&#8220;` the object receiving the method call to the method&#8217;s block (the code following the &#8220;`.each do &#8220;` bit). Tell ya&#8217; what: in order to make sure said object gets from the left side of this expression into the yielded block, I&#8217;m going to temporarily make a local variable - you can even name it WHATEVER YOU WANT - so that you have full access to the object within the block. Sound good? You bet your ass it does. I&#8217;m Ruby, we&#8217;re gonna&#8217; get along famously.&#8221;
+</blockquote>
+
+
+<h3>Putting down the pipe (only temorarily, calm down)</h3>
+
+<p>Awesome. Now we know exactly what&rsquo;s going on between those pipes. Ruby is creating a local variable that points to the object receiving the method call, all so that we can fully access our object inside the method&rsquo;s block. Thanks Ruby.</p>
+
+<p>To drive this point home, let&rsquo;s remove these pipe thingies and see if we can still code like we normally do.</p>
+
+<pre><code class="ruby">some_numbers = [5,6,7,8]
+some_numbers.collect do
+  puts "This is our block!"
+end
+
+"This is our block!"
+"This is our block!"
+"This is our block!"
+"This is our block!"
+=&gt; [nil,nil,nil,nil]
+</code></pre>
+
+<p>OK, so that&rsquo;s pretty interesting. It looks like our block is definitely being evaluated, and our collect iterator is yielding to that block precisely <code>self.size</code> times (or 4 in this case). Since we have a <code>puts</code> method, whose return value is always <code>nil</code>, we end up with the returned array of <code>nil</code>&rsquo;s above. But I want access to the <code>[5,6,7,8]</code> on which we&rsquo;re calling <code>.collect</code>! Let&rsquo;s try another strategy:</p>
+
+<pre><code class="ruby">some_numbers.collect do
+  p some_numbers
+end
+[5, 6, 7, 8]
+[5, 6, 7, 8]
+[5, 6, 7, 8]
+[5, 6, 7, 8]
+ =&gt; [[5, 6, 7, 8], [5, 6, 7, 8], [5, 6, 7, 8], [5, 6, 7, 8]]
+</code></pre>
+
+<p>Alright, getting closer. Looks like we still have access to the entire object receiving the <code>.collect</code> method call. How can we get to one element of <code>some_numbers</code> at a time though? In other words, how can we get specific, granular access to each component of the object at hand, the one receiving the method call? How can we have our block be evaluated on each element of <code>some_numbers</code>, but only one element at a time? The answer lies in Ruby&rsquo;s implementation of Array#each (and really all the iterators) - here are implementations we&rsquo;ve written <a href="https://twitter.com/FlatironSchool"/>@flatironschool</a>:</p>
+
+<pre><code class="ruby">class Array
+  def each
+    i = 0
+    while i &lt; self.length
+      yield(self[i])
+      i += 1
+    end
+    self
+  end
+  def my_each_with_index
+    i = 0
+    while i &lt; self.length
+      yield(self[i], i)
+      i += 1
+    end
+    self
+  end
+end
+some_numbers = [5,6,7,8]
+some_numbers.my_each_with_index do |x, i|
+    puts "At index #{i} the value is #{x}"
+end
+At index 0 the value is 5
+At index 1 the value is 6
+At index 2 the value is 7
+At index 3 the value is 8
+=&gt; [5, 6, 7, 8]
+</code></pre>
+
+<p>Lines 5 and 13, there&rsquo;s our old pal <code>yield</code>. How cool it is to finally see the distinction between <code>.each</code> and <code>.each_with_index</code> - it&rsquo;s merely the # of local variables from <code>self</code> (the object, in our case the <code>Array [5,6,7,8]</code> receiving the method call) that we &ldquo;yield&rdquo; or pass along to the block! Now, finally, we having a working definition of what&rsquo;s betweeen the pipes: they demarcate <strong>local variables which represent each element of <code>self</code> that get passed to the block each time our method call <code>yield</code>s to the block</strong>!</p>
+
+<p>In my next post, I want to talk about Ruby&rsquo;s bindings - a poorly understood (and rarely needed) aspect of Ruby that I hope to shed some light on.</p>
+
+<p>Until then: #workhard, #benice!</p>
+]]></content>
+  </entry>
+  
+</feed>

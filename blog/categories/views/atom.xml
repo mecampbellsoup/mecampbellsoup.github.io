@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: views | Technical Writings of a Cryptocurrency Evangelist]]></title>
+  <link href="http://mattcampbell.nyc/blog/categories/views/atom.xml" rel="self"/>
+  <link href="http://mattcampbell.nyc/"/>
+  <updated>2015-07-29T12:58:28-04:00</updated>
+  <id>http://mattcampbell.nyc/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[guiding your users: custom logic in your rails application's navbar]]></title>
+    <link href="http://mattcampbell.nyc/2013/11/16/custom-logic-in-your-rails-applications-navbar/"/>
+    <updated>2013-11-16T18:01:00-05:00</updated>
+    <id>http://mattcampbell.nyc/2013/11/16/custom-logic-in-your-rails-applications-navbar</id>
+    <content type="html"><![CDATA[<h1>navbars are important</h1>
+
+<p>Real talk: navbars are fantastic. They&rsquo;re really good at their job, which is providing a constant set of routes to your users to find their way around. No user ever gets lost when there&rsquo;s a good navbar around to help out.</p>
+
+<p>New Rails projects ship with an application layout (that is, <code>application.html.erb</code> file) that provides an ideal home for our navbar since we want the bar to always be visible at the top of our app, and the application layour is rendered by all views by default.</p>
+
+<p>The problem with navbars is that they typically aren&rsquo;t very intelligent. For example, when you&rsquo;re currently viewing a webpage within an application, most of the time the navigation bar does not update to hide that option dynamically. Why, oh why, would you want to click the same link twice? If you feel me on this one, keep reading&hellip;</p>
+
+<h2>how to make your navigation bars dynamic</h2>
+
+<p>I set out to make my navigation bar dynamic (meaning, again, that it would update its contents/links based on which view page the user was currently looking at), and found it was actually pretty straightforward thanks to inheritance in Ruby.</p>
+
+<h3>the problem, in words</h3>
+
+<p>Abstractly, the goal is to create some object that&rsquo;s available throughout my application, in all my controllers and views, that will contain the logic and knowledge of the last URL that the user requested. This way, if a user has just clicked, say, &ldquo;About&rdquo; on your navigation bar, the next view should not continue to show that link since it&rsquo;s become redundant.</p>
+
+<h3>the solution, in words</h3>
+
+<p>I know that every request hitting my application generates a new instance of the controller behind that particular endpoint. I also know that all of my controllers inherit from a master controller of sorts, which is typically <code>ApplicationController</code> in Rails. Therefore, since my other controllers - the ones actually doing the work of passing data between my models and views - inherit directly from <code>ApplicationController</code>, I figured I could write a method there that did some introspection on the most recent <code>ActionDispatch::Request</code> object in order to keep track of the last request&rsquo;s URL. In code, this strategy looked something like this:</p>
+
+<pre><code class="ruby">class ApplicationController &lt; ActionController::Base
+  private
+
+  def set_current_url
+    @current_path = request.path
+  end
+
+  # rest of class omitted for brevity
+end
+</code></pre>
+
+<p>So easy! Through this code, I now had access to the <code>@current_path</code> variable that would be available at each point in time within my views. Here is how I made use of that object (which is available via the <code>set_current_path</code> method) in my views in my application layout file:</p>
+
+<pre><code class="ruby">&lt;nav class="navbar navbar-inverse" role="navigation"&gt;
+  &lt;!-- Brand and toggle get grouped for better mobile display --&gt;
+  &lt;div class="navbar-header"&gt;
+
+    &lt;% unless @current_path.match(players_path) %&gt;
+      &lt;button type="button" class="btn btn-default navbar-btn" data-toggle="collapse" align="center"&gt;
+         &lt;%= link_to "Ladder Rankings", players_path %&gt;
+      &lt;/button&gt;
+    &lt;% end %&gt;
+
+    &lt;% unless @current_path.match(timer_path) %&gt;
+      &lt;button type="button" class="btn btn-default navbar-btn" data-toggle="collapse" align="center"&gt;
+         &lt;%= link_to "Game Timer", timer_path %&gt;
+      &lt;/button&gt;
+    &lt;% end %&gt;
+
+    &lt;% unless @current_path == challenges_path %&gt;
+      &lt;button type="button" class="btn btn-default navbar-btn" data-toggle="collapse" align="center"&gt;
+         &lt;%= link_to "Battle History", challenges_path %&gt;
+      &lt;/button&gt;
+    &lt;% end %&gt;
+
+    &lt;% unless @current_path == new_challenge_path %&gt;
+      &lt;button type="button" class="btn btn-default navbar-btn" data-toggle="collapse" align="center"&gt;
+         &lt;%= link_to "Record an Outcome", new_challenge_path %&gt;
+      &lt;/button&gt;
+    &lt;% end %&gt;
+
+  &lt;/div&gt;
+&lt;/nav&gt;
+</code></pre>
+
+<p>Now, my navigation bar updates dynamically, presenting the user only with logical options for their next to-be-viewed page or resource in my application. Fantastic!</p>
+]]></content>
+  </entry>
+  
+</feed>

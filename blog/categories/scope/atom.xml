@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: scope | Technical Writings of a Cryptocurrency Evangelist]]></title>
+  <link href="http://mattcampbell.nyc/blog/categories/scope/atom.xml" rel="self"/>
+  <link href="http://mattcampbell.nyc/"/>
+  <updated>2015-07-29T12:58:28-04:00</updated>
+  <id>http://mattcampbell.nyc/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[scope in ruby is like a cell membrane]]></title>
+    <link href="http://mattcampbell.nyc/2013/10/01/scope-in-ruby-is-like-a-cell-membrane/"/>
+    <updated>2013-10-01T00:03:00-04:00</updated>
+    <id>http://mattcampbell.nyc/2013/10/01/scope-in-ruby-is-like-a-cell-membrane</id>
+    <content type="html"><![CDATA[<h3>How is program scope like a cell membrane?</h3>
+
+<p>Scope is the context within which something is defined. Let&rsquo;s focus on methods, for starters. If you write a page of code with a method in it, alongside a bunch of other stuff (variable declarations, enumerators/iterators not contained in that method, etc.), don&rsquo;t expect your method to have any clue what&rsquo;s going on above or below it in that page. Sorry, that explanation sucked - let me show an example:</p>
+
+<pre><code>some_numbers = [1,2,3,4,5]
+another_variable = {:cell_membrane =&gt; "cytosol", :receptor =&gt; "ligand"}
+more_variables = some_numbers.collect do |num|
+    num * 2
+end
+
+def method_in_same_code_file(args)
+    more_variables + some_numbers ##=&gt; This method doesn't know what these are!! 
+end
+</code></pre>
+
+<p>The way that we get around this issue of restrictive method scope in Ruby&rsquo;s design is actually something we all are quite familiar with: <em>passing arguments to our methods.</em> Perhaps you can imagine now the similarity to a cell membrane - take a look at the image below. I would sa the receptor-ligand binding is a lot like doing something like this:</p>
+
+<pre><code>&lt;page of code omitted… let's just call the method&gt;
+method_in_same_code_file(some_numbers, more_variables)
+</code></pre>
+
+<p>In this method call, our arguments works just like our receptor-ligand binding! Put differently: the arguments function as the cell membrane&rsquo;s receptors, in that only by going through them can stuff on the outside be itelligible/readable to the method&rsquo;s insides.</p>
+
+<p>Method scope visualization!</p>
+
+<p><img src="http://fwcdscience.wikispaces.com/file/view/transduction.gif/43381569/transduction.gif"></p>
+
+<h3>cool things <a href="http://en.wikipedia.org/wiki/Kent_Beck">Kent Beck</a> has said (about programming):</h3>
+
+<p>One line methods are there to communicate.</p>
+
+<p>You don&rsquo;t spend three or four lines expressing iteration, you spend one word.</p>
+
+<p>YAGNI: You aren&rsquo;t going to need it.</p>
+
+<p>Optimism is an occupational hazard of programming; feedback is the treatment.</p>
+
+<p>(Speaking about his Chrysler experience…) By far the dominant reason for not releasing sooner was a reluctance to trade the dream of success for the reality of feedback.</p>
+
+<p><strong>Make it work, make it right, make it fast.</strong></p>
+
+<h3>how to write a basic test/spec:</h3>
+
+<pre><code>def assert_equal(actual, expected)
+    unless actual == expected
+        puts "fail: expected #{expected} but got #{actual}"
+    end
+end
+</code></pre>
+
+<p>Not so bad, right?</p>
+]]></content>
+  </entry>
+  
+</feed>

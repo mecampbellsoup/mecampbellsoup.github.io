@@ -1,0 +1,465 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Domain Modeling Mom &#8216;N Pop Merchants in a Mobile Finance Platform - Technical Writings of a Cryptocurrency Evangelist</title>
+  <meta name="author" content="Matt Campbell">
+
+  
+  <meta name="description" content="In my primary work project currently, I&rsquo;m working with a small startup to build a mobile finance platform for the developing world. The reason &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://mattcampbell.nyc/2015/05/30/domain-modeling-mom-and-pop-merchants/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Technical Writings of a Cryptocurrency Evangelist" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><div class="jumbotron">
+  <div class="container">
+    programming polyglot for hire.
+    <h3 class="tagline">Technical Writings of a Cryptocurrency Evangelist</h3>
+  </div>
+</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="mattcampbell.nyc">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="nav">
+    
+        <li ><a href="/index.html">Home</a></li>
+    
+        <li ><a href="/blog/archives/index.html">Archives</a></li>
+    
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Domain Modeling Mom &#8216;N Pop Merchants in a Mobile Finance Platform</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-30T11:04:19-04:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:04 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://mattcampbell.nyc">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>In my primary work project currently, I&rsquo;m working with a small startup to build a mobile finance platform for the developing world.</p>
+
+<p>The reason: people in the developing world are largely unbanked. Estimates vary, but around <a href="http://siteresources.worldbank.org/EXTGLOBALFIN/Resources/8519638-1332259343991/world_bank3_Poster.pdf">59% of adults in developing economies don&rsquo;t have an account at a financial institution.</a> That said, using modern technologies (read: <em>really</em> cheap mobile phones, Bitcoin, and the web) it should be possible to bring banking-like services to the 2.5 billion people that use cash day-to-day almost exclusively.</p>
+
+<h2>Where the idea of Merchants comes in to play</h2>
+
+<p>In order to get our targeted users off cash, and onto a mobile finance platform, we need merchants in the developing world to be ready to accept payment via this mobile finance platform (which I&rsquo;ll henceforth refer to as &ldquo;MobiCommerce&rdquo; for short).</p>
+
+<p>In many ways, &lsquo;merchants&rsquo; in our domain will be similar to everyday &lsquo;users&rsquo;, in that they&rsquo;ll be sending and receiving funds virtually via MobiCommerce.</p>
+
+<p>Here is the <code>User</code> resource&rsquo;s schema for staters:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">create_table</span> <span class="s2">&quot;users&quot;</span><span class="p">,</span> <span class="ss">force</span><span class="p">:</span> <span class="ss">:cascade</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">t</span><span class="o">.</span><span class="n">string</span>   <span class="s2">&quot;phone_number&quot;</span><span class="p">,</span>                        <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+</span><span class='line'>  <span class="n">t</span><span class="o">.</span><span class="n">datetime</span> <span class="s2">&quot;created_at&quot;</span><span class="p">,</span>                          <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+</span><span class='line'>  <span class="n">t</span><span class="o">.</span><span class="n">datetime</span> <span class="s2">&quot;updated_at&quot;</span><span class="p">,</span>                          <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+</span><span class='line'>  <span class="n">t</span><span class="o">.</span><span class="n">integer</span>  <span class="s2">&quot;status&quot;</span><span class="p">,</span>                <span class="ss">default</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>   <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+</span><span class='line'>  <span class="n">t</span><span class="o">.</span><span class="n">string</span>   <span class="s2">&quot;name&quot;</span>
+</span><span class='line'>  <span class="n">t</span><span class="o">.</span><span class="n">string</span>   <span class="s2">&quot;pin&quot;</span>
+</span><span class='line'>  <span class="n">t</span><span class="o">.</span><span class="n">decimal</span>  <span class="s2">&quot;balance&quot;</span><span class="p">,</span>               <span class="ss">default</span><span class="p">:</span> <span class="mi">0</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+</span><span class='line'>  <span class="n">t</span><span class="o">.</span><span class="n">string</span>   <span class="s2">&quot;device_id&quot;</span>
+</span><span class='line'>  <span class="n">t</span><span class="o">.</span><span class="n">integer</span>  <span class="s2">&quot;balance_inquiry_count&quot;</span>
+</span><span class='line'>  <span class="n">t</span><span class="o">.</span><span class="n">string</span>   <span class="s2">&quot;locale&quot;</span><span class="p">,</span>                              <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+</span><span class='line'>  <span class="n">t</span><span class="o">.</span><span class="n">integer</span>  <span class="s2">&quot;referrer_id&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The main attributes of interest for a particular <code>User</code> are <code>phone_number</code>, <code>pin</code>, and <code>balance</code> (at least insofar as executing a transaction on the platform is concerned).</p>
+
+<h3>What&rsquo;s different about a merchant?</h3>
+
+<p>Originally, my answer to this question was something along the lines of: &ldquo;Not that much is different. I&rsquo;ll basically just need to slightly different messages in the transaction process.&rdquo; For example, we&rsquo;re planning to charge a small fee to merchants in order to accept MobiCommerce as a payment option at their shops. So we&rsquo;d need the system to identiy that a merchant is on the receiving end of a transfer/transaction, and alert them via SMS accordingly - including notifying the merchant of the fee that will be taken out.</p>
+
+<p>To domain model this, I first reached for <a href="http://makandracards.com/makandra/16077-inherit-without-single-table-inheritance-sti-in-activerecord">inheritance</a>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># app/models/user/merchant.rb</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span><span class="o">::</span><span class="no">Merchant</span> <span class="o">&lt;</span> <span class="no">User</span>
+</span><span class='line'>  <span class="n">after_create</span> <span class="ss">:onboard_merchant!</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="k">def</span> <span class="nf">onboard_merchant!</span>
+</span><span class='line'>    <span class="no">TELEPHONY_CLIENT</span><span class="o">.</span><span class="n">send_sms</span><span class="p">(</span><span class="ss">to</span><span class="p">:</span> <span class="nb">self</span><span class="o">.</span><span class="n">phone</span><span class="p">,</span> <span class="ss">message</span><span class="p">:</span> <span class="s2">&quot;Reply with your business name&quot;</span><span class="p">,</span> <span class="ss">from</span><span class="p">:</span> <span class="nb">self</span><span class="o">.</span><span class="n">device_id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>However, this just felt wrong to me. Typically, subclassing an <code>ActiveRecord</code>-backed model in Rails is best for organizing a limited &amp; specific set of domain-specific behavior. The classic example is something like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SignUp</span> <span class="o">&lt;</span> <span class="no">User</span> <span class="p">;</span> <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, that <code>SignUp</code> class is a great place to put things like <code>validates :password_confirmation, presence: true</code> kinda&#8217; business logic. The term for this in Ruby is <a href="http://railscasts.com/episodes/416-form-objects">&ldquo;form models&rdquo;</a>. Any domain and/or business logic that pertains uniquely to signing up a user now has a home. This class gives you a perfect place to <a href="http://samurails.com/interview/ruby-inheritance-encapsulation-polymorphism/">encapsulate</a> that behavior.</p>
+
+<h2>The Break Point</h2>
+
+<p>I quickly hit a point with my <code>Merchant</code> resource where I realized it had outgrown its inheritance from the <code>User</code> class. Instead of simply adding merchant-specific business logic &amp; behaviors into this class, I found myself overwriting many of the methods inherited from <code>User</code> in order to tweak the desired behavior when a merchant was involved in a transaction.</p>
+
+<h3>A merchant is really just a user with an associated <code>Business</code>&hellip;</h3>
+
+<p>Thanks to my good friend <a href="https://twitter.com/creeefs">Chris Lee</a>, I arrived at a much better solution to this &ldquo;where to house my <code>Merchant</code> business logic&rdquo; predicament.</p>
+
+<p>Remember, I originally inherited from <code>User</code> because I still needed all the logic that connected two people (merchants or non-merchants alike) doing a financial transaction - either a payment to a store, or a Venmo-style peer-to-peer transfer.</p>
+
+<p>Chris pointed out that I could instead organize my merchant-related logic into its own model, called <code>Business</code>. Now, a &ldquo;merchant&rdquo; in my system is simply:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="c1"># most code omitted...</span>
+</span><span class='line'>  <span class="n">has_one</span> <span class="ss">:business</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">merchant?</span>
+</span><span class='line'>    <span class="n">business</span><span class="o">.</span><span class="n">present?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That is, it&rsquo;s just a user instance with an associated business. Much cleaner, much more elegant, and much more expressive. Let&rsquo;s look at some examples.</p>
+
+<p>First, this is how I can assess the merchant-specific transaction fee within my <code>Transaction</code> class:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Transaction</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="c1"># most code omitted...</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:sender</span><span class="p">,</span> <span class="ss">class_name</span><span class="p">:</span> <span class="no">User</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:receiver</span><span class="p">,</span> <span class="ss">class_name</span><span class="p">:</span> <span class="no">User</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">before_create</span> <span class="ss">:assess_merchant_fee!</span><span class="p">,</span> <span class="k">if</span><span class="p">:</span> <span class="ss">:receiver_is_merchant?</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">receiver_is_merchant?</span>
+</span><span class='line'>    <span class="n">receiver</span><span class="o">.</span><span class="n">merchant?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">assess_merchant_fee!</span>
+</span><span class='line'>    <span class="c1"># deduct the fee from the amount received by the merchant and notify them...</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I was so relieved that I had a home for all of my <code>Business</code>-related logic, that I felt compelled to write this blog post. I hope you&rsquo;ve enjoyed reading it :smile:</p>
+
+<p>P.S. From what I understand, Facebook uses this same approach to managing their Business Pages.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Matt Campbell</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-05-30T11:04:19-04:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:04 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/inheritance/'>inheritance</a>, <a class='category' href='/blog/categories/oop/'>oop</a>, <a class='category' href='/blog/categories/rails/'>rails</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://mattcampbell.nyc/2015/05/30/domain-modeling-mom-and-pop-merchants/" data-via="mecampbellsoup" data-counturl="http://mattcampbell.nyc/2015/05/30/domain-modeling-mom-and-pop-merchants/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2014/05/27/how-to-easy-manual-testing-a-json-http-endpoint/" title="Previous Post: How-To: Manual JSON-endpoint Testing Made Easy">&laquo; How-To: Manual JSON-endpoint Testing Made Easy</a>
+      
+      
+        <a class="basic-alignment right" href="/2015/06/18/using-lambdas-as-computed-hashes-in-ruby/" title="Next Post: Using Lambdas as Computed Hashes in Ruby">Using Lambdas as Computed Hashes in Ruby &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Like This Blog? Leave a Tip with Bitcoin!</h1>
+  <div>
+    <a id="btc-qr-code" href="bitcoin:1FsPgV2CCVNs4i515JqkPujmKdge3573eD?amount=0.05&label=Matt%20Campbell%20Dev%20Blog">
+      <img src="/images/btc-ledger-wallet-qr-code.png">
+    </a>
+    <p>1FsPgV2CCVNs4i515JqkPujmKdge3573eD</p>
+  </div>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/06/18/using-lambdas-as-computed-hashes-in-ruby/">Using Lambdas as Computed Hashes in Ruby</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/05/30/domain-modeling-mom-and-pop-merchants/">Domain Modeling Mom &#8216;N Pop Merchants in a Mobile Finance Platform</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/05/27/how-to-easy-manual-testing-a-json-http-endpoint/">How-To: Manual JSON-endpoint Testing Made Easy</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/12/07/make-debugging-with-binding-dot-pry-much-more-effective/">How to: Use binding.pry More Effectively Within Enumerables</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/11/19/using-xcodes-ios-simulator-to-build-your-next-webapp/">Using Xcode&#8217;s iOS Simulator to Build Your Next Webapp</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/mecampbellsoup">@mecampbellsoup</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'mecampbellsoup',
+            count: 4,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://facebook.com/mecampbell25">
+      <img src="http://static.viewbook.com/images/social_icons/facebook_32.png" width="32" height="32">
+      Facebook
+    </a>
+  </h1>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/101058099009530081039?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Matt Campbell -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'mecampbellsoup';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://mattcampbell.nyc/2015/05/30/domain-modeling-mom-and-pop-merchants/';
+        var disqus_url = 'http://mattcampbell.nyc/2015/05/30/domain-modeling-mom-and-pop-merchants/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

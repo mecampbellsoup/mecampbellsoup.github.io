@@ -1,0 +1,506 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>What Exactly Is Between Those Pipes? - Technical Writings of a Cryptocurrency Evangelist</title>
+  <meta name="author" content="Matt Campbell">
+
+  
+  <meta name="description" content="&ldquo;I&rsquo;ve seen these pipe things before… a bunch of times.&rdquo; (The thought you just had.) They look super familiar. Why does Ruby make &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://mattcampbell.nyc/2013/10/11/what-exactly-is-between-those-pipes/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Technical Writings of a Cryptocurrency Evangelist" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><div class="jumbotron">
+  <div class="container">
+    programming polyglot for hire.
+    <h3 class="tagline">Technical Writings of a Cryptocurrency Evangelist</h3>
+  </div>
+</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="mattcampbell.nyc">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="nav">
+    
+        <li ><a href="/index.html">Home</a></li>
+    
+        <li ><a href="/blog/archives/index.html">Archives</a></li>
+    
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">What Exactly Is Between Those Pipes?</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-10-11T22:43:00-04:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:43 pm</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://mattcampbell.nyc">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h3><strong>&ldquo;I&rsquo;ve seen these pipe things before… a bunch of times.&rdquo; (The thought you just had.)</strong></h3>
+
+<p>They look super familiar. Why does Ruby make use of them? What&rsquo;s inside the pipes?!</p>
+
+<p>Well in short, Ruby reads the thing between the pipes as a local variable to be used in the subsequent block. Let&rsquo;s look at an example of an iterator (followed by a block) from the Ruby docs.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="vi">@names</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="o">|</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="s2">&quot;Hello </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">!&quot;</span> 
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To paraphrase the docs: <code>each</code> is a method that accepts a block of code then runs that block of code for every element in a list, and the bit between <code>do</code> and <code>end</code> is just such a block. <em>The thing between pipe characters is the parameter for this block.</em></p>
+
+<p>What happens here is that for every entry in a list (i.e. <code>@names</code> in this example), <code>name</code> is bound to that list element, and then the expression <code>puts "Hello #{name}!"</code> is run with that <code>name</code>.</p>
+
+<p>(Thought tangent: So this example actually points to another cool feature of Ruby - &ldquo;duck typing&rdquo;. When we see <code>@names.each</code>, we naturally expect <code>@names</code> to be an Array (or Hash) and we&rsquo;ll be iterating over each element. But not so fast! What happens if <code>@names</code> is actually something totally different - like, say, an object from a custom-built class called Names? Warning: this is a highly contrived exmaple…)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Name</span>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:string</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@string</span> <span class="o">=</span> <span class="n">string</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">each</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">string</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="vi">@names</span> <span class="o">=</span> <span class="no">Name</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;woe, this is weird - I&#39;m a psuedo string attr within a Name object which responds to #each?!&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="vi">@names</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="o">|</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="s2">&quot;Hello </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;woe, this is weird - I&#39;m a psuedo string within a Name object that responds to #each?!&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(Um, pretty awesome, right? Ruby doesn&rsquo;t care about what you expect it to do; it only cares it the object at hand responds to the method being called. Talk about an egalitarian language!)</p>
+
+<p>Now that we&rsquo;ve had an intro-<em>duck</em>-tion to blocks and pipes, here&rsquo;s a question - how would you <em>define</em> the thing between the &ldquo;pipes&rdquo; (these guys: <code>||</code> ) in the following code example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">wrecking_ball</span> <span class="o">=</span> <span class="no">Song</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'><span class="n">wrecking_ball</span><span class="o">.</span><span class="n">tap</span> <span class="p">{</span> <span class="o">|</span><span class="n">song</span><span class="o">|</span> <span class="n">song</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Wrecking Ball&quot;</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(Another mental tangent: I think pretty much every object responds to <code>#tap</code> - that will have to be for another blog post though.)</p>
+
+<p>To put the question differently, what&rsquo;s the <code>|song|</code>? No, seriously - what is it?! Multiple choice:</p>
+
+<ul>
+<li> (a) method</li>
+<li> (b) keyword</li>
+<li> (c) variable</li> 
+</ul>
+
+
+<p>If you guessed C then you were spot on - pat yourself on the back! To be more specific, that thing between the pipes that we see in almost every block is actually a <em>local</em> variable. This is Ruby&rsquo;s approach to getting the object receiving the method call (e.g. the <code>wrecking_ball</code> Song object receiving the <code>tap</code> method) inside the method as an argument. The convo with Ruby (since we all have dialogues with our computers in the language of Ruby these days) goes down something like this:</p>
+
+<blockquote>
+&#8220;Ok lord programmer, I realize you&#8217;re calling a method on this object - and you&#8217;re hoping to &#8220;`yield&#8220;` the object receiving the method call to the method&#8217;s block (the code following the &#8220;`.each do &#8220;` bit). Tell ya&#8217; what: in order to make sure said object gets from the left side of this expression into the yielded block, I&#8217;m going to temporarily make a local variable - you can even name it WHATEVER YOU WANT - so that you have full access to the object within the block. Sound good? You bet your ass it does. I&#8217;m Ruby, we&#8217;re gonna&#8217; get along famously.&#8221;
+</blockquote>
+
+
+<h3>Putting down the pipe (only temorarily, calm down)</h3>
+
+<p>Awesome. Now we know exactly what&rsquo;s going on between those pipes. Ruby is creating a local variable that points to the object receiving the method call, all so that we can fully access our object inside the method&rsquo;s block. Thanks Ruby.</p>
+
+<p>To drive this point home, let&rsquo;s remove these pipe thingies and see if we can still code like we normally do.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">some_numbers</span> <span class="o">=</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="o">]</span>
+</span><span class='line'><span class="n">some_numbers</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="s2">&quot;This is our block!&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">&quot;This is our block!&quot;</span>
+</span><span class='line'><span class="s2">&quot;This is our block!&quot;</span>
+</span><span class='line'><span class="s2">&quot;This is our block!&quot;</span>
+</span><span class='line'><span class="s2">&quot;This is our block!&quot;</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="o">[</span><span class="kp">nil</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="kp">nil</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>OK, so that&rsquo;s pretty interesting. It looks like our block is definitely being evaluated, and our collect iterator is yielding to that block precisely <code>self.size</code> times (or 4 in this case). Since we have a <code>puts</code> method, whose return value is always <code>nil</code>, we end up with the returned array of <code>nil</code>&rsquo;s above. But I want access to the <code>[5,6,7,8]</code> on which we&rsquo;re calling <code>.collect</code>! Let&rsquo;s try another strategy:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">some_numbers</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span>
+</span><span class='line'>  <span class="nb">p</span> <span class="n">some_numbers</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span>
+</span><span class='line'><span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span>
+</span><span class='line'> <span class="o">=&gt;</span> <span class="o">[[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Alright, getting closer. Looks like we still have access to the entire object receiving the <code>.collect</code> method call. How can we get to one element of <code>some_numbers</code> at a time though? In other words, how can we get specific, granular access to each component of the object at hand, the one receiving the method call? How can we have our block be evaluated on each element of <code>some_numbers</code>, but only one element at a time? The answer lies in Ruby&rsquo;s implementation of Array#each (and really all the iterators) - here are implementations we&rsquo;ve written <a href="https://twitter.com/FlatironSchool"/>@flatironschool</a>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Array</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">each</span>
+</span><span class='line'>    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">self</span><span class="o">.</span><span class="n">length</span>
+</span><span class='line'>      <span class="k">yield</span><span class="p">(</span><span class="nb">self</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="nb">self</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">my_each_with_index</span>
+</span><span class='line'>    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">self</span><span class="o">.</span><span class="n">length</span>
+</span><span class='line'>      <span class="k">yield</span><span class="p">(</span><span class="nb">self</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="nb">self</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="n">some_numbers</span> <span class="o">=</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="o">]</span>
+</span><span class='line'><span class="n">some_numbers</span><span class="o">.</span><span class="n">my_each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="o">|</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="s2">&quot;At index </span><span class="si">#{</span><span class="n">i</span><span class="si">}</span><span class="s2"> the value is </span><span class="si">#{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="no">At</span> <span class="n">index</span> <span class="mi">0</span> <span class="n">the</span> <span class="n">value</span> <span class="n">is</span> <span class="mi">5</span>
+</span><span class='line'><span class="no">At</span> <span class="n">index</span> <span class="mi">1</span> <span class="n">the</span> <span class="n">value</span> <span class="n">is</span> <span class="mi">6</span>
+</span><span class='line'><span class="no">At</span> <span class="n">index</span> <span class="mi">2</span> <span class="n">the</span> <span class="n">value</span> <span class="n">is</span> <span class="mi">7</span>
+</span><span class='line'><span class="no">At</span> <span class="n">index</span> <span class="mi">3</span> <span class="n">the</span> <span class="n">value</span> <span class="n">is</span> <span class="mi">8</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Lines 5 and 13, there&rsquo;s our old pal <code>yield</code>. How cool it is to finally see the distinction between <code>.each</code> and <code>.each_with_index</code> - it&rsquo;s merely the # of local variables from <code>self</code> (the object, in our case the <code>Array [5,6,7,8]</code> receiving the method call) that we &ldquo;yield&rdquo; or pass along to the block! Now, finally, we having a working definition of what&rsquo;s betweeen the pipes: they demarcate <strong>local variables which represent each element of <code>self</code> that get passed to the block each time our method call <code>yield</code>s to the block</strong>!</p>
+
+<p>In my next post, I want to talk about Ruby&rsquo;s bindings - a poorly understood (and rarely needed) aspect of Ruby that I hope to shed some light on.</p>
+
+<p>Until then: #workhard, #benice!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Matt Campbell</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-10-11T22:43:00-04:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:43 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/blocks/'>blocks</a>, <a class='category' href='/blog/categories/flatiron-school/'>flatiron school</a>, <a class='category' href='/blog/categories/local-variables/'>local variables</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://mattcampbell.nyc/2013/10/11/what-exactly-is-between-those-pipes/" data-via="mecampbellsoup" data-counturl="http://mattcampbell.nyc/2013/10/11/what-exactly-is-between-those-pipes/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2013/10/08/a-short-and-sweet-intro-to-objects-in-ruby/" title="Previous Post: a short &amp; sweet intro to objects in ruby">&laquo; a short &amp; sweet intro to objects in ruby</a>
+      
+      
+        <a class="basic-alignment right" href="/2013/10/22/the-http-steakhouse/" title="Next Post: HTTPrime: what can we learn about http Request-Response from a steakhouse?">HTTPrime: what can we learn about http Request-Response from a steakhouse? &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Like This Blog? Leave a Tip with Bitcoin!</h1>
+  <div>
+    <a id="btc-qr-code" href="bitcoin:1FsPgV2CCVNs4i515JqkPujmKdge3573eD?amount=0.05&label=Matt%20Campbell%20Dev%20Blog">
+      <img src="/images/btc-ledger-wallet-qr-code.png">
+    </a>
+    <p>1FsPgV2CCVNs4i515JqkPujmKdge3573eD</p>
+  </div>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/06/18/using-lambdas-as-computed-hashes-in-ruby/">Using Lambdas as Computed Hashes in Ruby</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/05/30/domain-modeling-mom-and-pop-merchants/">Domain Modeling Mom &#8216;N Pop Merchants in a Mobile Finance Platform</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/05/27/how-to-easy-manual-testing-a-json-http-endpoint/">How-To: Manual JSON-endpoint Testing Made Easy</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/12/07/make-debugging-with-binding-dot-pry-much-more-effective/">How to: Use binding.pry More Effectively Within Enumerables</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/11/19/using-xcodes-ios-simulator-to-build-your-next-webapp/">Using Xcode&#8217;s iOS Simulator to Build Your Next Webapp</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/mecampbellsoup">@mecampbellsoup</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'mecampbellsoup',
+            count: 4,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://facebook.com/mecampbell25">
+      <img src="http://static.viewbook.com/images/social_icons/facebook_32.png" width="32" height="32">
+      Facebook
+    </a>
+  </h1>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/101058099009530081039?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Matt Campbell -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'mecampbellsoup';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://mattcampbell.nyc/2013/10/11/what-exactly-is-between-those-pipes/';
+        var disqus_url = 'http://mattcampbell.nyc/2013/10/11/what-exactly-is-between-those-pipes/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
