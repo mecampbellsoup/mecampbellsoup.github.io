@@ -5,7 +5,7 @@ date: 2015-06-18 11:22:00 -0400
 comments: true
 categories: ruby lambda hash
 ---
-I recently read a really interesting [blurgh post](http://blog.honeybadger.io/using-lambdas-in-ruby) about the interesting, quirky aspects of lambdas in Ruby.
+I recently read a [blurgh post](http://blog.honeybadger.io/using-lambdas-in-ruby) about the interesting, quirky aspects of lambdas in Ruby.
 
 One feature that stood out to me was lambdas' ability to stand in where hashes would normally be used. 
 
