@@ -4,7 +4,7 @@
   <title><![CDATA[Category: hash | Technical Writings of a Cryptocurrency Evangelist]]></title>
   <link href="http://mattcampbell.nyc/blog/categories/hash/atom.xml" rel="self"/>
   <link href="http://mattcampbell.nyc/"/>
-  <updated>2015-07-29T16:04:49-04:00</updated>
+  <updated>2015-07-29T16:19:35-04:00</updated>
   <id>http://mattcampbell.nyc/</id>
   <author>
     <name><![CDATA[Matt Campbell]]></name>
@@ -18,7 +18,7 @@
     <link href="http://mattcampbell.nyc/2015/06/18/using-lambdas-as-computed-hashes-in-ruby/"/>
     <updated>2015-06-18T11:22:00-04:00</updated>
     <id>http://mattcampbell.nyc/2015/06/18/using-lambdas-as-computed-hashes-in-ruby</id>
-    <content type="html"><![CDATA[<p>I recently read a really interesting <a href="http://blog.honeybadger.io/using-lambdas-in-ruby">blurgh post</a> about the interesting, quirky aspects of lambdas in Ruby.</p>
+    <content type="html"><![CDATA[<p>I recently read a <a href="http://blog.honeybadger.io/using-lambdas-in-ruby">blurgh post</a> about the interesting, quirky aspects of lambdas in Ruby.</p>
 
 <p>One feature that stood out to me was lambdas&#8217; ability to stand in where hashes would normally be used.</p>
 
