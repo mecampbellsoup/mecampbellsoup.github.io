@@ -1,3 +1,7 @@
+## Author's Note
+
+Follow the instructions in [this blog post](http://blog.zerosharp.com/clone-your-octopress-to-blog-from-two-places/) when initializing this repo locally on a new machine.
+
 ## Octopress 3.0
 
 Note: Octopress 3.0 is in development at https://github.com/octopress/octopress
