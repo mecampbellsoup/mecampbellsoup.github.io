@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: ios | Technical Writings of a Cryptocurrency Evangelist]]></title>
+  <title><![CDATA[Category: ios | Thoughts & Technical Writings.]]></title>
   <link href="http://mattcampbell.nyc/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://mattcampbell.nyc/"/>
-  <updated>2015-09-27T14:30:01-04:00</updated>
+  <updated>2015-09-27T16:32:24-04:00</updated>
   <id>http://mattcampbell.nyc/</id>
   <author>
     <name><![CDATA[Matt Campbell]]></name>
