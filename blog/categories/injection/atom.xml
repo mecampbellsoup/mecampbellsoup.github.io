@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: injection | Technical Writings of a Cryptocurrency Evangelist]]></title>
+  <link href="http://mattcampbell.nyc/blog/categories/injection/atom.xml" rel="self"/>
+  <link href="http://mattcampbell.nyc/"/>
+  <updated>2015-09-27T14:15:44-04:00</updated>
+  <id>http://mattcampbell.nyc/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How Fixed Gear Bicycling Taught Me About Dependency Injection]]></title>
+    <link href="http://mattcampbell.nyc/2015/09/27/how-fixed-gear-bicycling-taught-me-about-dependency-injection/"/>
+    <updated>2015-09-27T12:17:14-04:00</updated>
+    <id>http://mattcampbell.nyc/2015/09/27/how-fixed-gear-bicycling-taught-me-about-dependency-injection</id>
+    <content type="html"><![CDATA[<p>I became inspired to write this blog post after watching a great <a href="https://www.twitter.com/sandimetz">@sandimetz</a> <a href="https://www.youtube.com/watch?v=OMPfEXIlTVE">talk which she gave at RailsConf 2015</a>. Her subject was primarily the <a href="https://en.wikipedia.org/wiki/Null_Object_pattern">Null Object Pattern</a>, but she extends the fundamental principle - that objects, not conditionals nor excruciatingly tailored classes, should be used to encapsulate your system&rsquo;s behaviors - to the practical aspects of injecting dependencies required by your domain&rsquo;s fundamental objects. Let&rsquo;s take a look at what I mean by using a real-world example: my recently acquired (and already banged up - I&rsquo;ve had two flat tires already!) <a href="https://en.wikipedia.org/wiki/Fixed-gear_bicycle">fixed gear (a.k.a &ldquo;fixie&rdquo;) bike</a>. I want you to start asking yourself: if you were given the task of modeling in Ruby a fixed-gear bicycle alongside a &ldquo;normal&rdquo; or freewheel bicycle, what tools would you reach for - inheritance, composition, or otherwise?</p>
+
+<h2>Modeling our <code>Bicycle</code></h2>
+
+<p>Let&rsquo;s throw down a little code to start bringing our bicycle domain to life:</p>
+
+<pre><code class="ruby">class Bicycle
+  attr_reader :frame_size, :color
+
+  def initialize(frame_size, color)
+    @frame_size, @color = frame_size, color
+  end
+
+  def number_of_speeds
+    freewheel ? gear_count : 1
+  end
+
+  def gear_count
+    1
+  end
+
+  def freewheel
+    true
+  end
+end
+</code></pre>
+
+<p>Cool - now we can instantiate a new <code>Bicycle</code> with our frame size and color preferences. Moreover, we have a sensible default (at least for urban NYC bicycling) for our drivetrain set to single-speed and <a href="https://en.wikipedia.org/wiki/Freewheel">freewheel</a>. (Note that &lsquo;freewheel&rsquo; is distinct from fixed-gear. On a fixie, for example, it is not possible for the chain to disengage from the crank arms, i.e. the motion of the rider&rsquo;s pedals. On a freewheel bicycle, you can stop the motion of the pedals beneath you and the drivetrain will continue turning, allowing for what we call &lsquo;coasting&rsquo;.)</p>
+
+<p>This is all well and good - until you find yourself moving to Brooklyn. In Brooklyn, fixed gear bikes are more popular, and it&rsquo;s probably got something to do with a hipster resurgence.</p>
+
+<p>So now let&rsquo;s use our knowledge of OO and Ruby to model our fixed gear bicycle.</p>
+
+<h2>Reach for inheritance first&hellip;?</h2>
+
+<p>Here is a perfectly viable implementation of our fixie bicycle variant:</p>
+
+<pre><code class="ruby">class Fixie &lt; Bicycle
+  def freewheel
+    false
+  end
+end
+</code></pre>
+
+<p>Easy! All we did was inherit from <code>Bicycle</code>, and modify the <code>#freewheel</code> method to instantiate a non-freewheel single-speed bicycle.</p>
+
+<p>Now let&rsquo;s say, however, that your roommate would prefer a multi-speed bicycle. Once again using inheritance we may write some code like so:</p>
+
+<pre><code class="ruby">class MultiGear &lt; Bicycle
+  def gear_count
+    @gear_count ||= 18
+  end
+end
+</code></pre>
+
+<p>And once again, this has solved our problem. But, while effective, this solution raises a number of concerns. Mainly, we already have two distinct classes in order to account for two slight variations in <code>Bicycle</code> types. What do you imagine will happen to our system as the number of different variations grows? Put differently:</p>
+
+<ul>
+<li>Do we really need distinct, unique classes to model a single variation in the characteristics of our bicycle?</li>
+<li>Does the organization of our code and the patterns therein easily communicate the distinctions we&rsquo;re attempting to convey?</li>
+<li>Are we satisfied with the idea that, should our <code>Bicycle</code>s change in other aspects in the future, we&rsquo;ll continue to open new classes?</li>
+</ul>
+
+
+<h2>Where inheritance breaks down (pun intended)</h2>
+
+<p>To focus on the last concern that we just raised, let&rsquo;s say you&rsquo;ve accepted a job as a delivery boy for a local Chinese restaurant. Most of those guys, since they&rsquo;re riding for hours a day, enhance their drivetrain with an electric motor which looks something like this:</p>
+
+<p><img src="https://www.electricbike.com/wp-content/uploads/2012/06/ego-kits.jpg" alt="" /></p>
+
+<p>You&rsquo;ve been asked to allow your system to model this new <code>Bicycle</code> variant. Perhaps you could reach for inheritance once again and end up with something like this:</p>
+
+<pre><code class="ruby">class ElectricMotorAugmented &lt; Bicycle
+  def drivetrain
+    :electric_motor
+  end
+end
+</code></pre>
+
+<p>This may meet the needs of a relatively basic system, but let&rsquo;s say your boss asks you to run a report&hellip;</p>
+
+<blockquote><p>Boss: &ldquo;Hey you, new gal! Get me a breakdown of all the bicycles in New York City with an approximation of their top speeds. We are examining the relationship between bicycle accidents and their drivetrain mechanism - we&rsquo;ve been hearing a lot lately about these electric-motor-augmented bicycles getting into accidents at faster speeds than non-electric bicycles.&rdquo;</p></blockquote>
+
+<p>Since your boss seems to be asking for data concerning the relationship between bicycles&#8217; drivetrain mechanism and their approximate &lsquo;top speed&rsquo;, you set out to run the report with some code like this:</p>
+
+<pre><code class="ruby">Bicycle.all.map { |bike| [ bike.class.name, bike.top_speed ] }
+</code></pre>
+
+<p>Now, you need to re-open all of your classes and implement <code>#top_speed</code>:</p>
+
+<pre><code class="ruby">class Bicycle
+  def top_speed
+    # in units of MPH
+    20
+  end
+end
+
+class MultiGear &lt; Bicycle
+  def top_speed
+    25
+  end
+end
+
+class ElectricMotorAugmented &lt; Bicycle
+  def top_speed
+    30
+  end
+end
+</code></pre>
+
+<p>Gheesh, that was kind of a lot of work - we had to open 3 different classes to find a home for our top speed approximations. You can see that our pattern - which is built on top of inheritance - could certainly become unwieldy and difficult to maintain as our system grows.</p>
+
+<h2>A better pattern: inject your dependencies!</h2>
+
+<p>I think this pattern really speaks for itself, so I&rsquo;ll let the code do most of the talking here. Instead of inheritance, if we reached for dependency injection our system may have turned our more like this:</p>
+
+<pre><code class="ruby">class Drivetrain
+  attr_reader :freewheel, :gear_count, :electric_motor_augmented
+
+  # NOTE: we're using Ruby 2.1+ required keyword argument syntax here
+  # https://robots.thoughtbot.com/ruby-2-keyword-arguments
+  def initialize(gear_count:, freewheel:, electric_motor_augmented: false)
+    @gear_count, @freewheel, @electric_motor_augmented =
+      gear_count, freewheel, electric_motor_augmented
+  end
+
+  def top_speed
+    speed =  (gear_count &gt; 1) ? 25 : 20
+    speed += electric_motor_augmented ? 10 : 0
+  end
+end
+
+class Bicycle
+  attr_reader :frame_size, :color, :drivetrain
+
+  def initialize(frame_size, color, drivetrain = Drivetrain.new)
+    @frame_size, @color, @drivetrain =
+      frame_size, color, drivetrain
+  end
+
+  def gear_count
+    drivetrain.gear_count
+  end
+
+  def top_speed
+    drivetrain.top_speed
+  end
+
+  def number_of_speeds
+    drivetrain.freewheel ? drivetrain.gear_count : 1
+  end
+end
+</code></pre>
+
+<p>Now we can easily instantiate our various <code>Bicycle</code> types and get <code>#top_speed</code> data from them:</p>
+
+<pre><code class="ruby">fixie        = Bicycle.new("57 cm", "black", Drivetrain.new(gear_count: 1,  freewheel: false))
+single_speed = Bicycle.new("57 cm", "black", Drivetrain.new(gear_count: 1,  freewheel: true))
+multi_speed  = Bicycle.new("57 cm", "black", Drivetrain.new(gear_count: 18, freewheel: true))
+motorized    = Bicycle.new("57 cm", "black", Drivetrain.new(gear_count: 18, freewheel: true, electric_motor_augmented: true))
+
+fixie.top_speed        #=&gt; 20
+single_speed.top_speed #=&gt; 20
+multi_speed.top_speed  #=&gt; 25
+motorized.top_speed    #=&gt; 35
+</code></pre>
+
+<h2>&ldquo;Isolate what is different&rdquo;</h2>
+
+<p>By isolating in our mind what was different among our bicycle variations, we were able to extract it out into its own <code>Drivetrain</code> dependency. The real benefit of doing this is that we can <em>inject</em> this dependency into our <code>Bicycle</code> instances as we need! <strong>No more sublcassing <code>Bicycle</code> endlessly as variation after variation of bike requires modeling in our system.</strong> You can envision this pattern of dependency injection coming in handy as your system grows and different attributes of <code>Bicycle</code> start to vary. Have you seen the foldable, transportable frame style of bikes?</p>
+
+<p><img src="http://blog.tradetang.com/wp-content/uploads/2009/11/folding-bike.jpg" alt="" /></p>
+
+<p>Using dependency injection, we can account for this variable attribute pretty succinctly:</p>
+
+<pre><code class="ruby">class Frame
+  attr_reader :color, :size, :foldable
+
+  def initialize(color:, size:, foldable: false)
+    @color, @size, @foldable = color, size, foldable
+  end
+end
+
+class Bicycle
+  attr_reader :frame, :drivetrain
+
+  def initialize(frame = Frame.new, drivetrain = Drivetrain.new)
+    @frame, @drivetrain = frame, drivetrain
+  end
+
+  # rest of code omitted for brevity...
+end
+</code></pre>
+
+<p>And here is our foldable <code>Bicycle</code>:</p>
+
+<pre><code class="ruby">foldable = Bicycle.new(
+             Frame.new("black", "57 cm", true),
+             Drivetrain.new(gear_count: 1,  freewheel: false)
+)
+</code></pre>
+
+<h2>Conclusion</h2>
+
+<p>Watching Sandi&rsquo;s talk (and writing up this post) have certainly changed my opinion on using inheritance versus injecting dependencies into my domain model. I was inspired to write this post by Sandi and the joy I&rsquo;ve been getting from riding fixie around Brooklyn for the past couple of months.</p>
+
+<p>I hope you&rsquo;ve found this blog post interesting and educational. Please let me know in the comments below!</p>
+]]></content>
+  </entry>
+  
+</feed>

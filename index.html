@@ -9,7 +9,7 @@
   <meta name="author" content="Matt Campbell">
 
   
-  <meta name="description" content="I recently read a blurgh post about the interesting, quirky aspects of lambdas in Ruby. One feature that stood out to me was lambdas' ability to &hellip;">
+  <meta name="description" content="I became inspired to write this blog post after watching a great @sandimetz talk which she gave at RailsConf 2015. Her subject was primarily the Null &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +68,373 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2015/09/27/how-fixed-gear-bicycling-taught-me-about-dependency-injection/">How Fixed Gear Bicycling Taught Me About Dependency Injection</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-09-27T12:17:14-04:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>12:17 pm</span></time>
+        
+           | <a href="/2015/09/27/how-fixed-gear-bicycling-taught-me-about-dependency-injection/#disqus_thread"
+             data-disqus-identifier="http://mattcampbell.nyc/2015/09/27/how-fixed-gear-bicycling-taught-me-about-dependency-injection/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I became inspired to write this blog post after watching a great <a href="https://www.twitter.com/sandimetz">@sandimetz</a> <a href="https://www.youtube.com/watch?v=OMPfEXIlTVE">talk which she gave at RailsConf 2015</a>. Her subject was primarily the <a href="https://en.wikipedia.org/wiki/Null_Object_pattern">Null Object Pattern</a>, but she extends the fundamental principle - that objects, not conditionals nor excruciatingly tailored classes, should be used to encapsulate your system&rsquo;s behaviors - to the practical aspects of injecting dependencies required by your domain&rsquo;s fundamental objects. Let&rsquo;s take a look at what I mean by using a real-world example: my recently acquired (and already banged up - I&rsquo;ve had two flat tires already!) <a href="https://en.wikipedia.org/wiki/Fixed-gear_bicycle">fixed gear (a.k.a &ldquo;fixie&rdquo;) bike</a>. I want you to start asking yourself: if you were given the task of modeling in Ruby a fixed-gear bicycle alongside a &ldquo;normal&rdquo; or freewheel bicycle, what tools would you reach for - inheritance, composition, or otherwise?</p>
+
+<h2>Modeling our <code>Bicycle</code></h2>
+
+<p>Let&rsquo;s throw down a little code to start bringing our bicycle domain to life:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Bicycle</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:frame_size</span><span class="p">,</span> <span class="ss">:color</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">frame_size</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@frame_size</span><span class="p">,</span> <span class="vi">@color</span> <span class="o">=</span> <span class="n">frame_size</span><span class="p">,</span> <span class="n">color</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">number_of_speeds</span>
+</span><span class='line'>    <span class="n">freewheel</span> <span class="p">?</span> <span class="n">gear_count</span> <span class="p">:</span> <span class="mi">1</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">gear_count</span>
+</span><span class='line'>    <span class="mi">1</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">freewheel</span>
+</span><span class='line'>    <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Cool - now we can instantiate a new <code>Bicycle</code> with our frame size and color preferences. Moreover, we have a sensible default (at least for urban NYC bicycling) for our drivetrain set to single-speed and <a href="https://en.wikipedia.org/wiki/Freewheel">freewheel</a>. (Note that &lsquo;freewheel&rsquo; is distinct from fixed-gear. On a fixie, for example, it is not possible for the chain to disengage from the crank arms, i.e. the motion of the rider&rsquo;s pedals. On a freewheel bicycle, you can stop the motion of the pedals beneath you and the drivetrain will continue turning, allowing for what we call &lsquo;coasting&rsquo;.)</p>
+
+<p>This is all well and good - until you find yourself moving to Brooklyn. In Brooklyn, fixed gear bikes are more popular, and it&rsquo;s probably got something to do with a hipster resurgence.</p>
+
+<p>So now let&rsquo;s use our knowledge of OO and Ruby to model our fixed gear bicycle.</p>
+
+<h2>Reach for inheritance first&hellip;?</h2>
+
+<p>Here is a perfectly viable implementation of our fixie bicycle variant:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Fixie</span> <span class="o">&lt;</span> <span class="no">Bicycle</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">freewheel</span>
+</span><span class='line'>    <span class="kp">false</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Easy! All we did was inherit from <code>Bicycle</code>, and modify the <code>#freewheel</code> method to instantiate a non-freewheel single-speed bicycle.</p>
+
+<p>Now let&rsquo;s say, however, that your roommate would prefer a multi-speed bicycle. Once again using inheritance we may write some code like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">MultiGear</span> <span class="o">&lt;</span> <span class="no">Bicycle</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">gear_count</span>
+</span><span class='line'>    <span class="vi">@gear_count</span> <span class="o">||=</span> <span class="mi">18</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And once again, this has solved our problem. But, while effective, this solution raises a number of concerns. Mainly, we already have two distinct classes in order to account for two slight variations in <code>Bicycle</code> types. What do you imagine will happen to our system as the number of different variations grows? Put differently:</p>
+
+<ul>
+<li>Do we really need distinct, unique classes to model a single variation in the characteristics of our bicycle?</li>
+<li>Does the organization of our code and the patterns therein easily communicate the distinctions we&rsquo;re attempting to convey?</li>
+<li>Are we satisfied with the idea that, should our <code>Bicycle</code>s change in other aspects in the future, we&rsquo;ll continue to open new classes?</li>
+</ul>
+
+
+<h2>Where inheritance breaks down (pun intended)</h2>
+
+<p>To focus on the last concern that we just raised, let&rsquo;s say you&rsquo;ve accepted a job as a delivery boy for a local Chinese restaurant. Most of those guys, since they&rsquo;re riding for hours a day, enhance their drivetrain with an electric motor which looks something like this:</p>
+
+<p><img src="https://www.electricbike.com/wp-content/uploads/2012/06/ego-kits.jpg" alt="" /></p>
+
+<p>You&rsquo;ve been asked to allow your system to model this new <code>Bicycle</code> variant. Perhaps you could reach for inheritance once again and end up with something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ElectricMotorAugmented</span> <span class="o">&lt;</span> <span class="no">Bicycle</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">drivetrain</span>
+</span><span class='line'>    <span class="ss">:electric_motor</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This may meet the needs of a relatively basic system, but let&rsquo;s say your boss asks you to run a report&hellip;</p>
+
+<blockquote><p>Boss: &ldquo;Hey you, new gal! Get me a breakdown of all the bicycles in New York City with an approximation of their top speeds. We are examining the relationship between bicycle accidents and their drivetrain mechanism - we&rsquo;ve been hearing a lot lately about these electric-motor-augmented bicycles getting into accidents at faster speeds than non-electric bicycles.&rdquo;</p></blockquote>
+
+<p>Since your boss seems to be asking for data concerning the relationship between bicycles&#8217; drivetrain mechanism and their approximate &lsquo;top speed&rsquo;, you set out to run the report with some code like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Bicycle</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">bike</span><span class="o">|</span> <span class="o">[</span> <span class="n">bike</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">bike</span><span class="o">.</span><span class="n">top_speed</span> <span class="o">]</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, you need to re-open all of your classes and implement <code>#top_speed</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Bicycle</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">top_speed</span>
+</span><span class='line'>    <span class="c1"># in units of MPH</span>
+</span><span class='line'>    <span class="mi">20</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">MultiGear</span> <span class="o">&lt;</span> <span class="no">Bicycle</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">top_speed</span>
+</span><span class='line'>    <span class="mi">25</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">ElectricMotorAugmented</span> <span class="o">&lt;</span> <span class="no">Bicycle</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">top_speed</span>
+</span><span class='line'>    <span class="mi">30</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Gheesh, that was kind of a lot of work - we had to open 3 different classes to find a home for our top speed approximations. You can see that our pattern - which is built on top of inheritance - could certainly become unwieldy and difficult to maintain as our system grows.</p>
+
+<h2>A better pattern: inject your dependencies!</h2>
+
+<p>I think this pattern really speaks for itself, so I&rsquo;ll let the code do most of the talking here. Instead of inheritance, if we reached for dependency injection our system may have turned our more like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Drivetrain</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:freewheel</span><span class="p">,</span> <span class="ss">:gear_count</span><span class="p">,</span> <span class="ss">:electric_motor_augmented</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># NOTE: we&#39;re using Ruby 2.1+ required keyword argument syntax here</span>
+</span><span class='line'>  <span class="c1"># https://robots.thoughtbot.com/ruby-2-keyword-arguments</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="ss">gear_count</span><span class="p">:,</span> <span class="ss">freewheel</span><span class="p">:,</span> <span class="ss">electric_motor_augmented</span><span class="p">:</span> <span class="kp">false</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@gear_count</span><span class="p">,</span> <span class="vi">@freewheel</span><span class="p">,</span> <span class="vi">@electric_motor_augmented</span> <span class="o">=</span>
+</span><span class='line'>      <span class="n">gear_count</span><span class="p">,</span> <span class="n">freewheel</span><span class="p">,</span> <span class="n">electric_motor_augmented</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">top_speed</span>
+</span><span class='line'>    <span class="n">speed</span> <span class="o">=</span>  <span class="p">(</span><span class="n">gear_count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">?</span> <span class="mi">25</span> <span class="p">:</span> <span class="mi">20</span>
+</span><span class='line'>    <span class="n">speed</span> <span class="o">+=</span> <span class="n">electric_motor_augmented</span> <span class="p">?</span> <span class="mi">10</span> <span class="p">:</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Bicycle</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:frame_size</span><span class="p">,</span> <span class="ss">:color</span><span class="p">,</span> <span class="ss">:drivetrain</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">frame_size</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">drivetrain</span> <span class="o">=</span> <span class="no">Drivetrain</span><span class="o">.</span><span class="n">new</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@frame_size</span><span class="p">,</span> <span class="vi">@color</span><span class="p">,</span> <span class="vi">@drivetrain</span> <span class="o">=</span>
+</span><span class='line'>      <span class="n">frame_size</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">drivetrain</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">gear_count</span>
+</span><span class='line'>    <span class="n">drivetrain</span><span class="o">.</span><span class="n">gear_count</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">top_speed</span>
+</span><span class='line'>    <span class="n">drivetrain</span><span class="o">.</span><span class="n">top_speed</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">number_of_speeds</span>
+</span><span class='line'>    <span class="n">drivetrain</span><span class="o">.</span><span class="n">freewheel</span> <span class="p">?</span> <span class="n">drivetrain</span><span class="o">.</span><span class="n">gear_count</span> <span class="p">:</span> <span class="mi">1</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we can easily instantiate our various <code>Bicycle</code> types and get <code>#top_speed</code> data from them:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">fixie</span>        <span class="o">=</span> <span class="no">Bicycle</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;57 cm&quot;</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="no">Drivetrain</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">gear_count</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  <span class="ss">freewheel</span><span class="p">:</span> <span class="kp">false</span><span class="p">))</span>
+</span><span class='line'><span class="n">single_speed</span> <span class="o">=</span> <span class="no">Bicycle</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;57 cm&quot;</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="no">Drivetrain</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">gear_count</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  <span class="ss">freewheel</span><span class="p">:</span> <span class="kp">true</span><span class="p">))</span>
+</span><span class='line'><span class="n">multi_speed</span>  <span class="o">=</span> <span class="no">Bicycle</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;57 cm&quot;</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="no">Drivetrain</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">gear_count</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span> <span class="ss">freewheel</span><span class="p">:</span> <span class="kp">true</span><span class="p">))</span>
+</span><span class='line'><span class="n">motorized</span>    <span class="o">=</span> <span class="no">Bicycle</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;57 cm&quot;</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="no">Drivetrain</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">gear_count</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span> <span class="ss">freewheel</span><span class="p">:</span> <span class="kp">true</span><span class="p">,</span> <span class="ss">electric_motor_augmented</span><span class="p">:</span> <span class="kp">true</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">fixie</span><span class="o">.</span><span class="n">top_speed</span>        <span class="c1">#=&gt; 20</span>
+</span><span class='line'><span class="n">single_speed</span><span class="o">.</span><span class="n">top_speed</span> <span class="c1">#=&gt; 20</span>
+</span><span class='line'><span class="n">multi_speed</span><span class="o">.</span><span class="n">top_speed</span>  <span class="c1">#=&gt; 25</span>
+</span><span class='line'><span class="n">motorized</span><span class="o">.</span><span class="n">top_speed</span>    <span class="c1">#=&gt; 35</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>&ldquo;Isolate what is different&rdquo;</h2>
+
+<p>By isolating in our mind what was different among our bicycle variations, we were able to extract it out into its own <code>Drivetrain</code> dependency. The real benefit of doing this is that we can <em>inject</em> this dependency into our <code>Bicycle</code> instances as we need! <strong>No more sublcassing <code>Bicycle</code> endlessly as variation after variation of bike requires modeling in our system.</strong> You can envision this pattern of dependency injection coming in handy as your system grows and different attributes of <code>Bicycle</code> start to vary. Have you seen the foldable, transportable frame style of bikes?</p>
+
+<p><img src="http://blog.tradetang.com/wp-content/uploads/2009/11/folding-bike.jpg" alt="" /></p>
+
+<p>Using dependency injection, we can account for this variable attribute pretty succinctly:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Frame</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:color</span><span class="p">,</span> <span class="ss">:size</span><span class="p">,</span> <span class="ss">:foldable</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="ss">color</span><span class="p">:,</span> <span class="ss">size</span><span class="p">:,</span> <span class="ss">foldable</span><span class="p">:</span> <span class="kp">false</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@color</span><span class="p">,</span> <span class="vi">@size</span><span class="p">,</span> <span class="vi">@foldable</span> <span class="o">=</span> <span class="n">color</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">foldable</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Bicycle</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:frame</span><span class="p">,</span> <span class="ss">:drivetrain</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">frame</span> <span class="o">=</span> <span class="no">Frame</span><span class="o">.</span><span class="n">new</span><span class="p">,</span> <span class="n">drivetrain</span> <span class="o">=</span> <span class="no">Drivetrain</span><span class="o">.</span><span class="n">new</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@frame</span><span class="p">,</span> <span class="vi">@drivetrain</span> <span class="o">=</span> <span class="n">frame</span><span class="p">,</span> <span class="n">drivetrain</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># rest of code omitted for brevity...</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And here is our foldable <code>Bicycle</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">foldable</span> <span class="o">=</span> <span class="no">Bicycle</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
+</span><span class='line'>             <span class="no">Frame</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="s2">&quot;57 cm&quot;</span><span class="p">,</span> <span class="kp">true</span><span class="p">),</span>
+</span><span class='line'>             <span class="no">Drivetrain</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">gear_count</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  <span class="ss">freewheel</span><span class="p">:</span> <span class="kp">false</span><span class="p">)</span>
+</span><span class='line'><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Conclusion</h2>
+
+<p>Watching Sandi&rsquo;s talk (and writing up this post) have certainly changed my opinion on using inheritance versus injecting dependencies into my domain model. I was inspired to write this post by Sandi and the joy I&rsquo;ve been getting from riding fixie around Brooklyn for the past couple of months.</p>
+
+<p>I hope you&rsquo;ve found this blog post interesting and educational. Please let me know in the comments below!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1160,234 +1527,6 @@ Sweet, thanks Ruby! I use string interpolation just about every day coding in Ru
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/2013/10/11/what-exactly-is-between-those-pipes/">What Exactly Is Between Those Pipes?</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-10-11T22:43:00-04:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:43 pm</span></time>
-        
-           | <a href="/2013/10/11/what-exactly-is-between-those-pipes/#disqus_thread"
-             data-disqus-identifier="http://mattcampbell.nyc/2013/10/11/what-exactly-is-between-those-pipes/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3><strong>&ldquo;I&rsquo;ve seen these pipe things before… a bunch of times.&rdquo; (The thought you just had.)</strong></h3>
-
-<p>They look super familiar. Why does Ruby make use of them? What&rsquo;s inside the pipes?!</p>
-
-<p>Well in short, Ruby reads the thing between the pipes as a local variable to be used in the subsequent block. Let&rsquo;s look at an example of an iterator (followed by a block) from the Ruby docs.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="vi">@names</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="o">|</span>
-</span><span class='line'>  <span class="nb">puts</span> <span class="s2">&quot;Hello </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">!&quot;</span> 
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To paraphrase the docs: <code>each</code> is a method that accepts a block of code then runs that block of code for every element in a list, and the bit between <code>do</code> and <code>end</code> is just such a block. <em>The thing between pipe characters is the parameter for this block.</em></p>
-
-<p>What happens here is that for every entry in a list (i.e. <code>@names</code> in this example), <code>name</code> is bound to that list element, and then the expression <code>puts "Hello #{name}!"</code> is run with that <code>name</code>.</p>
-
-<p>(Thought tangent: So this example actually points to another cool feature of Ruby - &ldquo;duck typing&rdquo;. When we see <code>@names.each</code>, we naturally expect <code>@names</code> to be an Array (or Hash) and we&rsquo;ll be iterating over each element. But not so fast! What happens if <code>@names</code> is actually something totally different - like, say, an object from a custom-built class called Names? Warning: this is a highly contrived exmaple…)</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Name</span>
-</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:string</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
-</span><span class='line'>    <span class="vi">@string</span> <span class="o">=</span> <span class="n">string</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">each</span>
-</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">string</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="vi">@names</span> <span class="o">=</span> <span class="no">Name</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;woe, this is weird - I&#39;m a psuedo string attr within a Name object which responds to #each?!&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="vi">@names</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="o">|</span>
-</span><span class='line'>  <span class="nb">puts</span> <span class="s2">&quot;Hello </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;woe, this is weird - I&#39;m a psuedo string within a Name object that responds to #each?!&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>(Um, pretty awesome, right? Ruby doesn&rsquo;t care about what you expect it to do; it only cares it the object at hand responds to the method being called. Talk about an egalitarian language!)</p>
-
-<p>Now that we&rsquo;ve had an intro-<em>duck</em>-tion to blocks and pipes, here&rsquo;s a question - how would you <em>define</em> the thing between the &ldquo;pipes&rdquo; (these guys: <code>||</code> ) in the following code example:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">wrecking_ball</span> <span class="o">=</span> <span class="no">Song</span><span class="o">.</span><span class="n">new</span>
-</span><span class='line'><span class="n">wrecking_ball</span><span class="o">.</span><span class="n">tap</span> <span class="p">{</span> <span class="o">|</span><span class="n">song</span><span class="o">|</span> <span class="n">song</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Wrecking Ball&quot;</span> <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>(Another mental tangent: I think pretty much every object responds to <code>#tap</code> - that will have to be for another blog post though.)</p>
-
-<p>To put the question differently, what&rsquo;s the <code>|song|</code>? No, seriously - what is it?! Multiple choice:</p>
-
-<ul>
-<li> (a) method</li>
-<li> (b) keyword</li>
-<li> (c) variable</li> 
-</ul>
-
-
-<p>If you guessed C then you were spot on - pat yourself on the back! To be more specific, that thing between the pipes that we see in almost every block is actually a <em>local</em> variable. This is Ruby&rsquo;s approach to getting the object receiving the method call (e.g. the <code>wrecking_ball</code> Song object receiving the <code>tap</code> method) inside the method as an argument. The convo with Ruby (since we all have dialogues with our computers in the language of Ruby these days) goes down something like this:</p>
-
-<blockquote>
-&#8220;Ok lord programmer, I realize you&#8217;re calling a method on this object - and you&#8217;re hoping to &#8220;`yield&#8220;` the object receiving the method call to the method&#8217;s block (the code following the &#8220;`.each do &#8220;` bit). Tell ya&#8217; what: in order to make sure said object gets from the left side of this expression into the yielded block, I&#8217;m going to temporarily make a local variable - you can even name it WHATEVER YOU WANT - so that you have full access to the object within the block. Sound good? You bet your ass it does. I&#8217;m Ruby, we&#8217;re gonna&#8217; get along famously.&#8221;
-</blockquote>
-
-
-<h3>Putting down the pipe (only temorarily, calm down)</h3>
-
-<p>Awesome. Now we know exactly what&rsquo;s going on between those pipes. Ruby is creating a local variable that points to the object receiving the method call, all so that we can fully access our object inside the method&rsquo;s block. Thanks Ruby.</p>
-
-<p>To drive this point home, let&rsquo;s remove these pipe thingies and see if we can still code like we normally do.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">some_numbers</span> <span class="o">=</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="o">]</span>
-</span><span class='line'><span class="n">some_numbers</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span>
-</span><span class='line'>  <span class="nb">puts</span> <span class="s2">&quot;This is our block!&quot;</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="s2">&quot;This is our block!&quot;</span>
-</span><span class='line'><span class="s2">&quot;This is our block!&quot;</span>
-</span><span class='line'><span class="s2">&quot;This is our block!&quot;</span>
-</span><span class='line'><span class="s2">&quot;This is our block!&quot;</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="o">[</span><span class="kp">nil</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="kp">nil</span><span class="o">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>OK, so that&rsquo;s pretty interesting. It looks like our block is definitely being evaluated, and our collect iterator is yielding to that block precisely <code>self.size</code> times (or 4 in this case). Since we have a <code>puts</code> method, whose return value is always <code>nil</code>, we end up with the returned array of <code>nil</code>&rsquo;s above. But I want access to the <code>[5,6,7,8]</code> on which we&rsquo;re calling <code>.collect</code>! Let&rsquo;s try another strategy:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">some_numbers</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span>
-</span><span class='line'>  <span class="nb">p</span> <span class="n">some_numbers</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span>
-</span><span class='line'><span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span>
-</span><span class='line'><span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span>
-</span><span class='line'><span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="o">[[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Alright, getting closer. Looks like we still have access to the entire object receiving the <code>.collect</code> method call. How can we get to one element of <code>some_numbers</code> at a time though? In other words, how can we get specific, granular access to each component of the object at hand, the one receiving the method call? How can we have our block be evaluated on each element of <code>some_numbers</code>, but only one element at a time? The answer lies in Ruby&rsquo;s implementation of Array#each (and really all the iterators) - here are implementations we&rsquo;ve written <a href="https://twitter.com/FlatironSchool"/>@flatironschool</a>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Array</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">each</span>
-</span><span class='line'>    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class='line'>    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">self</span><span class="o">.</span><span class="n">length</span>
-</span><span class='line'>      <span class="k">yield</span><span class="p">(</span><span class="nb">self</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>    <span class="nb">self</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">my_each_with_index</span>
-</span><span class='line'>    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class='line'>    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">self</span><span class="o">.</span><span class="n">length</span>
-</span><span class='line'>      <span class="k">yield</span><span class="p">(</span><span class="nb">self</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>    <span class="nb">self</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="n">some_numbers</span> <span class="o">=</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="o">]</span>
-</span><span class='line'><span class="n">some_numbers</span><span class="o">.</span><span class="n">my_each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="o">|</span>
-</span><span class='line'>  <span class="nb">puts</span> <span class="s2">&quot;At index </span><span class="si">#{</span><span class="n">i</span><span class="si">}</span><span class="s2"> the value is </span><span class="si">#{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="no">At</span> <span class="n">index</span> <span class="mi">0</span> <span class="n">the</span> <span class="n">value</span> <span class="n">is</span> <span class="mi">5</span>
-</span><span class='line'><span class="no">At</span> <span class="n">index</span> <span class="mi">1</span> <span class="n">the</span> <span class="n">value</span> <span class="n">is</span> <span class="mi">6</span>
-</span><span class='line'><span class="no">At</span> <span class="n">index</span> <span class="mi">2</span> <span class="n">the</span> <span class="n">value</span> <span class="n">is</span> <span class="mi">7</span>
-</span><span class='line'><span class="no">At</span> <span class="n">index</span> <span class="mi">3</span> <span class="n">the</span> <span class="n">value</span> <span class="n">is</span> <span class="mi">8</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="o">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Lines 5 and 13, there&rsquo;s our old pal <code>yield</code>. How cool it is to finally see the distinction between <code>.each</code> and <code>.each_with_index</code> - it&rsquo;s merely the # of local variables from <code>self</code> (the object, in our case the <code>Array [5,6,7,8]</code> receiving the method call) that we &ldquo;yield&rdquo; or pass along to the block! Now, finally, we having a working definition of what&rsquo;s betweeen the pipes: they demarcate <strong>local variables which represent each element of <code>self</code> that get passed to the block each time our method call <code>yield</code>s to the block</strong>!</p>
-
-<p>In my next post, I want to talk about Ruby&rsquo;s bindings - a poorly understood (and rarely needed) aspect of Ruby that I hope to shed some light on.</p>
-
-<p>Until then: #workhard, #benice!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/2">&larr; Older</a>
@@ -1412,6 +1551,10 @@ Sweet, thanks Ruby! I use string interpolation just about every day coding in Ru
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2015/09/27/how-fixed-gear-bicycling-taught-me-about-dependency-injection/">How Fixed Gear Bicycling Taught Me About Dependency Injection</a>
+      </li>
+    
+      <li class="post">
         <a href="/2015/06/18/using-lambdas-as-computed-hashes-in-ruby/">Using Lambdas as Computed Hashes in Ruby</a>
       </li>
     
@@ -1425,10 +1568,6 @@ Sweet, thanks Ruby! I use string interpolation just about every day coding in Ru
     
       <li class="post">
         <a href="/2013/12/07/make-debugging-with-binding-dot-pry-much-more-effective/">How to: Use binding.pry More Effectively Within Enumerables</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2013/11/19/using-xcodes-ios-simulator-to-build-your-next-webapp/">Using Xcode&#8217;s iOS Simulator to Build Your Next Webapp</a>
       </li>
     
   </ul>

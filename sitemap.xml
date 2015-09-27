@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://mattcampbell.nyc/2015/09/27/how-fixed-gear-bicycling-taught-me-about-dependency-injection/</loc>
+    <lastmod>2015-09-27T12:17:14-04:00</lastmod>
+  </url>
+  <url>
     <loc>http://mattcampbell.nyc/2015/06/18/using-lambdas-as-computed-hashes-in-ruby/</loc>
     <lastmod>2015-06-18T11:22:00-04:00</lastmod>
   </url>
@@ -195,5 +199,20 @@
   </url>
   <url>
     <loc>http://mattcampbell.nyc/blog/categories/hash/</loc>
+  </url>
+  <url>
+    <loc>http://mattcampbell.nyc/blog/categories/oop/</loc>
+  </url>
+  <url>
+    <loc>http://mattcampbell.nyc/blog/categories/ruby/</loc>
+  </url>
+  <url>
+    <loc>http://mattcampbell.nyc/blog/categories/dependency/</loc>
+  </url>
+  <url>
+    <loc>http://mattcampbell.nyc/blog/categories/injection/</loc>
+  </url>
+  <url>
+    <loc>http://mattcampbell.nyc/posts/2/</loc>
   </url>
 </urlset>
