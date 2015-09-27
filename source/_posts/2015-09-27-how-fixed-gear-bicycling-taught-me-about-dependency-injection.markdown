@@ -205,7 +205,7 @@ And here is our foldable `Bicycle`:
 
 ```ruby
 foldable = Bicycle.new(
-             Frame.new("black", "57 cm", true),
+             Frame.new(color: "black", frame_size: "57 cm", foldable: true),
              Drivetrain.new(gear_count: 1,  freewheel: false)
 )
 ```
