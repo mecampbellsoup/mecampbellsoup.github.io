@@ -4,7 +4,7 @@
   <title><![CDATA[Category: dependency | Thoughts & Technical Writings.]]></title>
   <link href="http://mattcampbell.nyc/blog/categories/dependency/atom.xml" rel="self"/>
   <link href="http://mattcampbell.nyc/"/>
-  <updated>2015-09-27T16:32:24-04:00</updated>
+  <updated>2015-09-27T16:38:01-04:00</updated>
   <id>http://mattcampbell.nyc/</id>
   <author>
     <name><![CDATA[Matt Campbell]]></name>
@@ -215,7 +215,7 @@ end
 <p>And here is our foldable <code>Bicycle</code>:</p>
 
 <pre><code class="ruby">foldable = Bicycle.new(
-             Frame.new("black", "57 cm", true),
+             Frame.new(color: "black", frame_size: "57 cm", foldable: true),
              Drivetrain.new(gear_count: 1,  freewheel: false)
 )
 </code></pre>

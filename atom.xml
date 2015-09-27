@@ -4,7 +4,7 @@
   <title><![CDATA[Thoughts & Technical Writings.]]></title>
   <link href="http://mattcampbell.nyc/atom.xml" rel="self"/>
   <link href="http://mattcampbell.nyc/"/>
-  <updated>2015-09-27T16:32:24-04:00</updated>
+  <updated>2015-09-27T16:38:01-04:00</updated>
   <id>http://mattcampbell.nyc/</id>
   <author>
     <name><![CDATA[Matt Campbell]]></name>
@@ -343,7 +343,7 @@
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">foldable</span> <span class="o">=</span> <span class="no">Bicycle</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
-</span><span class='line'>             <span class="no">Frame</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="s2">&quot;57 cm&quot;</span><span class="p">,</span> <span class="kp">true</span><span class="p">),</span>
+</span><span class='line'>             <span class="no">Frame</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">color</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="ss">frame_size</span><span class="p">:</span> <span class="s2">&quot;57 cm&quot;</span><span class="p">,</span> <span class="ss">foldable</span><span class="p">:</span> <span class="kp">true</span><span class="p">),</span>
 </span><span class='line'>             <span class="no">Drivetrain</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">gear_count</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  <span class="ss">freewheel</span><span class="p">:</span> <span class="kp">false</span><span class="p">)</span>
 </span><span class='line'><span class="p">)</span>
 </span></code></pre></td></tr></table></div></figure>
