@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: module | Thoughts & Technical Writings.]]></title>
+  <link href="http://mattcampbell.nyc/blog/categories/module/atom.xml" rel="self"/>
+  <link href="http://mattcampbell.nyc/"/>
+  <updated>2015-12-09T13:00:55-05:00</updated>
+  <id>http://mattcampbell.nyc/</id>
+  <author>
+    <name><![CDATA[Matt Campbell]]></name>
+    <email><![CDATA[mecampbell25@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Extend an Instance to Dynamically Include]]></title>
+    <link href="http://mattcampbell.nyc/2015/12/05/extending-an-instance-to-dynamically-include/"/>
+    <updated>2015-12-05T13:52:30-05:00</updated>
+    <id>http://mattcampbell.nyc/2015/12/05/extending-an-instance-to-dynamically-include</id>
+    <content type="html"><![CDATA[<p>Here&rsquo;s a question for you lovely developers (and non-developers, too!) out there: how can we <strong>dynamically</strong> include behavior from a specific module at runtime? Put differently, is it possible to include one specific module&rsquo;s behavior <strong>after</strong> a <code>class</code> definition has already been read in? The typical Ruby include-behavior-from-a-module pattern looks something like this:</p>
+
+<pre><code class="ruby">class Employee
+  attr_accessor :can_be_promoted_to_manager
+
+  include Trainable
+
+  ...
+
+  end
+end
+</code></pre>
+
+<p>&hellip; where <code>Trainable</code> might extend the behavior of <code>Employee</code> instances something like this:</p>
+
+<pre><code class="ruby">module Trainable
+  def train!
+    ## some training-related code here...
+    self.can_be_promoted_to_manager = true
+  end
+end
+</code></pre>
+
+<p>This is a contrived example, clearly, but the pattern should look familiar: in Ruby, we love to <a href="https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)">encapsulate behavior</a> into modules and <code>include</code> them - the name for this practice is <a href="https://en.wikipedia.org/wiki/Separation_of_concerns">separation of concerns</a>. However, since we write the <code>include</code> directive within a class-level <a href="https://newcircle.com/bookshelf/ruby_tutorial/scope">scope</a>, we cannot for example use an instance of <code>Employee</code> itself to determine which module&rsquo;s behavior we&rsquo;d like to include. Let me explain with a quick example&hellip;</p>
+
+<h3>Different Modules for Different Training</h3>
+
+<p>Assume that instead of one <code>Trainable</code> module, we really have multiple modules that encapsulate distinct forms of employee training like follows:</p>
+
+<pre><code class="ruby">module ManagerTrainable ; end
+module TechnicianTrainable ; end
+module ExecutiveTrainable ; end
+module SalesPersonTrainable ; end
+</code></pre>
+
+<p>(NB: As you can see, I&rsquo;ve omitted any actual methods from these modules above, but use your imagination! e.g. <code>ExecutiveTrainable#soul_suck!</code>, or maybe <code>SalesPersonTrainable#learn_to_peddle!</code>)</p>
+
+<p>These modules may have also been written to reflect the various real-world types of <code>Employee</code> that are modeled in our Ruby application:</p>
+
+<pre><code class="ruby">manager    = Employee.new(type: :manager)
+technician = Employee.new(type: :employee)
+</code></pre>
+
+<p>Each of these <code>employee</code>s also need to be able to go through some form of &ldquo;training&rdquo;. So, in order to ensure that all of <code>Employee</code> types can be <code>train!</code>&lsquo;ed in the appropriate manner, we can simply <code>include</code> all modules at the class level:</p>
+
+<pre><code class="ruby">class Employee
+  include ManagerTrainable
+  include TechnicianTrainable
+  include ExecutiveTrainable
+  include SalesPersonTrainable
+
+  ...
+
+  end
+end
+</code></pre>
+
+<p>Unforutnately, this has a nubmer of problems. First, it doesn&rsquo;t communicate the <a href="https://signalvnoise.com/posts/3531-intention-revealing-methods">developer&rsquo;s intent</a> very clearly. Someone coming along and reading this code in some months&#8217; time might ask, &ldquo;What&rsquo;s going on - why all these variations of <code>Trainable</code>?&rdquo; Second, we risk <a href="http://ruby-journal.com/how-to-open-slash-override-slash-monkey-patch-a-class-in-ruby/">overwriting methods</a> if the modules share the same/similar interfaces (for example, if each module implements <code>#train!</code> independently, you would have to change the method names, or apply logic to the ordering of our 4 <code>include</code> directives, or&hellip; well, you&rsquo;d have a real problem on your hands to solve at that point).</p>
+
+<h2><code>extend</code> at instance-level scope to simulate <code>include</code> instead.</h2>
+
+<p>Ruby thankfully offers a very elegant, dynamic solution to this problem. Since the logic of which <code>Trainable</code> module should be included is a function of the instance&rsquo;s <code>employee.type</code>, we can use a lifecycle hook in combination with <code>extend</code> like so:</p>
+
+<pre><code class="ruby">class Employee
+  attr_accessor :type
+
+  def initialize(opts = {})
+    # first set the object's attributes as usual
+    super
+    # extend the appropriate module's behavior to the instance's Eigenclass (more on this shortly)
+    extend(Kernel.const_get("#{self.type}Trainable"))
+  end
+end
+</code></pre>
+
+<p>In <a href="">Rails</a>, you could refactor this by using the provided <a href="">object lifecycle hooks</a>, e.g. <a href=""><code>after_initialize</code></a> like so:</p>
+
+<pre><code class="ruby">class Employee
+  after_initialize :extend_trainable_behavior
+
+  ...
+
+  private
+
+  def extend_trainable_behavior
+    # So, for an `employee` whose type is 'manager', we are effectively including `ManagerTrainable`'s behavior only!
+    extend(Kernel.const_get("#{self.type}Trainable"))
+  end
+end
+</code></pre>
+
+<h2>Code Example: add <code>Human#moniker</code> behavior with both class-level <code>include</code> and instance-level <code>extend</code></h2>
+
+<p>In the following code example (where all humans are named <code>"Matt!"</code>, ha), you can see how either <code>include</code> or <code>extend</code> can be used (at different scopes, of course) to tell all <code>Human</code>s how to report their <code>name</code>. Note that console/IO output is indicated by commented out lines with a single <code>#</code> - you&rsquo;d get the same output by copy-pasting
+this code into a live REPL.</p>
+
+<pre><code class="ruby">## Here's our nameable concern. We use both of Ruby's provided hooks - included and extended - to report
+## when either event takes place at runtime. 
+
+module Nameable
+  def self.included(base)
+    puts "#{self} included in #{base}."
+  end
+
+  def self.extended(base)
+    puts "#{self} extended in #{base}."
+  end
+
+  def moniker
+    "Matt!"
+  end
+end
+
+class HumanWithNormalInclude
+  include Nameable
+end
+# Nameable included in HumanWithNormalInclude
+
+class HumanWithInstanceExtend
+  def initialize
+    super
+    extend_behavior
+  end
+
+  def extend_behavior
+    extend Nameable
+  end
+end
+
+included_human = HumanWithNormalInclude.new
+included_human.moniker
+# "Matt!"
+
+extended_human = HumanWithInstanceExtend.new
+# Nameable extended in #&lt;HumanWithInstanceExtend:0x007fa939a0da40&gt;.
+# &lt;HumanWithInstanceExtend:0x007fa939a0da40&gt;
+extended_human.moniker
+# "Matt!"
+</code></pre>
+
+<h2>Black magic?! How does it work?!!</h2>
+
+<p>To understand why <code>extend</code>ing at an instance scope works the way it does, it will help to understand the concept of <a href="http://madebydna.com/all/code/2011/06/24/eigenclasses-demystified.html">&ldquo;eigenclasses&rdquo;</a> in Ruby. First, let&rsquo;s define eigenclass and then write a sort of helper method that tells us any object&rsquo;s eigenclass on demand.</p>
+
+<blockquote><p><strong>Eigenclass</strong>: a dynamically created anonymous class that Ruby inserts into the method lookup path <em>any time at least one singleton method is added to an object</em>. (I added the last bit in italics&hellip; I think it&rsquo;s right, ha.)</p></blockquote>
+
+<pre><code class="ruby">class Object 
+  def eigenclass 
+    class &lt;&lt; self  # this opens us to the scope of the receiver's eigenclass
+      self         # return the eigenclass itself
+    end 
+  end 
+end
+</code></pre>
+
+<p>To tie the eigenclass concept back into our previous code example, let&rsquo;s try to answer the question: <strong>Where does <code>extended_human.moniker</code> actually &ldquo;live&rdquo;?</strong></p>
+
+<p>If we query both of our instances&#8217; classes, it&rsquo;s not immediately clear where our <code>extended_human</code> instance&rsquo;s <code>#moniker</code> method lives&hellip;</p>
+
+<pre><code class="ruby">[26] pry(main)&gt; included_human.class.ancestors
+[
+  [0] HumanWithNormalInclude &lt; Object,
+  [1] Nameable,
+  [2] Object &lt; BasicObject,
+  [3] PP::ObjectMixin,
+  [4] Kernel,
+  [5] BasicObject
+]
+[27] pry(main)&gt; extended_human.class.ancestors
+[
+  [0] HumanWithInstanceExtend &lt; Object,
+  [1] Object &lt; BasicObject,
+  [2] PP::ObjectMixin,
+  [3] Kernel,
+  [4] BasicObject
+]
+</code></pre>
+
+<p>I typically query an object&rsquo;s class&rsquo;s ancestors when I want to see its inheritance hierarchy (where &lsquo;inheritance&rsquo; is a combination of mixins and classical inheritance, i.e. <code>class Foo &lt; Bar</code>) as part of finding where a particular method might have come from. This exercise reminds us that in Ruby, the <code>Kernel</code> module (responsible for <code>eval</code>, <code>gets</code>, <code>puts</code>, etc.) is quite high up in the object hierarchy, and as such its methods/behaviors are made available practically everywhere in a Ruby program.</p>
+
+<blockquote><p><strong>Notably absent from <code>extended_human.class.ancestors</code>, however, is any reference to our <code>Nameable</code> mixin.</strong></p></blockquote>
+
+<p>So - where is <code>extended_human.moniker</code> coming from then? Let&rsquo;s instead look through the instances&#8217; eigenclasses&#8217; ancestors:</p>
+
+<h2>Ruby&rsquo;s method lookup path flows through eigenclasses first!</h2>
+
+<pre><code class="ruby">[29] pry(main)&gt; included_human.eigenclass.ancestors
+[
+  [0] HumanWithNormalInclude &lt; Object,
+  [1] Nameable,
+  [2] Object &lt; BasicObject,
+  [3] PP::ObjectMixin,
+  [4] Kernel,
+  [5] BasicObject
+]
+[30] pry(main)&gt; extended_human.eigenclass.ancestors
+[
+  [0] Nameable,  # Here it is!
+  [1] HumanWithInstanceExtend &lt; Object,
+  [2] Object &lt; BasicObject,
+  [3] PP::ObjectMixin,
+  [4] Kernel,
+  [5] BasicObject
+]
+</code></pre>
+
+<p>Aha - found it! Note that for our <code>extended_human</code>, <code>Nameable</code> is the very first ancestor in its <a href="https://blog.jcoglan.com/2013/05/08/how-ruby-method-dispatch-works/">method-lookup hierarchy</a>. This is because we <code>extend</code>&lsquo;ed <code>Nameable</code> directly into <code>extended_human</code>&rsquo;s eigenclass, as opposed to <code>include</code>&#8216;ing it in its containing class definition. And once again, to display this point differently:</p>
+
+<pre><code class="ruby">[31] pry(main)&gt; extended_human.eigenclass.ancestors - extended_human.class.ancestors
+[
+  [0] Nameable
+]
+</code></pre>
+
+<p>By making use of an anonymous class under the hood at runtime, Ruby gives us the ability to <strong>dynamically mixin behaviors at all levels of our programs - namely in our example, at both the class and instance level!</strong> Wo-man, I &lt;3 Ruby :)</p>
+]]></content>
+  </entry>
+  
+</feed>
