@@ -9,7 +9,7 @@
   <meta name="author" content="Matt Campbell">
 
   
-  <meta name="description" content="Here&rsquo;s a question for you lovely developers (and non-developers, too!) out there: how can we dynamically include behavior from a specific &hellip;">
+  <meta name="description" content="Let&rsquo;s face it: TDD is hard. I would argue that there&rsquo;s value in that difficulty - TDD forces you to address domain modeling decisions &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +68,214 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2016/02/17/private-methods-can-save-some-tdd-headache/">Private Methods Can Save Some TDD Headache</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-02-17T16:18:58-05:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>4:18 pm</span></time>
+        
+           | <a href="/2016/02/17/private-methods-can-save-some-tdd-headache/#disqus_thread"
+             data-disqus-identifier="http://mattcampbell.nyc/2016/02/17/private-methods-can-save-some-tdd-headache/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Let&rsquo;s face it: TDD is hard. I would argue that there&rsquo;s value in that difficulty - TDD forces you to address domain modeling decisions early on; to declare your API before implementing it. I have spent more time than I care to admit staring at some <code>*_spec.rb</code> file, unsure about how to translate the loosely-defined conception of behavior in my brain into test examples.</p>
+
+<p>However, there&rsquo;s good <a href="news:">news:</a> relying on private methods can some (some) of this pain.</p>
+
+<h2>A Rails Example</h2>
+
+<p>Let&rsquo;s say your co-worker has asked you to write a webhooks microservice. This standalone API will be responsible for:</p>
+
+<ol>
+<li>Creating new callback subscriptions for users that want to subscribe</li>
+<li>Sending the callback payloads to said user&rsquo;s callback(s) URL(s)</li>
+</ol>
+
+
+<blockquote><p>&lsquo;A crucial part of any callbacks API is delivering, over the web via HTTP POST, the actual callback payload,&rsquo; you reason aloud.</p></blockquote>
+
+<p>To that end, you conjure up a vision of some <code>DeliverCallbackJob</code> class that needs only a <code>User</code> instance and the callback payload (probably a long string of JSON, like a serialized web response). Following a common pattern, you decide the interface for this class will be limited to one method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">DeliverCallbackJob</span><span class="c1">#perform!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In adherence to TDD, we may start with an example (RSpec DSL here) that looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span> <span class="no">DeliverCallbackJob</span> <span class="k">do</span>
+</span><span class='line'>  <span class="c1"># NOTE: some/much setup code omitted...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:deliverer</span><span class="p">)</span> <span class="p">{</span> <span class="no">DeliverCallbackJob</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">describe</span> <span class="s2">&quot;#perform!&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">subject</span> <span class="p">{</span> <span class="n">deliverer</span><span class="o">.</span><span class="n">perform!</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">it</span> <span class="s2">&quot;sends a callback to all of the user&#39;s associated Callback#callback_url endpoints&quot;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">expect</span><span class="p">(</span><span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">receive</span><span class="p">(</span><span class="ss">:post</span><span class="p">)</span><span class="o">.</span><span class="n">exactly</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">times</span>
+</span><span class='line'>      <span class="n">subject</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, <code>User#callbacks</code> is a standard <code>ActiveRecord::Associations::ClassMethods#has_many</code> association. So we may be tempted to now drop into our class definition and start implementing:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#NOTE: This is pseudo code! Read between the lines somewhat please :)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">DeliverCallbackJob</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">perform!</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">callback</span><span class="o">|</span>
+</span><span class='line'>      <span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">callback_url</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>The Problem</h2>
+
+<p>This works, yes - but we&rsquo;ve unwittingly coupled logic unrelated to delivering a callback to this class. Specifically (and this can be hard to see in Rails a lot of the times), the usage of <code>user.callbacks</code> is the point of coupling. <code>DeliverCallbackJob</code> does not and should not care how we get a (possibly empty) list of callbacks from our <code>user</code> record.</p>
+
+<h2>Re-writing our Test</h2>
+
+<p>A better test example - one that would have exposed this tendency to couple to the ActiveRecord API - might read like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">describe</span> <span class="s2">&quot;#perform!&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">subject</span> <span class="p">{</span> <span class="n">deliverer</span><span class="o">.</span><span class="n">perform!</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:size</span><span class="p">)</span>      <span class="p">{</span> <span class="mi">4</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:callback</span><span class="p">)</span>  <span class="p">{</span> <span class="n">double</span><span class="p">(</span><span class="ss">callback_url</span><span class="p">:</span> <span class="s2">&quot;foo.bar.com/callback&quot;</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:callbacks</span><span class="p">)</span> <span class="p">{</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">before</span> <span class="p">{</span> <span class="n">expect</span><span class="p">(</span><span class="n">deliverer</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">receive</span><span class="p">(</span><span class="ss">:callbacks</span><span class="p">)</span><span class="o">.</span><span class="n">and_return</span><span class="p">(</span><span class="n">callbacks</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">it</span> <span class="s2">&quot;sends a callback to all of the user&#39;s associated Callback#callback_url endpoints&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">receive</span><span class="p">(</span><span class="ss">:post</span><span class="p">)</span><span class="o">.</span><span class="n">with</span><span class="p">(</span><span class="s2">&quot;foo.bar.com/callback&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exactly</span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">times</span>
+</span><span class='line'>    <span class="n">subject</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The key difference here is the assertion we&rsquo;ve added to the <code>before</code> hook:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">before</span> <span class="p">{</span> <span class="n">expect</span><span class="p">(</span><span class="n">deliverer</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">receive</span><span class="p">(</span><span class="ss">:callbacks</span><span class="p">)</span><span class="o">.</span><span class="n">and_return</span><span class="p">(</span><span class="n">callbacks</span><span class="p">)</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We&rsquo;ve implicitly augmented the interface of <code>DeliverCallbackJob</code> by a method <code>#callbacks</code>.</p>
+
+<p>This is a really good thing! Now, we have a place to put the logic of &ldquo;gather all the <code>Callback</code> records against which I need to deliver the callback payload at hand&rdquo;. And as such, we have a new point at which we can introduce stubs or mocks in our tests.</p>
+
+<p>In order to get this spec passing, we might refactor our class like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">DeliverCallbackJob</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">perform!</span>
+</span><span class='line'>    <span class="n">callbacks</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">callback</span><span class="o">|</span>
+</span><span class='line'>      <span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">callback_url</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">callbacks</span>
+</span><span class='line'>    <span class="c1"># This is now an implementation detail, as opposed to a closely coupled</span>
+</span><span class='line'>    <span class="c1"># and hidden dependency stowed away within the `perform!` method.</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># For now, we&#39;re using ActiveRecord so implementation may be unchaged</span>
+</span><span class='line'>    <span class="c1"># relative to our first version of this class... but if we drop Rails/AR</span>
+</span><span class='line'>    <span class="c1"># in the future, we have a clearly documented spot to change this logic.</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">callbacks</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Recap</h2>
+
+<p>So what did we learn today? When you&rsquo;re struggling to get through your TDD, it tends to indicate hidden coupling and dependencies. When you feel this happening, take a closer look at your implementation and see what can be moved into private methods. Then, in your test examples, make those dependencies explicit so that you can mock, stub, or whatever suits you.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1697,133 +1905,6 @@ this code into a live REPL.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/2013/10/29/string-interpolation-in-ruby/">Ruby&#8217;s String Interpolation: Syntactic Sugar to the Max</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-10-29T22:58:00-04:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:58 pm</span></time>
-        
-           | <a href="/2013/10/29/string-interpolation-in-ruby/#disqus_thread"
-             data-disqus-identifier="http://mattcampbell.nyc/2013/10/29/string-interpolation-in-ruby/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>there ain&rsquo;t no such thing as magic</h2>
-
-<p>One thing I&rsquo;ve come to realize about programming - despite almost every gut reaction to the contrary - is that there is no magic. None. Period. Fullstop. As Avi would remind us, Ruby (ignoring that whole C thing) can be distilled into three things: objects, methods, and keywords. So when you see some magic, investigate further, keeping in mind those 3 fundamental components of the Ruby language.</p>
-
-<p><img src='http://s3.amazonaws.com/rapgenius/filepicker%2FeEF6S8NTRLu4B2LbvkwO_magic_.jpg' width=400 ></p>
-
-<p>But as I&rsquo;ve gotten more and more exposure to Ruby&rsquo;s hidden secrets, it&rsquo;s become seemingly more difficult to believe there&rsquo;s no magic going on! This is because Ruby makes use of an idea called <a href="http://rubylearning.com/satishtalim/ruby_syntactic_sugar.html">&ldquo;syntactic sugar&rdquo;</a>. Syntactic sugar is basically a group of special programmatic syntax rules that let you write your code in a way that doesn&rsquo;t <em>appear</em> to jive with the normal rules of the language, but that is easier to remember how to do and looks better.</p>
-
-<h2>syntactic sugar = delicious but disorienting</h2>
-
-<p>Syntactic sugar is therefore a vehicle for abstraction. Instead of adhering only to the native syntax rules of the language, Ruby has embraced natural syntactical shortcuts that appear to break the rules, but actually make your code read more legible and human-friendly.</p>
-
-<p>For the most part, syntactic sugar is a wonderful thing. (With a name like that, how could it <strong>not</strong> be a good thing?!) But it can also be a trifle dangerous without at least a cursory knowledge of what exactly the sugar is coating. Let&rsquo;s look at a specific example: string interpolation in Ruby.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">interpolate_two_variables</span><span class="p">(</span><span class="n">num1</span><span class="p">,</span> <span class="n">num2</span><span class="p">)</span>
-</span><span class='line'>  <span class="nb">puts</span> <span class="n">num1</span><span class="o">.</span><span class="n">class</span>
-</span><span class='line'>  <span class="nb">puts</span> <span class="n">num2</span><span class="o">.</span><span class="n">class</span>
-</span><span class='line'>  <span class="s2">&quot;String interpolation allows us to magically include variables, like </span><span class="si">#{</span><span class="n">num1</span><span class="si">}</span><span class="s2"> and </span><span class="si">#{</span><span class="n">num2</span><span class="si">}</span><span class="s2">!&quot;</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">interpolate_two_variables</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">23</span><span class="p">)</span>
-</span><span class='line'><span class="no">Fixnum</span>
-</span><span class='line'><span class="no">Fixnum</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;String interpolation allows us to magically include variables, like 6 and 23!&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>
-Sweet, thanks Ruby! I use string interpolation just about every day coding in Ruby - it&rsquo;s an incredibly powerful and convenient way to group different objects together in the context of, say, a view page in a web app. But&hellip; what&rsquo;s really going on here? I don&rsquo;t see anything like Ruby&rsquo;s normal <code>object.method_call</code> syntax, and yet it feels like there MUST be a method call being invoked inside the double quotes. What exactly is the interpreter converting the <code>#{}</code> syntax into?</p>
-
-<h2>#{}: more than just a pretty face</h2>
-
-<p>Assuredly, there&rsquo;s nothing magical going on here. Upon being invoked, our friend <code>#{}</code> sets to work telling the Ruby interpreter to call the <code>to_s</code> method on the object inside of itself. In the above example, those objects are <code>num1</code> and <code>num2</code>. Cool!</p>
-
-<h2>customizing our syntactic sugar: DateTime&#8217;z</h2>
-
-<p>This story has only just begun, y&#8217;all. Since Ruby is so awesome, we can of course (re-)define the <code>to_s</code> method at the Class level of our choosing. Consider instances of the <code>DateTime</code> class. I would like for string interpolation of DateTime instances to show up nice and legible - you know, like the way we normally communicate dates and times.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="s2">&quot;</span><span class="si">#{</span><span class="no">DateTime</span><span class="o">.</span><span class="n">now</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;2013-10-30T12:39:02-04:00&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Hmm&hellip; gross. Parsing that mentally has taken me well over the 1 microsecond that I&rsquo;ve allotted for that task. In true Ruby fashion, let&rsquo;s dive into <code>DateTime</code>&rsquo;s <code>to_s</code> method and re-write it for the task at hand:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">DateTime</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">to_s</span>
-</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;The date is %m/%d/%y, and the time is %r&quot;</span><span class="p">)</span>
-</span><span class='line'>    <span class="nb">puts</span> <span class="s2">&quot;Look! </span><span class="se">\#</span><span class="s2">{} is just calling DateTime#to_s, which we overwrote to make our DateTime objects easier to read!&quot;</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="s2">&quot;</span><span class="si">#{</span><span class="no">DateTime</span><span class="o">.</span><span class="n">now</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'><span class="c1"># Look! #{} is just calling DateTime#to_s, which we overwrote to make our DateTime objects easier to read!</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;The date is 10/30/13, and the time is 01:31:15 PM&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This example demonstrates that the <code>#{}</code> is merely syntactic sugar that calls the <code>to_s</code> method as defined in the receiving object&rsquo;s class.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">apples</span> <span class="o">=</span> <span class="mi">4</span>
-</span><span class='line'><span class="nb">puts</span> <span class="s2">&quot;I have </span><span class="si">#{</span><span class="n">apples</span><span class="si">}</span><span class="s2"> apples&quot;</span>
-</span><span class='line'><span class="nb">puts</span> <span class="s2">&quot;I have %s apples&quot;</span> <span class="o">%</span> <span class="n">apples</span>
-</span><span class='line'><span class="c1"># I have 4 apples</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="kp">nil</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>main takeaways</h2>
-
-<p>Going forward, I intend to dive head-first into every example of syntactic sugar that I can get my eyeballs on, because the sugar always coats a delicious candy core of Ruby awesomeness.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/2">&larr; Older</a>
@@ -1848,6 +1929,10 @@ Sweet, thanks Ruby! I use string interpolation just about every day coding in Ru
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2016/02/17/private-methods-can-save-some-tdd-headache/">Private Methods Can Save Some TDD Headache</a>
+      </li>
+    
+      <li class="post">
         <a href="/2015/12/05/extending-an-instance-to-dynamically-include/">Extend an Instance to Dynamically Include</a>
       </li>
     
@@ -1861,10 +1946,6 @@ Sweet, thanks Ruby! I use string interpolation just about every day coding in Ru
     
       <li class="post">
         <a href="/2015/05/30/domain-modeling-mom-and-pop-merchants/">Domain Modeling Mom &#8216;N Pop Merchants in a Mobile Finance Platform</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2014/05/27/how-to-easy-manual-testing-a-json-http-endpoint/">How-To: Manual JSON-endpoint Testing Made Easy</a>
       </li>
     
   </ul>
@@ -1927,7 +2008,7 @@ Sweet, thanks Ruby! I use string interpolation just about every day coding in Ru
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2015 - Matt Campbell -
+  Copyright &copy; 2016 - Matt Campbell -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
 </p>
 

@@ -1,0 +1,484 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Private Methods Can Save Some TDD Headache - Thoughts & Technical Writings.</title>
+  <meta name="author" content="Matt Campbell">
+
+  
+  <meta name="description" content="Let&rsquo;s face it: TDD is hard. I would argue that there&rsquo;s value in that difficulty - TDD forces you to address domain modeling decisions &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://mattcampbell.nyc/2016/02/17/private-methods-can-save-some-tdd-headache/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Thoughts & Technical Writings." type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><div class="jumbotron">
+  <div class="container">
+    i&#8217;m a polyglot c0d3r living in Brooklyn
+    <h3 class="tagline">Thoughts & Technical Writings.</h3>
+  </div>
+</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="mattcampbell.nyc">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="nav">
+    
+        <li ><a href="/index.html">Home</a></li>
+    
+        <li ><a href="/blog/archives/index.html">Archives</a></li>
+    
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Private Methods Can Save Some TDD Headache</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-02-17T16:18:58-05:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>4:18 pm</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://mattcampbell.nyc">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Let&rsquo;s face it: TDD is hard. I would argue that there&rsquo;s value in that difficulty - TDD forces you to address domain modeling decisions early on; to declare your API before implementing it. I have spent more time than I care to admit staring at some <code>*_spec.rb</code> file, unsure about how to translate the loosely-defined conception of behavior in my brain into test examples.</p>
+
+<p>However, there&rsquo;s good <a href="news:">news:</a> relying on private methods can some (some) of this pain.</p>
+
+<h2>A Rails Example</h2>
+
+<p>Let&rsquo;s say your co-worker has asked you to write a webhooks microservice. This standalone API will be responsible for:</p>
+
+<ol>
+<li>Creating new callback subscriptions for users that want to subscribe</li>
+<li>Sending the callback payloads to said user&rsquo;s callback(s) URL(s)</li>
+</ol>
+
+
+<blockquote><p>&lsquo;A crucial part of any callbacks API is delivering, over the web via HTTP POST, the actual callback payload,&rsquo; you reason aloud.</p></blockquote>
+
+<p>To that end, you conjure up a vision of some <code>DeliverCallbackJob</code> class that needs only a <code>User</code> instance and the callback payload (probably a long string of JSON, like a serialized web response). Following a common pattern, you decide the interface for this class will be limited to one method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">DeliverCallbackJob</span><span class="c1">#perform!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In adherence to TDD, we may start with an example (RSpec DSL here) that looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span> <span class="no">DeliverCallbackJob</span> <span class="k">do</span>
+</span><span class='line'>  <span class="c1"># NOTE: some/much setup code omitted...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:deliverer</span><span class="p">)</span> <span class="p">{</span> <span class="no">DeliverCallbackJob</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">describe</span> <span class="s2">&quot;#perform!&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">subject</span> <span class="p">{</span> <span class="n">deliverer</span><span class="o">.</span><span class="n">perform!</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">it</span> <span class="s2">&quot;sends a callback to all of the user&#39;s associated Callback#callback_url endpoints&quot;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">expect</span><span class="p">(</span><span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">receive</span><span class="p">(</span><span class="ss">:post</span><span class="p">)</span><span class="o">.</span><span class="n">exactly</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">times</span>
+</span><span class='line'>      <span class="n">subject</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, <code>User#callbacks</code> is a standard <code>ActiveRecord::Associations::ClassMethods#has_many</code> association. So we may be tempted to now drop into our class definition and start implementing:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#NOTE: This is pseudo code! Read between the lines somewhat please :)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">DeliverCallbackJob</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">perform!</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">callback</span><span class="o">|</span>
+</span><span class='line'>      <span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">callback_url</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>The Problem</h2>
+
+<p>This works, yes - but we&rsquo;ve unwittingly coupled logic unrelated to delivering a callback to this class. Specifically (and this can be hard to see in Rails a lot of the times), the usage of <code>user.callbacks</code> is the point of coupling. <code>DeliverCallbackJob</code> does not and should not care how we get a (possibly empty) list of callbacks from our <code>user</code> record.</p>
+
+<h2>Re-writing our Test</h2>
+
+<p>A better test example - one that would have exposed this tendency to couple to the ActiveRecord API - might read like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">describe</span> <span class="s2">&quot;#perform!&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">subject</span> <span class="p">{</span> <span class="n">deliverer</span><span class="o">.</span><span class="n">perform!</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:size</span><span class="p">)</span>      <span class="p">{</span> <span class="mi">4</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:callback</span><span class="p">)</span>  <span class="p">{</span> <span class="n">double</span><span class="p">(</span><span class="ss">callback_url</span><span class="p">:</span> <span class="s2">&quot;foo.bar.com/callback&quot;</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:callbacks</span><span class="p">)</span> <span class="p">{</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">before</span> <span class="p">{</span> <span class="n">expect</span><span class="p">(</span><span class="n">deliverer</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">receive</span><span class="p">(</span><span class="ss">:callbacks</span><span class="p">)</span><span class="o">.</span><span class="n">and_return</span><span class="p">(</span><span class="n">callbacks</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">it</span> <span class="s2">&quot;sends a callback to all of the user&#39;s associated Callback#callback_url endpoints&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">receive</span><span class="p">(</span><span class="ss">:post</span><span class="p">)</span><span class="o">.</span><span class="n">with</span><span class="p">(</span><span class="s2">&quot;foo.bar.com/callback&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exactly</span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">times</span>
+</span><span class='line'>    <span class="n">subject</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The key difference here is the assertion we&rsquo;ve added to the <code>before</code> hook:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">before</span> <span class="p">{</span> <span class="n">expect</span><span class="p">(</span><span class="n">deliverer</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">receive</span><span class="p">(</span><span class="ss">:callbacks</span><span class="p">)</span><span class="o">.</span><span class="n">and_return</span><span class="p">(</span><span class="n">callbacks</span><span class="p">)</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We&rsquo;ve implicitly augmented the interface of <code>DeliverCallbackJob</code> by a method <code>#callbacks</code>.</p>
+
+<p>This is a really good thing! Now, we have a place to put the logic of &ldquo;gather all the <code>Callback</code> records against which I need to deliver the callback payload at hand&rdquo;. And as such, we have a new point at which we can introduce stubs or mocks in our tests.</p>
+
+<p>In order to get this spec passing, we might refactor our class like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">DeliverCallbackJob</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">perform!</span>
+</span><span class='line'>    <span class="n">callbacks</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">callback</span><span class="o">|</span>
+</span><span class='line'>      <span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">callback_url</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">callbacks</span>
+</span><span class='line'>    <span class="c1"># This is now an implementation detail, as opposed to a closely coupled</span>
+</span><span class='line'>    <span class="c1"># and hidden dependency stowed away within the `perform!` method.</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># For now, we&#39;re using ActiveRecord so implementation may be unchaged</span>
+</span><span class='line'>    <span class="c1"># relative to our first version of this class... but if we drop Rails/AR</span>
+</span><span class='line'>    <span class="c1"># in the future, we have a clearly documented spot to change this logic.</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">callbacks</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Recap</h2>
+
+<p>So what did we learn today? When you&rsquo;re struggling to get through your TDD, it tends to indicate hidden coupling and dependencies. When you feel this happening, take a closer look at your implementation and see what can be moved into private methods. Then, in your test examples, make those dependencies explicit so that you can mock, stub, or whatever suits you.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Matt Campbell</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2016-02-17T16:18:58-05:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>4:18 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/private/'>private</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>, <a class='category' href='/blog/categories/tdd/'>tdd</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://mattcampbell.nyc/2016/02/17/private-methods-can-save-some-tdd-headache/" data-via="mecampbellsoup" data-counturl="http://mattcampbell.nyc/2016/02/17/private-methods-can-save-some-tdd-headache/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2015/12/05/extending-an-instance-to-dynamically-include/" title="Previous Post: Extend an Instance to Dynamically Include">&laquo; Extend an Instance to Dynamically Include</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Like This Blog? Leave a Tip with Bitcoin!</h1>
+  <div>
+    <a id="btc-qr-code" href="bitcoin:1FsPgV2CCVNs4i515JqkPujmKdge3573eD?amount=0.05&label=Matt%20Campbell%20Dev%20Blog">
+      <img src="/images/btc-ledger-wallet-qr-code.png">
+    </a>
+    <p>1FsPgV2CCVNs4i515JqkPujmKdge3573eD</p>
+  </div>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2016/02/17/private-methods-can-save-some-tdd-headache/">Private Methods Can Save Some TDD Headache</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/12/05/extending-an-instance-to-dynamically-include/">Extend an Instance to Dynamically Include</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/09/27/how-fixed-gear-bicycling-taught-me-about-dependency-injection/">How Fixed Gear Bicycling Taught Me About Dependency Injection</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/06/18/using-lambdas-as-computed-hashes-in-ruby/">Using Lambdas as Computed Hashes in Ruby</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/05/30/domain-modeling-mom-and-pop-merchants/">Domain Modeling Mom &#8216;N Pop Merchants in a Mobile Finance Platform</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/mecampbellsoup">@mecampbellsoup</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'mecampbellsoup',
+            count: 4,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://facebook.com/mecampbell25">
+      <img src="http://static.viewbook.com/images/social_icons/facebook_32.png" width="32" height="32">
+      Facebook
+    </a>
+  </h1>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/101058099009530081039?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - Matt Campbell -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'mecampbellsoup';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://mattcampbell.nyc/2016/02/17/private-methods-can-save-some-tdd-headache/';
+        var disqus_url = 'http://mattcampbell.nyc/2016/02/17/private-methods-can-save-some-tdd-headache/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

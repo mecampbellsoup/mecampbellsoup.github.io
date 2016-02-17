@@ -4,7 +4,7 @@
   <title><![CDATA[Thoughts & Technical Writings.]]></title>
   <link href="http://mattcampbell.nyc/atom.xml" rel="self"/>
   <link href="http://mattcampbell.nyc/"/>
-  <updated>2015-12-09T13:00:55-05:00</updated>
+  <updated>2016-02-17T17:32:03-05:00</updated>
   <id>http://mattcampbell.nyc/</id>
   <author>
     <name><![CDATA[Matt Campbell]]></name>
@@ -12,6 +12,191 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Private Methods Can Save Some TDD Headache]]></title>
+    <link href="http://mattcampbell.nyc/2016/02/17/private-methods-can-save-some-tdd-headache/"/>
+    <updated>2016-02-17T16:18:58-05:00</updated>
+    <id>http://mattcampbell.nyc/2016/02/17/private-methods-can-save-some-tdd-headache</id>
+    <content type="html"><![CDATA[<p>Let&rsquo;s face it: TDD is hard. I would argue that there&rsquo;s value in that difficulty - TDD forces you to address domain modeling decisions early on; to declare your API before implementing it. I have spent more time than I care to admit staring at some <code>*_spec.rb</code> file, unsure about how to translate the loosely-defined conception of behavior in my brain into test examples.</p>
+
+<p>However, there&rsquo;s good <a href="news:">news:</a> relying on private methods can some (some) of this pain.</p>
+
+<h2>A Rails Example</h2>
+
+<p>Let&rsquo;s say your co-worker has asked you to write a webhooks microservice. This standalone API will be responsible for:</p>
+
+<ol>
+<li>Creating new callback subscriptions for users that want to subscribe</li>
+<li>Sending the callback payloads to said user&rsquo;s callback(s) URL(s)</li>
+</ol>
+
+
+<blockquote><p>&lsquo;A crucial part of any callbacks API is delivering, over the web via HTTP POST, the actual callback payload,&rsquo; you reason aloud.</p></blockquote>
+
+<p>To that end, you conjure up a vision of some <code>DeliverCallbackJob</code> class that needs only a <code>User</code> instance and the callback payload (probably a long string of JSON, like a serialized web response). Following a common pattern, you decide the interface for this class will be limited to one method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">DeliverCallbackJob</span><span class="c1">#perform!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In adherence to TDD, we may start with an example (RSpec DSL here) that looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span> <span class="no">DeliverCallbackJob</span> <span class="k">do</span>
+</span><span class='line'>  <span class="c1"># NOTE: some/much setup code omitted...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:deliverer</span><span class="p">)</span> <span class="p">{</span> <span class="no">DeliverCallbackJob</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">describe</span> <span class="s2">&quot;#perform!&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">subject</span> <span class="p">{</span> <span class="n">deliverer</span><span class="o">.</span><span class="n">perform!</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">it</span> <span class="s2">&quot;sends a callback to all of the user&#39;s associated Callback#callback_url endpoints&quot;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">expect</span><span class="p">(</span><span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">receive</span><span class="p">(</span><span class="ss">:post</span><span class="p">)</span><span class="o">.</span><span class="n">exactly</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">times</span>
+</span><span class='line'>      <span class="n">subject</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, <code>User#callbacks</code> is a standard <code>ActiveRecord::Associations::ClassMethods#has_many</code> association. So we may be tempted to now drop into our class definition and start implementing:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#NOTE: This is pseudo code! Read between the lines somewhat please :)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">DeliverCallbackJob</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">perform!</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">callback</span><span class="o">|</span>
+</span><span class='line'>      <span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">callback_url</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>The Problem</h2>
+
+<p>This works, yes - but we&rsquo;ve unwittingly coupled logic unrelated to delivering a callback to this class. Specifically (and this can be hard to see in Rails a lot of the times), the usage of <code>user.callbacks</code> is the point of coupling. <code>DeliverCallbackJob</code> does not and should not care how we get a (possibly empty) list of callbacks from our <code>user</code> record.</p>
+
+<h2>Re-writing our Test</h2>
+
+<p>A better test example - one that would have exposed this tendency to couple to the ActiveRecord API - might read like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">describe</span> <span class="s2">&quot;#perform!&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">subject</span> <span class="p">{</span> <span class="n">deliverer</span><span class="o">.</span><span class="n">perform!</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:size</span><span class="p">)</span>      <span class="p">{</span> <span class="mi">4</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:callback</span><span class="p">)</span>  <span class="p">{</span> <span class="n">double</span><span class="p">(</span><span class="ss">callback_url</span><span class="p">:</span> <span class="s2">&quot;foo.bar.com/callback&quot;</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:callbacks</span><span class="p">)</span> <span class="p">{</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">before</span> <span class="p">{</span> <span class="n">expect</span><span class="p">(</span><span class="n">deliverer</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">receive</span><span class="p">(</span><span class="ss">:callbacks</span><span class="p">)</span><span class="o">.</span><span class="n">and_return</span><span class="p">(</span><span class="n">callbacks</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">it</span> <span class="s2">&quot;sends a callback to all of the user&#39;s associated Callback#callback_url endpoints&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">receive</span><span class="p">(</span><span class="ss">:post</span><span class="p">)</span><span class="o">.</span><span class="n">with</span><span class="p">(</span><span class="s2">&quot;foo.bar.com/callback&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exactly</span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">times</span>
+</span><span class='line'>    <span class="n">subject</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The key difference here is the assertion we&rsquo;ve added to the <code>before</code> hook:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">before</span> <span class="p">{</span> <span class="n">expect</span><span class="p">(</span><span class="n">deliverer</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">receive</span><span class="p">(</span><span class="ss">:callbacks</span><span class="p">)</span><span class="o">.</span><span class="n">and_return</span><span class="p">(</span><span class="n">callbacks</span><span class="p">)</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We&rsquo;ve implicitly augmented the interface of <code>DeliverCallbackJob</code> by a method <code>#callbacks</code>.</p>
+
+<p>This is a really good thing! Now, we have a place to put the logic of &ldquo;gather all the <code>Callback</code> records against which I need to deliver the callback payload at hand&rdquo;. And as such, we have a new point at which we can introduce stubs or mocks in our tests.</p>
+
+<p>In order to get this spec passing, we might refactor our class like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">DeliverCallbackJob</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">perform!</span>
+</span><span class='line'>    <span class="n">callbacks</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">callback</span><span class="o">|</span>
+</span><span class='line'>      <span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">callback_url</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">callbacks</span>
+</span><span class='line'>    <span class="c1"># This is now an implementation detail, as opposed to a closely coupled</span>
+</span><span class='line'>    <span class="c1"># and hidden dependency stowed away within the `perform!` method.</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># For now, we&#39;re using ActiveRecord so implementation may be unchaged</span>
+</span><span class='line'>    <span class="c1"># relative to our first version of this class... but if we drop Rails/AR</span>
+</span><span class='line'>    <span class="c1"># in the future, we have a clearly documented spot to change this logic.</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">callbacks</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Recap</h2>
+
+<p>So what did we learn today? When you&rsquo;re struggling to get through your TDD, it tends to indicate hidden coupling and dependencies. When you feel this happening, take a closer look at your implementation and see what can be moved into private methods. Then, in your test examples, make those dependencies explicit so that you can mock, stub, or whatever suits you.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Extend an Instance to Dynamically Include]]></title>
