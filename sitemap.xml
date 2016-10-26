@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://mattcampbell.nyc/2016/10/26/world-wide-web-coin-a-thought-experiment/</loc>
+    <lastmod>2016-10-26T14:18:58-04:00</lastmod>
+  </url>
+  <url>
     <loc>http://mattcampbell.nyc/2016/02/17/private-methods-can-save-some-tdd-headache/</loc>
     <lastmod>2016-02-17T16:18:58-05:00</lastmod>
   </url>
@@ -234,5 +238,14 @@
   </url>
   <url>
     <loc>http://mattcampbell.nyc/blog/categories/private/</loc>
+  </url>
+  <url>
+    <loc>http://mattcampbell.nyc/blog/categories/bitcoin/</loc>
+  </url>
+  <url>
+    <loc>http://mattcampbell.nyc/blog/categories/blockchain/</loc>
+  </url>
+  <url>
+    <loc>http://mattcampbell.nyc/blog/categories/investing/</loc>
   </url>
 </urlset>

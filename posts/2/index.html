@@ -9,7 +9,7 @@
   <meta name="author" content="Matt Campbell">
 
   
-  <meta name="description" content="there ain&rsquo;t no such thing as magic One thing I&rsquo;ve come to realize about programming - despite almost every gut reaction to the contrary &hellip;">
+  <meta name="description" content="Setting the Stage: Codewars Codewars is this awesome site where you can learn Ruby or JS by training on &ldquo;katas&rdquo; and climbing the ranks of &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +68,65 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2013/11/16/running-terse-test-unit-specs-in-sublime/">Running Simple Test::Unit Specs in Sublime</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-11-16T11:08:00-05:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:08 am</span></time>
+        
+           | <a href="/2013/11/16/running-terse-test-unit-specs-in-sublime/#disqus_thread"
+             data-disqus-identifier="http://mattcampbell.nyc/2013/11/16/running-terse-test-unit-specs-in-sublime/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>Setting the Stage: Codewars</h1>
+
+<p><a href="www.codewars.com/r/LqvZzw">Codewars</a> is this awesome site where you can learn Ruby or JS by training on &ldquo;katas&rdquo; and climbing the ranks of code warriors on the site. The more elegant and efficient your solution to increasingly difficult challenges, the more honor you incur.</p>
+
+<p>I&rsquo;ve been working through a few on the Ruby side of things, and interestingly enough the Codewars team has built in to the platform <a href="http://www.codewars.com/docs/kata-test-framework">their own testing DSL</a>. It&rsquo;s sort of a mut: they&rsquo;ve borrowed all the best elements of Ruby&rsquo;s most popular frameworks, including RSpec, T::U and MiniTest. The result: for every langauga kata set on Codewars, there is a Test class/prototype (I say prototype because of JavaScript&rsquo;s unique twist on object-orientation and inheritance). Users can then easily design their own tests as instances of this parent class by invoking very natural-sounding methods like &lsquo;expect&rsquo; (from RSpec), &lsquo;assert_equal&rsquo; (from T::U), and so on.</p>
+
+<h2>the path to enlightenment was winding</h2>
+
+<p>Now while that sounds straightforward enough, I must confess it took me a solid couple of hours to realize that Codewars was not using a native Ruby test framework, but rather was utilizing their own testing API (and not just using some built-in T::U syntactic sugar or something):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># Create your own tests here. These are some of the methods available:</span>
+</span><span class='line'><span class="c1">#  Test.expect(boolean, [optional] message) </span>
+</span><span class='line'><span class="c1">#  Test.assert_equals(actual, expected, [optional] message)</span>
+</span><span class='line'><span class="c1">#  Test.assert_not_equals(actual, expected, [optional] message) </span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="http://www.codewars.com/docs/ruby-test-reference">Here&rsquo;s the docs for the Ruby Test methods</a> that are provided by Codewars&#8217; API. Pretty fancy, huh?</p>
+
+<h2>simpler route: use RSpec, even for miniscule test suites</h2>
+
+<p>While I appreciate the work the Codewars guys have done on this Test module, I don&rsquo;t think learning yet another testing DSL (even though it&rsquo;s only slightly different from RSpec) makes any sense. I&rsquo;m actually a little confused as to why they would implement their own test framework in lieu of one of the already-accepted and ubiquitous frameworks like RSpec.</p>
+
+<p>I prefer to do as close to 100% of my code-writing in Sublime as possible (practice makes perfect, ya&#8217; know?)</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -939,6 +998,10 @@ You may be wondering: So what? What’s the issue with leading a life characteri
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2016/10/26/world-wide-web-coin-a-thought-experiment/">WorldWideWebCoin: A Thought Experiment</a>
+      </li>
+    
+      <li class="post">
         <a href="/2016/02/17/private-methods-can-save-some-tdd-headache/">Private Methods Can Save Some TDD Headache</a>
       </li>
     
@@ -952,10 +1015,6 @@ You may be wondering: So what? What’s the issue with leading a life characteri
     
       <li class="post">
         <a href="/2015/06/18/using-lambdas-as-computed-hashes-in-ruby/">Using Lambdas as Computed Hashes in Ruby</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2015/05/30/domain-modeling-mom-and-pop-merchants/">Domain Modeling Mom &#8216;N Pop Merchants in a Mobile Finance Platform</a>
       </li>
     
   </ul>
