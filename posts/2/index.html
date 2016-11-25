@@ -9,7 +9,7 @@
   <meta name="author" content="Matt Campbell">
 
   
-  <meta name="description" content="Setting the Stage: Codewars Codewars is this awesome site where you can learn Ruby or JS by training on &ldquo;katas&rdquo; and climbing the ranks of &hellip;">
+  <meta name="description" content="navbars are important Real talk: navbars are fantastic. They&rsquo;re really good at their job, which is providing a constant set of routes to your &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +68,144 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2013/11/16/custom-logic-in-your-rails-applications-navbar/">Guiding Your Users: Custom Logic in Your Rails Application&#8217;s Navbar</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-11-16T18:01:00-05:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>6:01 pm</span></time>
+        
+           | <a href="/2013/11/16/custom-logic-in-your-rails-applications-navbar/#disqus_thread"
+             data-disqus-identifier="http://mattcampbell.nyc/2013/11/16/custom-logic-in-your-rails-applications-navbar/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>navbars are important</h1>
+
+<p>Real talk: navbars are fantastic. They&rsquo;re really good at their job, which is providing a constant set of routes to your users to find their way around. No user ever gets lost when there&rsquo;s a good navbar around to help out.</p>
+
+<p>New Rails projects ship with an application layout (that is, <code>application.html.erb</code> file) that provides an ideal home for our navbar since we want the bar to always be visible at the top of our app, and the application layour is rendered by all views by default.</p>
+
+<p>The problem with navbars is that they typically aren&rsquo;t very intelligent. For example, when you&rsquo;re currently viewing a webpage within an application, most of the time the navigation bar does not update to hide that option dynamically. Why, oh why, would you want to click the same link twice? If you feel me on this one, keep reading&hellip;</p>
+
+<h2>how to make your navigation bars dynamic</h2>
+
+<p>I set out to make my navigation bar dynamic (meaning, again, that it would update its contents/links based on which view page the user was currently looking at), and found it was actually pretty straightforward thanks to inheritance in Ruby.</p>
+
+<h3>the problem, in words</h3>
+
+<p>Abstractly, the goal is to create some object that&rsquo;s available throughout my application, in all my controllers and views, that will contain the logic and knowledge of the last URL that the user requested. This way, if a user has just clicked, say, &ldquo;About&rdquo; on your navigation bar, the next view should not continue to show that link since it&rsquo;s become redundant.</p>
+
+<h3>the solution, in words</h3>
+
+<p>I know that every request hitting my application generates a new instance of the controller behind that particular endpoint. I also know that all of my controllers inherit from a master controller of sorts, which is typically <code>ApplicationController</code> in Rails. Therefore, since my other controllers - the ones actually doing the work of passing data between my models and views - inherit directly from <code>ApplicationController</code>, I figured I could write a method there that did some introspection on the most recent <code>ActionDispatch::Request</code> object in order to keep track of the last request&rsquo;s URL. In code, this strategy looked something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ApplicationController</span> <span class="o">&lt;</span> <span class="no">ActionController</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">set_current_url</span>
+</span><span class='line'>    <span class="vi">@current_path</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># rest of class omitted for brevity</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So easy! Through this code, I now had access to the <code>@current_path</code> variable that would be available at each point in time within my views. Here is how I made use of that object (which is available via the <code>set_current_path</code> method) in my views in my application layout file:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">&lt;</span><span class="n">nav</span> <span class="n">class</span><span class="o">=</span><span class="s2">&quot;navbar navbar-inverse&quot;</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;navigation&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;!--</span> <span class="no">Brand</span> <span class="ow">and</span> <span class="n">toggle</span> <span class="n">get</span> <span class="n">grouped</span> <span class="k">for</span> <span class="n">better</span> <span class="n">mobile</span> <span class="nb">display</span> <span class="o">--&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="n">div</span> <span class="n">class</span><span class="o">=</span><span class="s2">&quot;navbar-header&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">&lt;</span><span class="sx">% unless </span><span class="vi">@current_path</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">players_path</span><span class="p">)</span> <span class="sx">%&gt;</span>
+</span><span class='line'><span class="sx">      &lt;button type=&quot;button&quot; class=&quot;btn btn-default navbar-btn&quot; data-toggle=&quot;collapse&quot; align=&quot;center&quot;&gt;</span>
+</span><span class='line'>         <span class="o">&lt;</span><span class="sx">%= link_to &quot;Ladder Rankings&quot;, players_path %&gt;</span>
+</span><span class='line'><span class="sx">      &lt;/button&gt;</span>
+</span><span class='line'><span class="sx">    &lt;% end %&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sx">    &lt;% unless @current_path.match(timer_path) %&gt;</span>
+</span><span class='line'><span class="sx">      &lt;button type=</span><span class="s2">&quot;button&quot;</span> <span class="n">class</span><span class="o">=</span><span class="s2">&quot;btn btn-default navbar-btn&quot;</span> <span class="n">data</span><span class="o">-</span><span class="n">toggle</span><span class="o">=</span><span class="s2">&quot;collapse&quot;</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>         <span class="o">&lt;</span><span class="sx">%= link_to &quot;Game Timer&quot;, timer_path %&gt;</span>
+</span><span class='line'><span class="sx">      &lt;/button&gt;</span>
+</span><span class='line'><span class="sx">    &lt;% end %&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sx">    &lt;% unless @current_path =</span><span class="o">=</span> <span class="n">challenges_path</span> <span class="sx">%&gt;</span>
+</span><span class='line'><span class="sx">      &lt;button type=&quot;button&quot; class=&quot;btn btn-default navbar-btn&quot; data-toggle=&quot;collapse&quot; align=&quot;center&quot;&gt;</span>
+</span><span class='line'>         <span class="o">&lt;</span><span class="sx">%= link_to &quot;Battle History&quot;, challenges_path %&gt;</span>
+</span><span class='line'><span class="sx">      &lt;/button&gt;</span>
+</span><span class='line'><span class="sx">    &lt;% end %&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sx">    &lt;% unless @current_path =</span><span class="o">=</span> <span class="n">new_challenge_path</span> <span class="sx">%&gt;</span>
+</span><span class='line'><span class="sx">      &lt;button type=&quot;button&quot; class=&quot;btn btn-default navbar-btn&quot; data-toggle=&quot;collapse&quot; align=&quot;center&quot;&gt;</span>
+</span><span class='line'>         <span class="o">&lt;%=</span> <span class="n">link_to</span> <span class="s2">&quot;Record an Outcome&quot;</span><span class="p">,</span> <span class="n">new_challenge_path</span> <span class="sx">%&gt;</span>
+</span><span class='line'><span class="sx">      &lt;/button&gt;</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="sx">% end %&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sx">  &lt;/div&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/nav&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, my navigation bar updates dynamically, presenting the user only with logical options for their next to-be-viewed page or resource in my application. Fantastic!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -932,49 +1070,9 @@ You may be wondering: So what? What’s the issue with leading a life characteri
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/2013/09/29/things-avi-said-today/">Things Avi Said Today</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-29T16:48:00-04:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>4:48 pm</span></time>
-        
-           | <a href="/2013/09/29/things-avi-said-today/#disqus_thread"
-             data-disqus-identifier="http://mattcampbell.nyc/2013/09/29/things-avi-said-today/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I love errors. I can’t wait to get past one and say, “Great, I wonder what my next error is?!”</p>
-
-<p>The answer is in the error itself. Read the entire thing, even the parts that make no sense.</p>
-
-<p>Read error messages backwards. (You shut off your brain’s interpretation &amp; are forced to read each word individually.)</p>
-
-<p>Abstraction in Ruby is the act of hiding away details.</p>
-
-<p>Beautiful code looks beautiful. Fast code is not beautiful code.</p>
-
-<p>Single Responsibility Principle (SRP). One part of a program is responsible for one thing &amp; one thing only.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
+    
+      <a class="prev" href="/posts/3">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -998,6 +1096,10 @@ You may be wondering: So what? What’s the issue with leading a life characteri
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2016/11/25/bitcoin-and-taxes/">Bitcoin and Taxes</a>
+      </li>
+    
+      <li class="post">
         <a href="/2016/10/26/world-wide-web-coin-a-thought-experiment/">WorldWideWebCoin: A Thought Experiment</a>
       </li>
     
@@ -1011,10 +1113,6 @@ You may be wondering: So what? What’s the issue with leading a life characteri
     
       <li class="post">
         <a href="/2015/09/27/how-fixed-gear-bicycling-taught-me-about-dependency-injection/">How Fixed Gear Bicycling Taught Me About Dependency Injection</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2015/06/18/using-lambdas-as-computed-hashes-in-ruby/">Using Lambdas as Computed Hashes in Ruby</a>
       </li>
     
   </ul>
