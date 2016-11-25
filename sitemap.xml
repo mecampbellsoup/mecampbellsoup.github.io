@@ -2,7 +2,7 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>http://mattcampbell.nyc/2016/11/25/bitcoin-and-taxes/</loc>
-    <lastmod>2016-11-25T00:00:00-05:00</lastmod>
+    <lastmod>2016-11-25T12:18:58-05:00</lastmod>
   </url>
   <url>
     <loc>http://mattcampbell.nyc/2016/10/26/world-wide-web-coin-a-thought-experiment/</loc>
@@ -251,5 +251,8 @@
   </url>
   <url>
     <loc>http://mattcampbell.nyc/blog/categories/investing/</loc>
+  </url>
+  <url>
+    <loc>http://mattcampbell.nyc/blog/categories/taxes/</loc>
   </url>
 </urlset>
