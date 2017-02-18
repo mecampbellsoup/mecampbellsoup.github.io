@@ -4,7 +4,7 @@
   <title><![CDATA[Thoughts & Technical Writings.]]></title>
   <link href="http://mattcampbell.nyc/atom.xml" rel="self"/>
   <link href="http://mattcampbell.nyc/"/>
-  <updated>2016-12-04T14:52:07-05:00</updated>
+  <updated>2017-02-17T22:09:48-05:00</updated>
   <id>http://mattcampbell.nyc/</id>
   <author>
     <name><![CDATA[Matt Campbell]]></name>
@@ -12,6 +12,33 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Bitcoin the Freedom Fighter]]></title>
+    <link href="http://mattcampbell.nyc/2017/02/17/bitcoin-the-freedom-fighter/"/>
+    <updated>2017-02-17T21:36:41-05:00</updated>
+    <id>http://mattcampbell.nyc/2017/02/17/bitcoin-the-freedom-fighter</id>
+    <content type="html"><![CDATA[<p>Bitcoin represents a mental stepping stone, a philosophical spring board from which I&rsquo;m better able to envision a future not controlled by the State and its numerous appendages (the FBI, CIA) and countless subsidiaries. By breaking the link between money and sovereignty (there are neither Presidents nor sovereigns printed on bitcoins), Bitcoin paves the way for a tidal wave of cultural, social, and technological innovation and progress. Since Bitcoin offers an Internet of Money with no inherent overlap with existing (i.e. fiat) monetary and financial systems, over time as adoption rises, people will be motivated to keep an ever-increasing proportion of their value in Bitcoins <strong>because it is better money.</strong> This last point is not debatable; it is not an opinion, it is not fake news, it is fact. Fiat money is not yours (aside from cash; but what portion of your value do you hold in cash?) - it is merely an IOU, a ledger balance. When you log into your online banking (assuming you live in one of the advanced economies where we have access to such financial services), the money that you see and claim to &ldquo;have in your account&rdquo; has in reality been lent out or applied to some probably more risky strategy like trading or financing of some exotic, complicated deal loaded with tantalizing fees for the bankers involved. If - or rather, when, given the history of financial crises, which seem to be part of the human economic condition - there is a run on the bank and the FDIC, you will be forced to get in line with all the rest (and probably take a massive haircut, i.e you will lose most or all of the money held in bank accounts).</p>
+
+<p>This is simply not the case with Bitcoin. You <strong><em>are</em></strong> your bank. Bitcoin is strictly a bearer asset, where possession of the private key that allows your coins to be spent is ten-tenths of the law, so to speak.</p>
+
+<blockquote><p>But, bitcoins are not very useful today. I have to wait at least 20 minutes for my transactions to be confirmed; transaction fees are too high, I pay nothing to use my credit cards. Why would <em>anyone ever use Bitcoin</em>?</p></blockquote>
+
+<p>Ask the people in Africa, South America, East Asia, and so on, where each morning you wake up and hope that your grab bag of problems created by Big Brother doesn&rsquo;t have a surprise waiting for you. That list includes things like profound corruption &amp; graft, the social strangehold wraught by nepotism at all levels of socieyt, hyperinflation of your currency that destroys your purchasing power on a daily basis, oppressive political regimes which rob &amp; pillage the people, and so on.</p>
+
+<p>If, 10 years ago before Bitcoin was invented, someone has asked you the following question, how would you have responded?</p>
+
+<blockquote><p>How long would it take to design an Internet of Money which is not controlled by any central arbiter, no government, no corporation; a freely accessible network that cuts out the banks and turns the global financial-monetary system on its head and renders it utterly useless?</p></blockquote>
+
+<p>I suspect you&rsquo;d either laugh, stare, or walk away, thinking something like, &ldquo;Dreamers, who needs &lsquo;em.&rdquo; We all would have.</p>
+
+<p>In 10 years, maybe 5, all the &ldquo;problems&rdquo; that exist today with Bitcoin will be solved. Lightning Network is coming, SegWit will be adopted, and the impact of Bitcoin&rsquo;s open, permissionsless protocol allowing for <a href="https://www.youtube.com/watch?v=n2yD1PSWBU0">exponential innovation</a> will render all the world&rsquo;s fiat currencies laughably, hopelessly obsolete with no shot of ever catching up. From there, the virtuous cycle of utility begetting adoption will kick in, and then it&rsquo;s simply game over for the incumbents.</p>
+
+<p>So, what happens to things like taxes when, in the future, everyone is storing their value in Bitcoin, where it <a href="http://www.libertylifetrail.com/2016/04/04/the-top-use-cases-for-bitcoin/">is easy to hide it from the prying eyes of the State and even your spouse</a>? It will trigger a forced revolution, a painful, messy, chaotic breaking with the past - a cultural &amp; social forest fire whie will wipe out the old guard and the incumbents, anyone standing in the way of progress, and will give the future over to the nerds and to the Individual. Power structures like governments will no longer be able to domineer over their &ldquo;subjects&rdquo; by dictating and controlling what they can (buy things at Wal-Mart, please!) and cannot (that politician is evil, and since you donated to her you must be, too!) do with your money. The State will only be able to grow as large as the exact number of Individuals which explicitly &ldquo;vote&rdquo; to support that structure, where voting is represented as financial support - buying a product from a company, paying for a service, donations, or even paying taxes if you&rsquo;d like.</p>
+
+<p>The future is bright for the Individual, but the transition will be difficult. And we really haven&rsquo;t even begun yet. Remember: <a href="http://www.kurzweilai.net/the-law-of-accelerating-returns">all exponential relationships appear to be linear at the beginning</a>. I hope I live long enough to see the revolution in full swing.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Bitcoin and Taxes (Your Favorite Topic!)]]></title>
@@ -2317,39 +2344,6 @@ end
 <p>case object  # only can check if condition applies to one object</p>
 
 <p>when condition # condition cannot be a logical operand; must use if/end if you want a unique logic applied for each &ldquo;case&rdquo;</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[An Argument (Diatribe?) for Embracing Discomfort]]></title>
-    <link href="http://mattcampbell.nyc/2013/09/29/an-argument-diatribe-for-embracing-discomfort/"/>
-    <updated>2013-09-29T16:49:00-04:00</updated>
-    <id>http://mattcampbell.nyc/2013/09/29/an-argument-diatribe-for-embracing-discomfort</id>
-    <content type="html"><![CDATA[<p>Simply put, the last 48 hours have been a whirlwind. On Monday, the 4th semeseter of Flatiron School kicked off with me riding shotgun. Today I turned my computer into a fully-customized, command-line-driven learning (and coding) machine over the course of about 12 hours. We’ve basically become proficient in using Git/GitHub as well – no small feat for those who recall trying to quickly climb the surprisingly steep Git learning curve. I want to focus this blog on the amazing things I’ll be learning, for example some of the incredible BASH functionality I’ve picked up recently.</p>
-
-<p>But before doing that, I want to share a story. The story is about a man who decided to spend 9 days in the wilderness with a small group of people, each person carrying only a pocket knife, clothing and some sleeping gear. To set the stage a bit, envision this: you’re dropped in the New Mexican mesas with no food for 7 days, no tents, and you must learn how to start fires by rubbing two sticks together (which takes a day and a half on your first try). Yea, no joke. The insane man’s inspiration for going on this trip?</p>
-
-<p><img src="http://www.zawaj.com/wp-content/uploads/2010/03/scenic-sunrays-on-forest-stream.jpg"></p>
-
-<ol>
-<li>
-<strong>Perspective.</strong> He’d never spent time outside of civilization. I believe the man had a longing to know how our ancestors used to live not even ~300 years ago.
-</li>
-<li>
-<strong>Back to Basics.</strong> Modern life has abstracted away so much of the inner machinations of… well, everything. This is true to such an extent that most people no longer have any idea how our most important tools work - think combustion engines, computers, and the Internet, just to name a few. What about a friggin’ microwave, or CERN, or the Hubble Telescope?!
-</li>
-<li>
-<strong>Embracing Discomfort as a Means for Learning.</strong> As a result of #2, relative to pre-modern man the flow of our lives has flipped completely on its head: we now enjoy long periods of relative tranquility (i.e. we aren’t freezing, starving, or in imminent danger) only very briefly interrupted with moments of discomfort (e.g. our waiter wasn’t exceptionally polite & servile).
-You may be wondering: So what? What’s the issue with leading a life characterized by an uninterrupted flow of pleasure and leisure? Isn’t that the goal of a well-functioning, capitalistic society?
-</li>
-</ol>
-
-
-<p>The problem is that when all of our problems are solved for us and the solutions are abstracted away, <em>we forget how to solve our own problems.</em> Along the way, we never learn how to consistently approach problems with an open &amp; creative mindset. Hell, we even forget how to recognize a problem in the first place! (Example: many Americans stil do not have access to the Internet. Oh, add healthcare to that list of basic things everyone should have access to today.)</p>
-
-<p>Think of every banker in New York City. Their problems consist of getting their children into the 92nd Street Y preschool; securing a bigger bonus than that other VP they work with; or choosing between the BMW X5 and the Volvo equivalent (since, ya’ know, it’s super safe and all). I don’t mean to triviliaze these people’s existence – I worked in finance for 3 years myself, whatever it’s worth. Rather, I want to point out something that I’ve been gnawing on for a long time: I think that our striving for wealth &amp; comfort (not the subsistence type, but rather the type that screams “… but I have more things than anyone else in this village!”) is utterly misplaced, and has eradicated a good chunk of our collective genius.</p>
-
-<p>Our human legacy can take whatever form we as a species strive for it to take. Like the man who nearly starved over 9 days hiking in the wilderness, let’s try to preserve &amp; even expand our perspective regarding our place on earth. Let’s interrupt the ultimately meaningless and vapid pursuit of über-comfort that constantly distracts us from connecting with one another at a deep, real level. It’s up to each one of us to ensure the human legacy – our sacred imprimitur on the universe – is a worthy one.</p>
 ]]></content>
   </entry>
   
