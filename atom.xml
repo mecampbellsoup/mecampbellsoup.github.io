@@ -4,7 +4,7 @@
   <title><![CDATA[Thoughts & Technical Writings.]]></title>
   <link href="http://mattcampbell.nyc/atom.xml" rel="self"/>
   <link href="http://mattcampbell.nyc/"/>
-  <updated>2017-03-04T15:04:41-05:00</updated>
+  <updated>2017-03-04T15:10:42-05:00</updated>
   <id>http://mattcampbell.nyc/</id>
   <author>
     <name><![CDATA[Matt Campbell]]></name>
@@ -14,10 +14,10 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Responses to Bitcoin Diversity of Use Cases and Security Models]]></title>
-    <link href="http://mattcampbell.nyc/2017/03/04/responses-to-bitcoin-diversity-of-use-cases-and-security-models/"/>
-    <updated>2017-03-04T00:00:00-05:00</updated>
-    <id>http://mattcampbell.nyc/2017/03/04/responses-to-bitcoin-diversity-of-use-cases-and-security-models</id>
+    <title type="html"><![CDATA[Responses to Bitcoin's Diversity of Use-Cases and Security Models]]></title>
+    <link href="http://mattcampbell.nyc/2017/03/04/responses-to-bitcoins-diversity-of-use-cases-and-security-models/"/>
+    <updated>2017-03-04T15:01:41-05:00</updated>
+    <id>http://mattcampbell.nyc/2017/03/04/responses-to-bitcoins-diversity-of-use-cases-and-security-models</id>
     <content type="html"><![CDATA[<p>Original post: <a href="http://bluematt.bitcoin.ninja/2017/02/28/bitcoin-trustlessness/">http://bluematt.bitcoin.ninja/2017/02/28/bitcoin-trustlessness/</a></p>
 
 <blockquote><p>While there is arguably some trust in miners required to ensure the entirety of the blockchain isn’t reorganized</p></blockquote>

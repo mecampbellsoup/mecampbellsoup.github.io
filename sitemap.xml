@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://mattcampbell.nyc/2017/03/04/responses-to-bitcoin-diversity-of-use-cases-and-security-models/</loc>
-    <lastmod>2017-03-04T00:00:00-05:00</lastmod>
+    <loc>http://mattcampbell.nyc/2017/03/04/responses-to-bitcoins-diversity-of-use-cases-and-security-models/</loc>
+    <lastmod>2017-03-04T15:01:41-05:00</lastmod>
   </url>
   <url>
     <loc>http://mattcampbell.nyc/2017/02/17/bitcoin-the-freedom-fighter/</loc>
@@ -262,5 +262,11 @@
   </url>
   <url>
     <loc>http://mattcampbell.nyc/blog/categories/taxes/</loc>
+  </url>
+  <url>
+    <loc>http://mattcampbell.nyc/posts/2/</loc>
+  </url>
+  <url>
+    <loc>http://mattcampbell.nyc/posts/3/</loc>
   </url>
 </urlset>
