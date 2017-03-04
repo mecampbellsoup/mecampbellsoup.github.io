@@ -9,7 +9,7 @@
   <meta name="author" content="Matt Campbell">
 
   
-  <meta name="description" content="programmers need to be empathic When building a web application, developers need to be empathetic - that is, they need to be really good at putting &hellip;">
+  <meta name="description" content="what is pry? When I first discovered the Pry gem, I felt like I&rsquo;d won the lottery. At long last I had found a gem library that enabled me to &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +68,92 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2013/12/07/make-debugging-with-binding-dot-pry-much-more-effective/">How to: Use binding.pry More Effectively Within Enumerables</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-12-07T16:02:00-05:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>4:02 pm</span></time>
+        
+           | <a href="/2013/12/07/make-debugging-with-binding-dot-pry-much-more-effective/#disqus_thread"
+             data-disqus-identifier="http://mattcampbell.nyc/2013/12/07/make-debugging-with-binding-dot-pry-much-more-effective/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>what is pry?</h1>
+
+<p>When I first discovered the <a href="https://github.com/pry/pry">Pry gem</a>, I felt like I&rsquo;d won the lottery. At long last I had found a gem library that enabled me to simply insert a line of code - <code>binding.pry</code> - anywhere into my codebase that would drop me into an IRB session at that exact point at runtime. It sort of feels like air dropping a team of Ruby SEALs into enemy lines in order to eliminate those dreaded bugs.</p>
+
+<h2>using pry: best practice</h2>
+
+<p>Let&rsquo;s talk about a quick example of using Pry in a Ruby file.</p>
+
+<p>Let&rsquo;s say you have an array of 10<sup>6</sup> elements, and you&rsquo;d like to iterate through each one and call a fancy method on it:</p>
+
+<p>BAD USAGE OF PRY:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="p">(</span><span class="mi">1</span><span class="o">.</span><span class="n">.</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">collatz</span> <span class="o">=</span> <span class="no">Collatz</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">collatz_length</span> <span class="o">=</span> <span class="n">collatz</span><span class="o">.</span><span class="n">length</span>
+</span><span class='line'>  <span class="n">biggest</span> <span class="o">=</span> <span class="n">collatz</span> <span class="k">if</span> <span class="n">collatz_length</span> <span class="o">&gt;</span> <span class="n">biggest_length</span>
+</span><span class='line'>  <span class="nb">binding</span><span class="o">.</span><span class="n">pry</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In this case, I was trying to solve <a href="http://projecteuler.net/problem=14">Project Euler problem #14</a>, the Collatz sequence. At some point, I wanted to refactor my <code>Collatz#length</code> method since it was taking <strong>FOREVER</strong> to get through all one-million items in the array to find the largest sequence.</p>
+
+<p>Man do I love Ruby. By adding just a few words of code, my bad (read: ineffective) use of Pry becomes extremely effective:</p>
+
+<p>GOOD USAGE OF PRY:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="p">(</span><span class="mi">1</span><span class="o">.</span><span class="n">.</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">collatz</span> <span class="o">=</span> <span class="no">Collatz</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">collatz_length</span> <span class="o">=</span> <span class="n">collatz</span><span class="o">.</span><span class="n">length</span>
+</span><span class='line'>  <span class="n">biggest</span> <span class="o">=</span> <span class="n">collatz</span> <span class="k">if</span> <span class="n">collatz_length</span> <span class="o">&gt;</span> <span class="n">biggest_length</span>
+</span><span class='line'>  <span class="nb">binding</span><span class="o">.</span><span class="n">pry</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">100</span> <span class="o">||</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1000</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>By adding in this conditional Pry debugger, I&rsquo;m able to ensure that - as I&rsquo;m iterating through a gigantic array of a million items - I&rsquo;m getting the expected <code>Collatz</code> class behavior along the way at or around the one-hundredth &amp; one-thousandth elements, respectively.</p>
+
+<h2>conclusion</h2>
+
+<p>While this &ldquo;pro tip&rdquo; may have been fairly obvious to many of you Rubyists from the get-go, it didn&rsquo;t occur to me that I could treat <code>binding.pry</code> just like any other method call in Ruby&hellip; allowing me to wrap that method call into some conditional logic at runtime.</p>
+
+<p>Thanks for reading!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -991,105 +1077,6 @@ end
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/2013/09/29/under-the-hood-of-rubys-interpreter-a-straightforward-example/">Under the Hood of Ruby&#8217;s Interpreter: A Straightforward Example</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-29T16:49:00-04:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>4:49 pm</span></time>
-        
-           | <a href="/2013/09/29/under-the-hood-of-rubys-interpreter-a-straightforward-example/#disqus_thread"
-             data-disqus-identifier="http://mattcampbell.nyc/2013/09/29/under-the-hood-of-rubys-interpreter-a-straightforward-example/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Flatiron, Day 4:</p>
-
-<p>First, some things Avi said today:</p>
-
-<blockquote>
-
-Iteration is about going over a collection of objects. Enumeration is the same thing but you’re given the objects.<br/>
-
-object.method… the dot is called dot notation. It’s how we send messages to objects.<br/>
-
-.. (read: ‘dot dot’) is a literal constructor for Range.<br/>
-
-You need to keep “rf -rf /” handy. You know, in case of those Terminator situations.<br/>
-
-Comptuer languages fall into 2 categories: those designed for human problems, and those designed for computer problems. JavaScript was designed to be read quickly by web browsers (i.e. a computer problem).<br/>
-
-Computers will get faster, but people won’t get any smarter.
-</blockquote>
-
-
-<p>Now, on to the post subject&hellip; let&rsquo;s walk stepwise through a (very) simple program in Ruby:</p>
-
-<p>Step 0:</p>
-
-<pre><code>x = 1
-if x == 1
-    puts "x is equal to 1!"
-end
-</code></pre>
-
-<p>Step 1:</p>
-
-<pre><code>if 1 == 1
-    puts "x is equal to 1!"
-end
-</code></pre>
-
-<p>Step 2:</p>
-
-<pre><code>if true
-    puts "x is equal to 1!"
-end
-</code></pre>
-
-<p>Step 3:</p>
-
-<pre><code>puts "x is equal to 1!"  #=&gt; "x is equal to 1!"
-</code></pre>
-
-<p>FizzBuzz ultimate solution:</p>
-
-<pre><code>def fizzbuzz (i)
-    [("fizz" if i % 3 == 0), ("buzz" if i % 5 == 0)].join
-end
-</code></pre>
-
-<p>case vs. if</p>
-
-<pre><code>if x == 1
-    puts "x wins"
-elsif o == 1
-    puts "o wins"
-end
-</code></pre>
-
-<p>case object  # only can check if condition applies to one object</p>
-
-<p>when condition # condition cannot be a logical operand; must use if/end if you want a unique logic applied for each &ldquo;case&rdquo;</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/3">&larr; Older</a>
@@ -1116,6 +1103,10 @@ end
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2017/03/04/responses-to-bitcoin-diversity-of-use-cases-and-security-models/">Responses to Bitcoin Diversity of Use Cases and Security Models</a>
+      </li>
+    
+      <li class="post">
         <a href="/2017/02/17/bitcoin-the-freedom-fighter/">Bitcoin the Freedom Fighter</a>
       </li>
     
@@ -1129,10 +1120,6 @@ end
     
       <li class="post">
         <a href="/2016/02/17/private-methods-can-save-some-tdd-headache/">Private Methods Can Save Some TDD Headache</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2015/12/05/extending-an-instance-to-dynamically-include/">Extend an Instance to Dynamically Include</a>
       </li>
     
   </ul>

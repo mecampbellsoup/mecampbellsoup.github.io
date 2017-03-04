@@ -1,0 +1,53 @@
+<p>Original post: <a href="http://bluematt.bitcoin.ninja/2017/02/28/bitcoin-trustlessness/">http://bluematt.bitcoin.ninja/2017/02/28/bitcoin-trustlessness/</a></p>
+
+<blockquote><p>While there is arguably some trust in miners required to ensure the entirety of the blockchain isn’t reorganized</p></blockquote>
+
+<p>Why are you singling out miners? The 51% attack vector is neither exclusive to nor more likely to be pursued by miners. Anyone can incur the PoW cost to mine an alternative version of history (alternative blockchain) and propagate those blocks to nodes. In fact, I would argue that miners are less likely than non-miners to pursue a 51% attack since they are in an extremely competitive business.</p>
+
+<blockquote><p>Of course to ensure you aren’t trusting miners and pools to secure their operations perfectly</p></blockquote>
+
+<p>What does this mean? If your point is that one should wait for <code>n</code> confirmations before assuming your transaction is valid, that is incorrect. Miners have no role in validating transactions (full nodes do that); they just choose which already-validated transactions should be put in the next block. If they try to put invalid transactions in a block, then that block will be rejected and their mining reward foregone.</p>
+
+<blockquote><p>Clearly a payment system which requires a week or more for payment to clear would not be able to compete with much faster alternatives.</p></blockquote>
+
+<p>This is not an apples to apples comparison. Many people seem to want to compare Bitcoin to Visa, but that is a trap. After SegWit is activated, Bitcoin will <em>enable</em> a trustless, instantaneous and secure peer-to-peer payment network like Lightning, but Bitcoin itself will never be that payment network by design. Acheiving decentralized consensus via PoW and fully-validating nodes requires a massive amount of redundant messaging to propagate throughout the network, which is not a design that lends itself to high throughput for the network at large.</p>
+
+<blockquote><p>Many investors who care strongly about Bitcoin’s scarcity properties are happy to trust centralized third-parties in the form of Bitcoin exchanges and “Bitcoin banks”.</p></blockquote>
+
+<p>That trust is misplaced. They should not keep coins at an exchange (see: all the exchange hacks) and should certainly not get anywhere near something called a &ldquo;Bitcoin bank&rdquo; since in Bitcoin users <em>are</em> their own bank. Bitcoin is all about financial disintermediation.</p>
+
+<blockquote><p>Many Bitcoin users who want fast payments for medium- to small-value transactions are happy to trust miners, in sufficient measure.</p></blockquote>
+
+<p>In what way are they trusting miners? Again, miners do not validate transactions, they just decide which transactions to put in the next block.</p>
+
+<blockquote><p>Such trust relationships, as long as users aren’t forced into them (either by explicit requirement or sufficiently strong financial incentive), can provide significantly better user experience through faster, cheaper, and more user-friendly transactions.</p></blockquote>
+
+<p>Aren&rsquo;t you saying that users <em>choose</em> such a trusted relationship? One would think they do this because of a strong financial incentive, e.g. 0 confirmations at one time was considering a value-add feature for payment processors to attract users, but the payment processor would have to trust the user to not double spend. Can you give an example of what you&rsquo;re describing in this paragraph?</p>
+
+<blockquote><p> (eg trusting miners or developers to keep the 21 million Bitcoin limit)</p></blockquote>
+
+<p>Neither of these make sense to me. Developers do not own the monopology on total number of Bitcoins in circulation, clearly. What does &lsquo;trusting miners&rsquo; mean?</p>
+
+<blockquote><p>Bitcoin must only change by consensus of its ever-growing userbase.</p></blockquote>
+
+<p>Bitcoin <em>is</em> consensus, and that consensus is determined by the software being run primarily by fully-validating nodes, and additionaly to some extent by miners &amp; wallets/clients which relay new transactions to the network. Bitcoin does not care about whether or not people agree or not.</p>
+
+<blockquote><p>Putting all of this together we see a picture of where Bitcoin must evolve if it wants to retain its trustless properties while providing a usable system for its many, vastly divergent, use-cases.</p></blockquote>
+
+<p>That step in the evolutino is already here and it&rsquo;s called SegWit. So, run a SegWit full node and help us move towards that vision.</p>
+
+<blockquote><p>or even a trusted “Bitcoin bank”.</p></blockquote>
+
+<p>This is not one of the divergent use cases you mention that are relevant or specific to Bitcoin. If you want to trust a 3rd party, you don&rsquo;t need (and shouldn&rsquo;t use) Bitcoin.</p>
+
+<blockquote><p>Users which do not even want to trust miners should be free to do so, placing their transactions on the blockchain and waiting weeks to ensure even future hashpower attacks will not reverse them</p></blockquote>
+
+<p>What? I&rsquo;m lost. By &ldquo;placing their transactions on the blockchain&rdquo; are you talking about running one&rsquo;s own mining equipment? And, again, you aren&rsquo;t trusting miners. Miners expend energy to perform proof-of-work; an attacker trying to double spend needs to <em>redo</em> all of the work beteween (a) the block that includes the double spend transaction(s), and (b) the most recent block in the chain.</p>
+
+<blockquote><p>the community of Bitcoin users must continue to enforce that changes happen only through consensus among the ever-broadening group</p></blockquote>
+
+<p>What community? Whom are you addressing? Bitcoin is about <em>software running on machines</em>, not people&rsquo;s opinions about what is good or bad for Bitcoin.</p>
+
+<blockquote><p>Critically, this means that all changes which do not harm the utility of Bitcoin for any of its many use-cases, while helping others, should be made, wherever possible.</p></blockquote>
+
+<p>This is the exact thing people are disagreeing about currently vis-a-vis SegWit. And since SegWit is an opt-in backwards compatible soft fork that preserves the trustless, decentralized model, it should be activated.</p>
